@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Flip Finder - eBay Authorization</title><style>body{font-family:Arial,sans-serif;max-width:760px;margin:3rem auto;padding:0 1rem;line-height:1.6;color:#222}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f4f4;padding:1rem;border-radius:8px}button{padding:.65rem 1rem;cursor:pointer}</style></head><body>
+<h1>eBay authorization response</h1>
+<p>If you approved Flip Finder in eBay's Sandbox, an authorization code may appear below. This is a temporary code, not your App ID or Cert ID. Copy it only into your local Flip Finder app when instructed. Do not post it publicly or send it to anyone.</p>
+<p id="status">Checking the response…</p><pre id="code" hidden></pre><button id="copy" hidden>Copy authorization code</button>
+<script>
+const p=new URLSearchParams(window.location.search); const code=p.get('code'); const error=p.get('error'); const status=document.getElementById('status'); const box=document.getElementById('code'); const btn=document.getElementById('copy');
+if(code){status.textContent='Authorization code received. Copy it into Flip Finder to finish the local test.'; box.textContent=code; box.hidden=false; btn.hidden=false;} else if(error){status.textContent='eBay returned an authorization error: '+error;} else {status.textContent='No authorization code is present in this URL. Start the eBay authorization flow from Flip Finder, then return here after approving access.';}
+btn.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(code);btn.textContent='Copied';}catch(e){status.textContent='Clipboard access was blocked. Select and copy the code shown above manually.';}});
+</script>
+</body></html>
