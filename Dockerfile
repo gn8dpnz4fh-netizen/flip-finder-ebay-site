@@ -1,13 +1,6 @@
 
-FROM python:3.12-slim
+FROM nginx:alpine
 
-WORKDIR /app
+COPY index.html /usr/share/nginx/html/index.html
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-ENV PORT=10000
-
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT ebay_notifications:app"]
+EXPOSE 80
