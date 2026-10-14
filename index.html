@@ -1,176 +1,461 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#101827">
 <title>Flip Finder</title>
 <style>
-:root{font-family:Arial,sans-serif;color:#f4f7fb;background:#101827}
-*{box-sizing:border-box}
-body{margin:0;max-width:700px;margin-inline:auto;padding:20px 16px 40px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-h1{font-size:27px;margin:0}
-.logo{font-size:30px}
-.tag{color:#aebbd0;margin:8px 0 24px}
-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
-button,.button{border:0;border-radius:12px;padding:13px 10px;font-size:15px;font-weight:700;cursor:pointer}
-nav button{background:#26344b;color:#fff}
-nav button.active,.primary{background:#58d6a3;color:#10251d}
-.panel{background:#1b2739;border:1px solid #34445c;border-radius:18px;padding:18px;margin-bottom:16px}
-h2{font-size:19px;margin:0 0 12px}
-p{color:#bac7d9;line-height:1.5}
-label{display:block;margin:12px 0 6px;color:#dbe5f3}
-input{width:100%;padding:13px;border-radius:10px;border:1px solid #52627a;background:#111b2a;color:white;font-size:16px}
-button.full{width:100%;margin-top:12px}
-.secondary{background:#34445c;color:white}
-.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:#111b2a;padding:14px;border-radius:12px}
-.stat small{color:#aebbd0}
-.stat strong{display:block;font-size:23px;margin-top:7px;overflow-wrap:anywhere}
-.item{border-top:1px solid #34445c;padding:12px 0}
-.item strong{display:block}
-.muted{font-size:13px;color:#aebbd0}
-[hidden]{display:none!important}
-footer{text-align:center;color:#8f9db2;font-size:12px;padding:12px}
+:root {
+  color-scheme: dark;
+  --bg: #101827;
+  --panel: #1b2638;
+  --green: #36d399;
+  --muted: #a8b5c7;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: #f8fafc;
+  font-family: Arial, sans-serif;
+}
+header {
+  padding: 22px 18px;
+  background: #0b1220;
+  border-bottom: 1px solid #29364a;
+  text-align: center;
+}
+header h1 { margin: 0; font-size: 27px; }
+header p { color: var(--muted); margin-bottom: 0; }
+main {
+  width: min(100% - 24px, 720px);
+  margin: 20px auto 45px;
+}
+.card {
+  background: var(--panel);
+  border: 1px solid #344258;
+  border-radius: 16px;
+  padding: 17px;
+  margin-bottom: 16px;
+}
+h2 { margin: 0 0 14px; font-size: 20px; }
+button, input {
+  font: inherit;
+  border-radius: 10px;
+}
+button {
+  cursor: pointer;
+  padding: 13px 15px;
+  border: 0;
+  font-weight: bold;
+  background: var(--green);
+  color: #09251c;
+}
+button:disabled { opacity: .5; cursor: default; }
+button.secondary {
+  background: #344258;
+  color: white;
+}
+button.danger {
+  background: #632e3a;
+  color: white;
+}
+input {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  margin: 7px 0 13px;
+  background: #0f1726;
+  border: 1px solid #46556c;
+  color: white;
+}
+label { color: var(--muted); font-size: 14px; }
+.row { display: flex; gap: 9px; flex-wrap: wrap; }
+.row button { flex: 1; }
+video, #preview {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  background: #070b12;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+#preview { display: none; }
+#cameraStatus, .muted { color: var(--muted); font-size: 14px; }
+.stat {
+  background: #0f1726;
+  padding: 15px;
+  border-radius: 12px;
+  flex: 1;
+  min-width: 120px;
+}
+.stat strong { display: block; font-size: 24px; margin-top: 7px; }
+.flip {
+  border-top: 1px solid #344258;
+  padding: 13px 0;
+}
+.flip:first-child { border-top: 0; }
+.flip h3 { margin: 0 0 6px; }
+a { color: var(--green); }
+footer { text-align: center; padding: 20px; color: var(--muted); }
 </style>
 </head>
 <body>
 <header>
-  <div><h1>Flip Finder</h1><div class="muted">Find it. Price it. Flip it.</div></div>
-  <div class="logo">🔎</div>
+  <h1>🔎 Flip Finder</h1>
+  <p>Scan it. Price it. Flip it.</p>
 </header>
-<p class="tag">Your mobile resale workspace.</p>
 
-<nav>
-  <button class="active" data-page="scan">Scan</button>
-  <button data-page="saved">Saved flips</button>
-  <button data-page="profit">Profit</button>
-</nav>
+<main>
+  <section class="card">
+    <h2>📸 Scan an Item</h2>
+    <p class="muted">Open the camera and take a picture of something you might resell.</p>
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="canvas" hidden></canvas>
+    <img id="preview" alt="Your scanned item">
+    <div id="cameraStatus" role="status">Requesting camera access…</div>
+    <div class="row" style="margin-top:12px">
+      <button id="startCamera">Open Camera</button>
+      <button id="capture" disabled>Take Picture</button>
+      <button id="retake" class="secondary" hidden>Retake</button>
+    </div>
+    <label for="photoUpload" style="display:block;margin-top:15px">
+      Or choose a picture
+    </label>
+    <input id="photoUpload" type="file" accept="image/*" capture="environment">
+  </section>
 
-<section id="scan" class="panel">
-  <h2>Find an item</h2>
-  <p>Take a photo for reference or enter an item name. This starter screen does not yet identify photos or retrieve live market prices.</p>
-  <label for="photo">Take or choose a photo</label>
-  <input id="photo" type="file" accept="image/*" capture="environment">
-  <div id="photoStatus" class="muted"></div>
-  <label for="itemName">Item name</label>
-  <input id="itemName" placeholder="e.g. vintage baseball cards">
-  <label for="cost">Your purchase cost ($)</label>
-  <input id="cost" type="number" min="0" step="0.01" placeholder="0.00">
-  <label for="price">Expected selling price ($)</label>
-  <input id="price" type="number" min="0" step="0.01" placeholder="0.00">
-  <button class="primary full" id="calculate">Calculate profit</button>
-  <button class="secondary full" id="save">Save this flip</button>
-  <div class="statgrid" style="margin-top:14px">
-    <div class="stat"><small>Estimated profit</small><strong id="profitResult">$0.00</strong></div>
-    <div class="stat"><small>Return on cost</small><strong id="roiResult">0%</strong></div>
-  </div>
-  <p class="muted">These estimates exclude selling fees, shipping, taxes, and other expenses.</p>
-</section>
+  <section class="card">
+    <h2>💰 Calculate Your Flip</h2>
+    <label for="itemName">Item name</label>
+    <input id="itemName" placeholder="e.g. Vintage watch">
 
-<section id="saved" class="panel" hidden>
-  <h2>Saved flips</h2>
-  <div id="savedList"><p>No flips saved yet.</p></div>
-</section>
+    <div class="row">
+      <div style="flex:1;min-width:120px">
+        <label for="cost">Purchase cost ($)</label>
+        <input id="cost" type="number" min="0" step=".01" value="0">
+      </div>
+      <div style="flex:1;min-width:120px">
+        <label for="value">Expected selling price ($)</label>
+        <input id="value" type="number" min="0" step=".01" value="0">
+      </div>
+    </div>
 
-<section id="profit" class="panel" hidden>
-  <h2>Profit calculator</h2>
-  <p>Enter your item details in Scan to calculate your estimated profit and return on cost.</p>
-  <div class="statgrid">
-    <div class="stat"><small>Purchase cost</small><strong id="summaryCost">$0.00</strong></div>
-    <div class="stat"><small>Selling price</small><strong id="summaryPrice">$0.00</strong></div>
-    <div class="stat"><small>Estimated profit</small><strong id="summaryProfit">$0.00</strong></div>
-    <div class="stat"><small>Return on cost</small><strong id="summaryROI">0%</strong></div>
-  </div>
-</section>
+    <label for="fees">Estimated selling fees ($)</label>
+    <input id="fees" type="number" min="0" step=".01" value="0">
 
-<footer>Flip Finder · <a href="privacy.html" style="color:#8fcbff">Privacy Policy</a></footer>
+    <div class="row">
+      <div class="stat">
+        <span class="muted">Estimated profit</span>
+        <strong id="profit">$0.00</strong>
+      </div>
+      <div class="stat">
+        <span class="muted">ROI</span>
+        <strong id="roi">0%</strong>
+      </div>
+    </div>
+    <p class="muted">Profit = selling price − cost − fees. Enter your own price estimates for now.</p>
+    <button id="saveFlip" style="width:100%">Save This Flip</button>
+  </section>
+
+  <section class="card">
+    <h2>📦 My Saved Flips</h2>
+    <div class="row">
+      <div class="stat">
+        <span class="muted">Items saved</span>
+        <strong id="totalItems">0</strong>
+      </div>
+      <div class="stat">
+        <span class="muted">Potential profit</span>
+        <strong id="totalProfit">$0.00</strong>
+      </div>
+    </div>
+    <div id="savedList" style="margin-top:14px"></div>
+  </section>
+
+  <section class="card">
+    <h2>🛒 Selling Resources</h2>
+    <p>Search for comparable items and check recent selling prices before buying.</p>
+    <div class="row">
+      <button id="searchEbay">Search eBay</button>
+      <button id="searchGoogle" class="secondary">Search Google</button>
+    </div>
+    <p class="muted">These buttons search listings. They do not yet retrieve verified sold-price data automatically.</p>
+  </section>
+</main>
+
+<footer>
+  Flip Finder · Find it. Value it. Flip it.
+  <p><a href="https://flip-finder-ebay-site.onrender.com/">Home</a></p>
+</footer>
 
 <script>
-const $ = id => document.getElementById(id);
-let flips = [];
-try { flips = JSON.parse(localStorage.getItem("flipfinder_mobile_flips") || "[]"); } catch (_) {}
+(() => {
+  const $ = id => document.getElementById(id);
+  let stream = null;
+  let photoData = "";
 
-function money(value) {
-  return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(value);
-}
-function values() {
-  const cost = Math.max(0, Number($("cost").value) || 0);
-  const price = Math.max(0, Number($("price").value) || 0);
-  const profit = price - cost;
-  const roi = cost > 0 ? profit / cost * 100 : 0;
-  $("profitResult").textContent = money(profit);
-  $("roiResult").textContent = roi.toFixed(1) + "%";
-  $("summaryCost").textContent = money(cost);
-  $("summaryPrice").textContent = money(price);
-  $("summaryProfit").textContent = money(profit);
-  $("summaryROI").textContent = roi.toFixed(1) + "%";
-  return {cost,price,profit,roi};
-}
-["cost","price"].forEach(id => $(id).addEventListener("input",values));
-$("calculate").addEventListener("click",values);
-$("photo").addEventListener("change", () => {
-  $("photoStatus").textContent = $("photo").files.length
-    ? "Photo selected. Automatic image identification is not connected yet."
-    : "";
-});
-function renderSaved() {
-  const list = $("savedList");
-  list.replaceChildren();
-  if (!flips.length) {
-    list.textContent = "No flips saved yet.";
-    return;
+  function money(n) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency", currency: "USD"
+    }).format(Number(n) || 0);
   }
-  flips.forEach((flip,index) => {
-    const item = document.createElement("div");
-    item.className = "item";
-    const title = document.createElement("strong");
-    title.textContent = flip.name || "Unnamed item";
-    const detail = document.createElement("p");
-    detail.textContent = "Cost " + money(flip.cost) + " · Sale " + money(flip.price) + " · Estimated profit " + money(flip.profit);
-    const remove = document.createElement("button");
-    remove.className = "secondary";
-    remove.textContent = "Remove";
-    remove.addEventListener("click",() => {
-      flips.splice(index,1);
-      persist();
+
+  function calculate() {
+    const cost = Math.max(0, Number($("cost").value) || 0);
+    const value = Math.max(0, Number($("value").value) || 0);
+    const fees = Math.max(0, Number($("fees").value) || 0);
+    const profit = value - cost - fees;
+    const roi = cost > 0 ? profit / cost * 100 : 0;
+
+    $("profit").textContent = money(profit);
+    $("roi").textContent = roi.toFixed(1) + "%";
+    return { cost, value, fees, profit, roi };
+  }
+
+  ["cost", "value", "fees"].forEach(id => {
+    $(id).addEventListener("input", calculate);
+  });
+
+  async function startCamera() {
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+      $("cameraStatus").textContent =
+        "Camera access isn't available here. Use Choose a picture below.";
+      $("photoUpload").click();
+      return;
+    }
+
+    try {
+      if (stream) stream.getTracks().forEach(track => track.stop());
+
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: { ideal: "environment" } }
+      });
+
+      $("video").srcObject = stream;
+      $("video").style.display = "block";
+      $("preview").style.display = "none";
+      $("capture").disabled = false;
+      $("retake").hidden = true;
+      $("cameraStatus").textContent = "Camera ready. Point it at your item.";
+      await $("video").play().catch(() => {});
+    } catch (err) {
+      $("cameraStatus").textContent =
+        "Camera permission was denied or unavailable. Tap Open Camera or choose a picture.";
+      $("capture").disabled = true;
+    }
+  }
+
+  $("startCamera").addEventListener("click", startCamera);
+
+  $("capture").addEventListener("click", () => {
+    const video = $("video");
+    if (!video.videoWidth) {
+      $("cameraStatus").textContent = "Wait for the camera to finish starting.";
+      return;
+    }
+
+    const canvas = $("canvas");
+    const scale = Math.min(1, 1400 / video.videoWidth);
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
+    canvas.getContext("2d").drawImage(
+      video, 0, 0, canvas.width, canvas.height
+    );
+
+    photoData = canvas.toDataURL("image/jpeg", .82);
+    $("preview").src = photoData;
+    $("preview").style.display = "block";
+    video.style.display = "none";
+    $("retake").hidden = false;
+    $("cameraStatus").textContent =
+      "Picture captured. Enter the item's name and estimated prices below.";
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+    }
+  });
+
+  $("retake").addEventListener("click", startCamera);
+
+  $("photoUpload").addEventListener("change", event => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      photoData = reader.result;
+      $("preview").src = photoData;
+      $("preview").style.display = "block";
+      $("video").style.display = "none";
+      $("retake").hidden = false;
+      $("cameraStatus").textContent =
+        "Picture loaded. Enter the item's name and estimated prices below.";
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function getSaved() {
+    try {
+      return JSON.parse(localStorage.getItem("flipfinder_items") || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function renderSaved() {
+    const items = getSaved();
+    $("totalItems").textContent = items.length;
+    $("totalProfit").textContent = money(
+      items.filter(item => !item.sold)
+        .reduce((sum, item) => sum + item.profit, 0)
+    );
+
+    const list = $("savedList");
+    list.replaceChildren();
+
+    if (!items.length) {
+      list.textContent = "No saved flips yet. Scan an item to get started.";
+      list.className = "muted";
+      return;
+    }
+    list.className = "";
+
+    items.slice().reverse().forEach(item => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "flip";
+
+      const title = document.createElement("h3");
+      title.textContent = item.name;
+      wrapper.appendChild(title);
+
+      const details = document.createElement("p");
+      details.className = "muted";
+      details.textContent =
+        "Cost " + money(item.cost) +
+        " · Sale " + money(item.value) +
+        " · Profit " + money(item.profit) +
+        (item.sold ? " · SOLD" : "");
+      wrapper.appendChild(details);
+
+      if (item.photo) {
+        const image = document.createElement("img");
+        image.src = item.photo;
+        image.alt = item.name;
+        image.style.cssText =
+          "width:100%;max-height:180px;object-fit:contain;border-radius:8px";
+        wrapper.appendChild(image);
+      }
+
+      const actions = document.createElement("div");
+      actions.className = "row";
+
+      if (!item.sold) {
+        const sold = document.createElement("button");
+        sold.textContent = "Mark Sold";
+        sold.addEventListener("click", () => {
+          updateItem(item.id, { sold: true });
+        });
+        actions.appendChild(sold);
+      }
+
+      const remove = document.createElement("button");
+      remove.textContent = "Delete";
+      remove.className = "danger";
+      remove.addEventListener("click", () => {
+        if (confirm("Delete this saved flip?")) {
+          localStorage.setItem("flipfinder_items", JSON.stringify(
+            getSaved().filter(x => x.id !== item.id)
+          ));
+          renderSaved();
+        }
+      });
+      actions.appendChild(remove);
+      wrapper.appendChild(actions);
+      list.appendChild(wrapper);
     });
-    item.append(title,detail,remove);
-    list.append(item);
-  });
-}
-function persist() {
-  try {
-    localStorage.setItem("flipfinder_mobile_flips",JSON.stringify(flips));
+  }
+
+  function updateItem(id, changes) {
+    const items = getSaved().map(item =>
+      item.id === id ? { ...item, ...changes } : item
+    );
+    localStorage.setItem("flipfinder_items", JSON.stringify(items));
     renderSaved();
-  } catch (_) {
-    alert("Unable to save on this device. Check browser storage settings.");
   }
-}
-$("save").addEventListener("click",() => {
-  const name = $("itemName").value.trim();
-  if (!name) {
-    alert("Enter an item name before saving.");
-    $("itemName").focus();
-    return;
-  }
-  const v = values();
-  flips.unshift({name,cost:v.cost,price:v.price,profit:v.profit,sold:false});
-  persist();
-  alert("Flip saved on this device.");
-});
-document.querySelectorAll("nav button").forEach(button => {
-  button.addEventListener("click",() => {
-    document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active",b===button));
-    ["scan","saved","profit"].forEach(id => $(id).hidden = id !== button.dataset.page);
-    if (button.dataset.page === "saved") renderSaved();
-    values();
+
+  $("saveFlip").addEventListener("click", () => {
+    const name = $("itemName").value.trim();
+    if (!name) {
+      alert("Enter an item name before saving.");
+      $("itemName").focus();
+      return;
+    }
+
+    const numbers = calculate();
+    const item = {
+      id: Date.now().toString(),
+      name,
+      ...numbers,
+      photo: photoData,
+      sold: false,
+      created: new Date().toISOString()
+    };
+
+    try {
+      const items = getSaved();
+      items.push(item);
+      localStorage.setItem("flipfinder_items", JSON.stringify(items));
+      renderSaved();
+      alert("Flip saved!");
+    } catch {
+      alert("Storage is full. Try using a smaller photo and saving again.");
+      return;
+    }
   });
-});
-renderSaved();
-values();
+
+  function searchListings(engine) {
+    const query = $("itemName").value.trim();
+    if (!query) {
+      alert("Enter an item name first.");
+      $("itemName").focus();
+      return;
+    }
+    const url = engine === "ebay"
+      ? "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(query)
+      : "https://www.google.com/search?q=" + encodeURIComponent(query + " resale price");
+    window.open(url, "_blank", "noopener");
+  }
+
+  $("searchEbay").addEventListener("click", () => searchListings("ebay"));
+  $("searchGoogle").addEventListener("click", () => searchListings("google"));
+
+  renderSaved();
+  calculate();
+
+  // Request camera access when the page loads.
+  // Browsers may require permission or a user tap first.
+  if (location.protocol === "https:" ||
+      location.hostname === "localhost") {
+    startCamera();
+  } else {
+    $("cameraStatus").textContent =
+      "Open this website over HTTPS to use the camera.";
+  }
+
+  window.addEventListener("pagehide", () => {
+    if (stream) stream.getTracks().forEach(track => track.stop());
+  });
+})();
 </script>
 </body>
 </html>
