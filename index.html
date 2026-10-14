@@ -1,7 +1,176 @@
+
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Flip Finder</title><style>body{font-family:Arial,sans-serif;max-width:760px;margin:3rem auto;padding:0 1rem;line-height:1.6;color:#222}a{color:#0759a5}</style></head><body>
-<h1>Flip Finder</h1>
-<p>Flip Finder helps users evaluate resale opportunities and manage item listings.</p>
-<p>This simple site supports eBay developer testing for the Flip Finder desktop application.</p>
-<p><a href="privacy.html">Privacy Policy</a></p>
-</body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Flip Finder</title>
+<style>
+:root{font-family:Arial,sans-serif;color:#f4f7fb;background:#101827}
+*{box-sizing:border-box}
+body{margin:0;max-width:700px;margin-inline:auto;padding:20px 16px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font-size:27px;margin:0}
+.logo{font-size:30px}
+.tag{color:#aebbd0;margin:8px 0 24px}
+nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+button,.button{border:0;border-radius:12px;padding:13px 10px;font-size:15px;font-weight:700;cursor:pointer}
+nav button{background:#26344b;color:#fff}
+nav button.active,.primary{background:#58d6a3;color:#10251d}
+.panel{background:#1b2739;border:1px solid #34445c;border-radius:18px;padding:18px;margin-bottom:16px}
+h2{font-size:19px;margin:0 0 12px}
+p{color:#bac7d9;line-height:1.5}
+label{display:block;margin:12px 0 6px;color:#dbe5f3}
+input{width:100%;padding:13px;border-radius:10px;border:1px solid #52627a;background:#111b2a;color:white;font-size:16px}
+button.full{width:100%;margin-top:12px}
+.secondary{background:#34445c;color:white}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#111b2a;padding:14px;border-radius:12px}
+.stat small{color:#aebbd0}
+.stat strong{display:block;font-size:23px;margin-top:7px;overflow-wrap:anywhere}
+.item{border-top:1px solid #34445c;padding:12px 0}
+.item strong{display:block}
+.muted{font-size:13px;color:#aebbd0}
+[hidden]{display:none!important}
+footer{text-align:center;color:#8f9db2;font-size:12px;padding:12px}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Flip Finder</h1><div class="muted">Find it. Price it. Flip it.</div></div>
+  <div class="logo">🔎</div>
+</header>
+<p class="tag">Your mobile resale workspace.</p>
+
+<nav>
+  <button class="active" data-page="scan">Scan</button>
+  <button data-page="saved">Saved flips</button>
+  <button data-page="profit">Profit</button>
+</nav>
+
+<section id="scan" class="panel">
+  <h2>Find an item</h2>
+  <p>Take a photo for reference or enter an item name. This starter screen does not yet identify photos or retrieve live market prices.</p>
+  <label for="photo">Take or choose a photo</label>
+  <input id="photo" type="file" accept="image/*" capture="environment">
+  <div id="photoStatus" class="muted"></div>
+  <label for="itemName">Item name</label>
+  <input id="itemName" placeholder="e.g. vintage baseball cards">
+  <label for="cost">Your purchase cost ($)</label>
+  <input id="cost" type="number" min="0" step="0.01" placeholder="0.00">
+  <label for="price">Expected selling price ($)</label>
+  <input id="price" type="number" min="0" step="0.01" placeholder="0.00">
+  <button class="primary full" id="calculate">Calculate profit</button>
+  <button class="secondary full" id="save">Save this flip</button>
+  <div class="statgrid" style="margin-top:14px">
+    <div class="stat"><small>Estimated profit</small><strong id="profitResult">$0.00</strong></div>
+    <div class="stat"><small>Return on cost</small><strong id="roiResult">0%</strong></div>
+  </div>
+  <p class="muted">These estimates exclude selling fees, shipping, taxes, and other expenses.</p>
+</section>
+
+<section id="saved" class="panel" hidden>
+  <h2>Saved flips</h2>
+  <div id="savedList"><p>No flips saved yet.</p></div>
+</section>
+
+<section id="profit" class="panel" hidden>
+  <h2>Profit calculator</h2>
+  <p>Enter your item details in Scan to calculate your estimated profit and return on cost.</p>
+  <div class="statgrid">
+    <div class="stat"><small>Purchase cost</small><strong id="summaryCost">$0.00</strong></div>
+    <div class="stat"><small>Selling price</small><strong id="summaryPrice">$0.00</strong></div>
+    <div class="stat"><small>Estimated profit</small><strong id="summaryProfit">$0.00</strong></div>
+    <div class="stat"><small>Return on cost</small><strong id="summaryROI">0%</strong></div>
+  </div>
+</section>
+
+<footer>Flip Finder · <a href="privacy.html" style="color:#8fcbff">Privacy Policy</a></footer>
+
+<script>
+const $ = id => document.getElementById(id);
+let flips = [];
+try { flips = JSON.parse(localStorage.getItem("flipfinder_mobile_flips") || "[]"); } catch (_) {}
+
+function money(value) {
+  return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(value);
+}
+function values() {
+  const cost = Math.max(0, Number($("cost").value) || 0);
+  const price = Math.max(0, Number($("price").value) || 0);
+  const profit = price - cost;
+  const roi = cost > 0 ? profit / cost * 100 : 0;
+  $("profitResult").textContent = money(profit);
+  $("roiResult").textContent = roi.toFixed(1) + "%";
+  $("summaryCost").textContent = money(cost);
+  $("summaryPrice").textContent = money(price);
+  $("summaryProfit").textContent = money(profit);
+  $("summaryROI").textContent = roi.toFixed(1) + "%";
+  return {cost,price,profit,roi};
+}
+["cost","price"].forEach(id => $(id).addEventListener("input",values));
+$("calculate").addEventListener("click",values);
+$("photo").addEventListener("change", () => {
+  $("photoStatus").textContent = $("photo").files.length
+    ? "Photo selected. Automatic image identification is not connected yet."
+    : "";
+});
+function renderSaved() {
+  const list = $("savedList");
+  list.replaceChildren();
+  if (!flips.length) {
+    list.textContent = "No flips saved yet.";
+    return;
+  }
+  flips.forEach((flip,index) => {
+    const item = document.createElement("div");
+    item.className = "item";
+    const title = document.createElement("strong");
+    title.textContent = flip.name || "Unnamed item";
+    const detail = document.createElement("p");
+    detail.textContent = "Cost " + money(flip.cost) + " · Sale " + money(flip.price) + " · Estimated profit " + money(flip.profit);
+    const remove = document.createElement("button");
+    remove.className = "secondary";
+    remove.textContent = "Remove";
+    remove.addEventListener("click",() => {
+      flips.splice(index,1);
+      persist();
+    });
+    item.append(title,detail,remove);
+    list.append(item);
+  });
+}
+function persist() {
+  try {
+    localStorage.setItem("flipfinder_mobile_flips",JSON.stringify(flips));
+    renderSaved();
+  } catch (_) {
+    alert("Unable to save on this device. Check browser storage settings.");
+  }
+}
+$("save").addEventListener("click",() => {
+  const name = $("itemName").value.trim();
+  if (!name) {
+    alert("Enter an item name before saving.");
+    $("itemName").focus();
+    return;
+  }
+  const v = values();
+  flips.unshift({name,cost:v.cost,price:v.price,profit:v.profit,sold:false});
+  persist();
+  alert("Flip saved on this device.");
+});
+document.querySelectorAll("nav button").forEach(button => {
+  button.addEventListener("click",() => {
+    document.querySelectorAll("nav button").forEach(b => b.classList.toggle("active",b===button));
+    ["scan","saved","profit"].forEach(id => $(id).hidden = id !== button.dataset.page);
+    if (button.dataset.page === "saved") renderSaved();
+    values();
+  });
+});
+renderSaved();
+values();
+</script>
+</body>
+</html>
