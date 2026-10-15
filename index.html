@@ -207,7 +207,7 @@
       if(Array.isArray(a.search_terms)&&a.search_terms.length) lines.push("Search terms: "+a.search_terms.join(" · "));
       if(a.limitations) lines.push("Note: "+a.limitations);
       results.textContent=lines.join("\n");status.textContent="AI identification complete. Automatically researching available marketplace prices…";
-      const query=name||(Array.isArray(a.search_terms)?a.search_terms.join(" "):"");
+      const query=String(a.search_query||[name,a.brand,a.model,a.category].filter(v=>v&&v!=="Unknown").join(" ")||(Array.isArray(a.search_terms)?a.search_terms.join(" "):"")).trim();
       if(!query) throw new Error("AI did not return an item name. Enter one manually and try again.");
       await researchPrices(query);
     } catch(error) {
