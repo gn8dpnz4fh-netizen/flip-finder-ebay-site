@@ -464,11 +464,14 @@
       return;
     }
 
-    const url = engine === "ebay"
-      ? "https://www.ebay.com/sch/i.html?_nkw=" +
-        encodeURIComponent(query)
-      : "https://www.google.com/search?q=" +
-        encodeURIComponent(query + " resale price");
+    
+const url = engine === "ebay"
+  ? "https://www.ebay.com/sch/i.html?_nkw=" +
+    encodeURIComponent(query) +
+    "&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339219469&customid=flipfinder&toolid=10001&mkevt=1"
+  : "https://www.google.com/search?q=" +
+    encodeURIComponent(query + " resale price");
+
 
     window.open(url, "_blank", "noopener");
   }
