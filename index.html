@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,6 +80,10 @@ video, #preview {
 video { min-height: 180px; }
 #preview { display: none; }
 #cameraStatus, .muted { color: var(--muted); font-size: 14px; }
+.ai-result { margin-top: 14px; padding: 14px; background: #0f1726; border: 1px solid #344258; border-radius: 12px; }
+.ai-result h3 { margin: 0 0 8px; }
+.ai-result ul { padding-left: 22px; }
+.ai-result .ai-label { color: var(--muted); font-size: 13px; margin-bottom: 4px; }
 .stat {
   background: #0f1726;
   padding: 15px;
@@ -124,6 +127,10 @@ footer { text-align: center; padding: 20px; color: var(--muted); }
       Or choose a picture
     </label>
     <input id="photoUpload" type="file" accept="image/*" capture="environment">
+
+    <button id="analyzeImage" style="width:100%;margin-top:8px" disabled>✨ Identify Item with AI</button>
+    <div id="aiStatus" class="muted" role="status" style="margin-top:10px">Take a picture or choose one, then tap Identify Item with AI.</div>
+    <div id="aiResults" class="ai-result" hidden></div>
   </section>
 
   <section class="card">
@@ -201,6 +208,97 @@ footer { text-align: center; padding: 20px; color: var(--muted); }
   const $ = id => document.getElementById(id);
   let stream = null;
   let photoData = "";
+
+  const AI_ENDPOINT = "https://flipfinder-ebay-notifications.onrender.com/api/analyze-image";
+
+  function showAIResults(analysis) {
+    const container = $("aiResults");
+    container.replaceChildren();
+    container.hidden = false;
+
+    const heading = document.createElement("h3");
+    heading.textContent = analysis.item_name || "Possible item match";
+    container.appendChild(heading);
+
+    const details = [
+      ["Brand", analysis.brand],
+      ["Model", analysis.model],
+      ["Category", analysis.category],
+      ["Identification confidence", Number.isFinite(Number(analysis.confidence)) ? Number(analysis.confidence) + "%" : "Not provided"]
+    ];
+    details.forEach(([label, value]) => {
+      if (!value) return;
+      const p = document.createElement("p");
+      const strong = document.createElement("strong");
+      strong.textContent = label + ": ";
+      p.append(strong, document.createTextNode(String(value)));
+      container.appendChild(p);
+    });
+
+    function addList(label, values) {
+      if (!Array.isArray(values) || !values.length) return;
+      const title = document.createElement("p");
+      title.className = "ai-label";
+      title.textContent = label;
+      container.appendChild(title);
+      const list = document.createElement("ul");
+      values.forEach(value => {
+        const li = document.createElement("li");
+        li.textContent = String(value);
+        list.appendChild(li);
+      });
+      container.appendChild(list);
+    }
+    addList("Visible identifying details", analysis.identifying_details);
+    addList("Condition observations", analysis.condition_observations);
+    addList("Useful search phrases", analysis.search_terms);
+
+    if (analysis.limitations) {
+      const note = document.createElement("p");
+      note.className = "muted";
+      note.textContent = "Limitations: " + analysis.limitations;
+      container.appendChild(note);
+    }
+    const caution = document.createElement("p");
+    caution.className = "muted";
+    caution.textContent = "AI identification can be wrong. Confirm the brand, model, condition, and comparable sold listings before buying or pricing.";
+    container.appendChild(caution);
+  }
+
+  async function analyzeImage() {
+    if (!photoData) {
+      $("aiStatus").textContent = "Take a picture or choose a picture first.";
+      return;
+    }
+    const button = $("analyzeImage");
+    button.disabled = true;
+    button.textContent = "Analyzing photo…";
+    $("aiStatus").textContent = "Flip Finder AI is examining your item. This may take a few seconds.";
+    $("aiResults").hidden = true;
+    try {
+      const response = await fetch(AI_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: photoData, itemName: $("itemName").value.trim() })
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || "AI request failed (HTTP " + response.status + ").");
+      }
+      const analysis = payload.analysis;
+      if (!analysis || typeof analysis !== "object") throw new Error("The AI response was incomplete. Please try again.");
+      if (analysis.item_name && !$("itemName").value.trim()) {
+        $("itemName").value = analysis.item_name;
+      }
+      showAIResults(analysis);
+      $("aiStatus").textContent = "AI identification complete. Review the result below.";
+    } catch (error) {
+      $("aiStatus").textContent = error.message || "Could not analyze the photo. Please try again.";
+    } finally {
+      button.disabled = !photoData;
+      button.textContent = "✨ Identify Item with AI";
+    }
+  }
 
   function money(n) {
     return new Intl.NumberFormat("en-US", {
@@ -283,6 +381,8 @@ footer { text-align: center; padding: 20px; color: var(--muted); }
     );
 
     photoData = canvas.toDataURL("image/jpeg", 0.82);
+    $("analyzeImage").disabled = false;
+    $("aiStatus").textContent = "Picture captured. Tap Identify Item with AI.";
     $("preview").src = photoData;
     $("preview").style.display = "block";
     video.style.display = "none";
@@ -297,6 +397,7 @@ footer { text-align: center; padding: 20px; color: var(--muted); }
   });
 
   $("retake").addEventListener("click", startCamera);
+  $("analyzeImage").addEventListener("click", analyzeImage);
 
   $("photoUpload").addEventListener("change", event => {
     const file = event.target.files && event.target.files[0];
@@ -306,6 +407,8 @@ footer { text-align: center; padding: 20px; color: var(--muted); }
 
     reader.onload = () => {
       photoData = reader.result;
+      $("analyzeImage").disabled = false;
+      $("aiStatus").textContent = "Picture loaded. Tap Identify Item with AI.";
       $("preview").src = photoData;
       $("preview").style.display = "block";
       $("video").style.display = "none";
@@ -495,4 +598,3 @@ footer { text-align: center; padding: 20px; color: var(--muted); }
 </script>
 </body>
 </html>
-```
