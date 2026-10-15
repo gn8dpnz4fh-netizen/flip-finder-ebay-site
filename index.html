@@ -169,7 +169,45 @@
     if(liveListings.length){
       const sub=document.createElement("details");
       const summary=document.createElement("summary");summary.textContent="Check comparable listings ("+liveListings.length+")";summary.style.cursor="pointer";summary.style.margin="10px 0";sub.appendChild(summary);
-      liveListings.forEach(item=>{const row=document.createElement("p");row.className="muted";row.style.margin="8px 0";const link=document.createElement("a");link.href=item.url;link.target="_blank";link.rel="noopener noreferrer";link.textContent=(item.title||"View listing")+(item.price==null?"":" — "+money(Number(item.price)+(Number(item.shipping)||0)));row.appendChild(link);sub.appendChild(row);});root.appendChild(sub);
+     
+liveListings.forEach(item => {
+  const row = document.createElement("p");
+  row.className = "muted";
+  row.style.margin = "8px 0";
+
+  const link = document.createElement("a");
+  let listingUrl = item.url;
+
+  try {
+    const parsedUrl = new URL(item.url);
+    if (parsedUrl.hostname === "ebay.com" ||
+        parsedUrl.hostname.endsWith(".ebay.com")) {
+      parsedUrl.searchParams.set("mkcid", "1");
+      parsedUrl.searchParams.set("mkrid", "711-53200-19255-0");
+      parsedUrl.searchParams.set("siteid", "0");
+      parsedUrl.searchParams.set("campid", "5339219469");
+      parsedUrl.searchParams.set("customid", "flipfinder");
+      parsedUrl.searchParams.set("toolid", "10001");
+      parsedUrl.searchParams.set("mkevt", "1");
+      listingUrl = parsedUrl.toString();
+    }
+  } catch (error) {
+    // Keep the original link if the URL is invalid.
+  }
+
+  link.href = listingUrl;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent =
+    (item.title || "View listing") +
+    (item.price == null ? "" :
+      " — " + money(Number(item.price) + (Number(item.shipping) || 0)));
+
+  row.appendChild(link);
+  sub.appendChild(row);
+});
+root.appendChild(sub);
+
     }
   }
 
