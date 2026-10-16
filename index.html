@@ -1,3 +1,4 @@
+```
 <!doctype html>
 <html lang="en">
 <head>
@@ -176,19 +177,57 @@
     const root=$(targetId);root.replaceChildren();
     const heading=document.createElement("h2");heading.textContent="Your flip plan";root.appendChild(heading);
     const summary=data.summary||{},online=Number(summary.median_active_total)||0;
-    if(online>0){
-      const fees=online*.15,target=online*.25,maxBuy=Math.max(0,online-fees-target);
-      const enteredCost=Number($("cost").value)||0;const isGood=enteredCost>0?((online-fees-enteredCost)>0&&(enteredCost<=maxBuy)):maxBuy>0;
-      const verdict=document.createElement("div");verdict.className="result-verdict "+(isGood?"good":"bad");verdict.textContent=isGood?"GOOD FLIP":"BAD FLIP";root.appendChild(verdict);
-      const buyLine=document.createElement("p");buyLine.className="note";buyLine.textContent=enteredCost>0?(isGood?"Estimated profit is positive at your purchase cost.":"Your purchase cost is above the recommended maximum buy price."):"Good flip only if you can buy at or below "+money(maxBuy)+".";root.appendChild(buyLine);
-      const grid=document.createElement("div");grid.className="price-grid";
-      [["Typical active asking",online,"online"],["Aim to pay at most",maxBuy,"recommended"],["Estimated fees (15%)",fees,""],["Target profit (25%)",target,""]].forEach(([label,amount,cls])=>{const box=document.createElement("div");box.className="stat "+cls;const cap=document.createElement("span");cap.textContent=label;const val=document.createElement("strong");val.textContent=money(amount);box.append(cap,val);grid.appendChild(box);});
-      root.appendChild(grid);
-      const note=document.createElement("p");note.className="note";note.textContent="Estimate uses active asking prices, 15% selling costs and a 25% sale-price profit target. Asking prices are not confirmed sold prices.";root.appendChild(note);
-      $("value").value=online.toFixed(2);$("fees").value=fees.toFixed(2);$("cost").value=maxBuy.toFixed(2);calculate();
-    }else{const note=document.createElement("p");note.className="status-box";note.textContent="No automatic price estimate was returned. Try searching for the item or enter a price you find online. Flip Finder will not invent a market value.";root.appendChild(note);}
     const listings=(data.marketplaces||[]).filter(m=>Array.isArray(m.results)).flatMap(m=>m.results.filter(x=>x.url).map(x=>({...x,source:m.marketplace||"Marketplace"}))).slice(0,5);
-    if(listings.length){const sub=document.createElement("details");const summaryEl=document.createElement("summary");summaryEl.textContent="Comparable listings ("+listings.length+")";summaryEl.style.cursor="pointer";summaryEl.style.margin="13px 0";sub.appendChild(summaryEl);listings.forEach(x=>appendListing(sub,x));root.appendChild(sub);}
+    if(online>0){
+      const enteredCost=Math.max(0,Number($("cost").value)||0);
+      const estimatedFees=online*.15;
+      const currentFees=Math.max(0,Number($("fees").value)||0);
+      const hasCost=enteredCost>0;
+      const estimatedProfit=online-enteredCost-(currentFees>0?currentFees:estimatedFees);
+      const verdict=document.createElement("div");
+      verdict.className="result-verdict "+(!hasCost?"unknown":estimatedProfit>0?"good":"bad");
+      verdict.textContent=!hasCost?"ADD YOUR BUYING COST":estimatedProfit>0?"GOOD FLIP":"BAD FLIP";
+      root.appendChild(verdict);
+      const explainer=document.createElement("p");explainer.className="note";
+      explainer.textContent=!hasCost
+        ?"Enter what you would pay in Purchase cost to get a profit verdict. This market figure is based on active asking prices, not confirmed sales."
+        :"Estimated profit at your entered purchase cost: "+money(estimatedProfit)+". This uses the current selling-fees field; confirm fees, shipping, condition, and actual sold prices before buying.";
+      root.appendChild(explainer);
+      const grid=document.createElement("div");grid.className="price-grid";
+      const count=Number(summary.active_listing_count)||0;
+      const low=Number(summary.lowest_active_total)||0;
+      const high=Number(summary.highest_active_total)||0;
+      const breakEven=Math.max(0,online-(currentFees>0?currentFees:estimatedFees));
+      [
+        ["Median active asking",online,"online"],
+        ["Lowest active total",low,""],
+        ["Highest active total",high,""],
+        ["Matching listings",count,""],
+        ["Estimated fees (15% fallback)",currentFees>0?currentFees:estimatedFees,""],
+        ["Break-even buy price",breakEven,"recommended"]
+      ].forEach(([label,amount,cls])=>{
+        const box=document.createElement("div");box.className="stat "+cls;
+        const cap=document.createElement("span");cap.textContent=label;
+        const val=document.createElement("strong");val.textContent=label==="Matching listings"?String(amount):money(amount);
+        box.append(cap,val);grid.appendChild(box);
+      });
+      root.appendChild(grid);
+      const note=document.createElement("p");note.className="note";
+      note.textContent="Pricing evidence: eBay active asking listings only. These are not verified completed sales and may include items with different models, conditions, shipping, or completeness. The 15% fee is an estimate, not a confirmed fee quote. Break-even means estimated profit of $0 before any unentered costs.";
+      root.appendChild(note);
+      $("value").value=online.toFixed(2);
+      if(!(Number($("fees").value)>0))$("fees").value=estimatedFees.toFixed(2);
+      calculate();
+    }else{
+      const note=document.createElement("p");note.className="status-box";
+      note.textContent="No automatic price estimate was returned. Try searching for the item or enter a price you find online. Flip Finder will not invent a market value.";
+      root.appendChild(note);
+    }
+    if(listings.length){
+      const sub=document.createElement("details");
+      const summaryEl=document.createElement("summary");summaryEl.textContent="Comparable listings ("+listings.length+")";summaryEl.style.cursor="pointer";summaryEl.style.margin="13px 0";sub.appendChild(summaryEl);
+      listings.forEach(x=>appendListing(sub,x));root.appendChild(sub);
+    }
   }
   async function researchPrices(itemName,targetId="searchPricingResults"){
     const root=$(targetId);root.innerHTML='<div class="status-box">Checking available marketplace prices…</div>';
@@ -259,3 +298,4 @@
 </script>
 </body>
 </html>
+```
