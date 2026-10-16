@@ -48,8 +48,15 @@
   <section class="card">
     <div class="eyebrow">02 / Profit plan</div><h2 class="hero-title">Know your numbers</h2>
 
-    <label for="itemName">Item name</label>
-    <input id="itemName" placeholder="e.g. Vintage watch">
+   ```html
+<label for="itemName">Item name</label>
+<input id="itemName" placeholder="e.g. Nike Air Max">
+
+<div class="row">
+  <button id="manualSearchEbay" type="button">Search Item on eBay</button>
+  <button id="manualSearchGoogle" type="button" class="secondary">Search Google</button>
+</div>
+```
 
     <div class="row">
       <div style="flex:1;min-width:120px">
@@ -522,6 +529,8 @@ const url = engine === "ebay"
 
   $("searchEbay").addEventListener("click", () => searchListings("ebay"));
   $("searchGoogle").addEventListener("click", () => searchListings("google"));
+  $("manualSearchEbay").addEventListener("click", () => searchListings("ebay"));
+$("manualSearchGoogle").addEventListener("click", () => searchListings("google"));
 
   renderSaved();
   calculate();
