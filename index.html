@@ -1,556 +1,232 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#101827">
-<title>Flip Finder — Find Your Next Good Flip</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07110e">
+<meta name="description" content="Flip Finder — scan items, research resale prices, and plan profitable flips.">
+<title>Flip Finder — Scan smarter. Flip better.</title>
 <style>
-:root{color-scheme:dark;--bg:#080b12;--panel:#111722;--panel2:#171e2b;--line:#343b49;--gold:#e8b84e;--gold2:#fff0ad;--green:#37e59a;--red:#ff5267;--muted:#aab4c4;--text:#f7f8fb}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#182131 0,#080b12 55%);color:var(--text);font-family:Inter,Arial,sans-serif;min-height:100vh}header{padding:25px 18px 22px;text-align:center;background:rgba(7,10,17,.92);border-bottom:1px solid #34303a;position:relative;overflow:hidden}header:after{content:"";position:absolute;left:15%;right:15%;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}header h1{margin:0;font-size:clamp(29px,5vw,42px);letter-spacing:1.5px;color:var(--gold2);text-shadow:0 0 22px #d7a33b55}header p{margin:8px 0 0;color:var(--muted);letter-spacing:.5px}main{width:min(100% - 24px,860px);margin:22px auto 45px}.card{background:linear-gradient(145deg,#171e2b,#0e131d);border:1px solid var(--line);border-radius:20px;padding:20px;margin-bottom:17px;box-shadow:0 12px 34px #0003}h2{margin:0 0 14px;font-size:20px}button,input{font:inherit;border-radius:11px}button{cursor:pointer;padding:13px 15px;border:1px solid #f4d27a;background:linear-gradient(135deg,#ffe9a0,#d49a2b);color:#1c1608;font-weight:800;box-shadow:0 5px 18px #e8b84e18}button:disabled{opacity:.5;cursor:default}button.secondary{background:#252e3d;border:1px solid #475267;color:white;box-shadow:none}button.danger{background:#632e3a;color:white;border:1px solid #8f4051}input{display:block;width:100%;padding:13px;margin:7px 0 13px;background:#080d15;border:1px solid #3a465a;color:white}label{color:var(--muted);font-size:14px}.row{display:flex;gap:9px;flex-wrap:wrap}.row button{flex:1}video,#preview{display:block;width:100%;max-height:420px;object-fit:contain;background:#05070b;border-radius:14px;margin-bottom:12px;border:1px solid #303746}video{min-height:180px}#preview{display:none}#cameraStatus,.muted{color:var(--muted);font-size:14px}#aiStatus{margin-top:12px;padding:12px;border-radius:10px;background:#0a0f18;border:1px solid #303949;color:var(--muted)}#aiResults{margin-top:10px;line-height:1.6;white-space:pre-wrap}#pricingResults{margin-top:14px;line-height:1.55}.buy-plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px;margin:12px 0}.buy-plan .stat{padding:13px}.buy-plan .stat strong{font-size:22px}.buy-plan .recommended{border-color:#37e59a;background:#09251d}.buy-plan .online{border-color:#e8b84e}.market-result{padding:12px;margin:9px 0;background:#0a1019;border:1px solid #344258;border-radius:12px}.market-result h3{margin:0 0 6px}.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}.price-number{font-size:20px;font-weight:800;color:var(--gold2)}.stat{background:#090e16;border:1px solid #303949;padding:15px;border-radius:13px;flex:1;min-width:120px}.stat strong{display:block;font-size:24px;margin-top:7px}.flip{border-top:1px solid #344258;padding:13px 0}.flip:first-child{border-top:0}.flip h3{margin:0 0 6px}a{color:var(--gold2)}footer{text-align:center;padding:20px;color:var(--muted)}.eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:2px;font-weight:800;font-size:11px}.hero-title{font-size:clamp(24px,4vw,34px);margin:7px 0}.coin-stage{display:none;text-align:center;padding:22px 10px 12px;margin:14px 0;border:1px solid #5d4b2b;border-radius:16px;background:radial-gradient(ellipse at center,#242015,#090c12 72%)}.coin-stage.active{display:block}.coin{width:92px;height:92px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 32% 27%,#fff3b0 0,#e6b94f 23%,#9d6818 58%,#f5d779 73%,#6f4917 100%);border:5px double #f8df87;box-shadow:0 0 0 4px #6b4b1b,0 0 30px #e5b34155,inset 0 0 12px #fff5b0;color:#38250b;font-size:38px;font-weight:900;transform-style:preserve-3d}.coin.spinning{animation:coinflip .7s linear infinite}.coin.landed{animation:land .45s ease-out forwards}@keyframes coinflip{0%{transform:rotateY(0deg) rotateX(0deg) translateY(0) scaleX(1)}25%{transform:rotateY(180deg) rotateX(90deg) translateY(-18px) scaleX(.35)}50%{transform:rotateY(360deg) rotateX(180deg) translateY(0) scaleX(1)}75%{transform:rotateY(540deg) rotateX(270deg) translateY(-18px) scaleX(.35)}100%{transform:rotateY(720deg) rotateX(360deg) translateY(0) scaleX(1)}}@keyframes land{0%{transform:translateY(-25px) rotateX(70deg)}70%{transform:translateY(5px) rotateX(0)}100%{transform:translateY(0) rotateX(0)}}.market-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.chip{font-size:12px;color:#d9e0eb;border:1px solid #3a4659;background:#0a1019;border-radius:999px;padding:7px 10px}.result-verdict{display:none;border-radius:14px;padding:16px;text-align:center;font-size:24px;font-weight:900;letter-spacing:1.2px;margin:12px 0}.result-verdict.good{display:block;background:#09291e;border:1px solid #1c9d69;color:var(--green)}.result-verdict.bad{display:block;background:#310f18;border:1px solid #a52e46;color:var(--red)}.result-verdict.unknown{display:block;background:#292313;border:1px solid #92752b;color:var(--gold2)}@media(max-width:520px){.card{padding:15px}.coin{width:78px;height:78px}}
+:root{color-scheme:dark;--bg:#07110e;--panel:#101b17;--panel2:#15231d;--line:#294034;--text:#f3f8f4;--muted:#9aafa3;--green:#48f29a;--green2:#16c979;--red:#ff7474;--gold:#f2cf75;--safeT:env(safe-area-inset-top,0px);--safeB:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}body{min-height:100dvh}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.app{max-width:620px;min-height:100dvh;margin:auto;position:relative;padding-bottom:calc(84px + var(--safeB));background:radial-gradient(ellipse at 50% -12%,#1a422e 0,transparent 45%),var(--bg)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(13px + var(--safeT)) 19px 14px;border-bottom:1px solid #20342a;background:#07110edb;backdrop-filter:blur(18px);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:900;letter-spacing:-.7px}.brand-mark{width:35px;height:35px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#69ffae,#0ebd70);color:#062416;font-weight:950;box-shadow:0 0 24px #2ef79b35}.brand span{color:var(--green)}
+.icon-btn{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:#122019;color:var(--text);font-size:19px}
+.page{display:none;padding:17px 18px 24px;animation:rise .22s ease-out}.page.active{display:block}@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.eyebrow{color:var(--green);font-size:11px;text-transform:uppercase;letter-spacing:1.8px;font-weight:850}h1{font-size:31px;line-height:1.08;letter-spacing:-1.1px;margin:10px 0}h2{font-size:20px;letter-spacing:-.45px;margin:0 0 8px}h3{margin:0 0 7px}p{color:var(--muted);line-height:1.5;margin:0}.hero{padding:10px 2px 21px}.hero p{max-width:350px}
+.primary,.secondary,.quiet{border:0;border-radius:15px;min-height:51px;padding:0 16px;font-weight:850;transition:transform .15s,filter .15s}.primary:active,.secondary:active,.quiet:active{transform:scale(.985)}.primary{background:linear-gradient(100deg,#5cffaa,#16d17b);color:#042415;box-shadow:0 8px 28px #24d78024}.secondary{background:#17271f;color:var(--text);border:1px solid #2b4335}.quiet{background:transparent;color:var(--muted);border:1px solid var(--line);min-height:43px}.wide{width:100%}.btnrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}
+.scan-card{position:relative;overflow:hidden;min-height:285px;border-radius:27px;border:1px solid #315542;background:linear-gradient(145deg,#142a20,#0b1712 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:25px 19px}.scan-card:before,.scan-card:after{content:"";position:absolute;border:1px solid #45f39a12;border-radius:50%;width:260px;height:260px}.scan-card:after{width:340px;height:340px}.scan-orb{position:relative;z-index:1;width:145px;height:145px;border-radius:50%;display:grid;place-items:center;margin-bottom:21px}.scan-orb:before{content:"";position:absolute;inset:0;border-radius:50%;border:5px solid #1b3a2a;box-shadow:0 0 0 1px #45f39a26,inset 0 0 32px #45f39a0c}.scan-orb:after{content:"";position:absolute;inset:-3px;border-radius:50%;border:4px solid transparent;border-top-color:var(--green);border-right-color:#31d985;filter:drop-shadow(0 0 8px #40ff9c80);animation:spin 2.1s linear infinite}.scan-symbol{width:89px;height:89px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#214a34,#10241a);font-size:36px;color:var(--green);box-shadow:inset 0 0 28px #43f39a17}.scan-card h2,.scan-card p{position:relative;z-index:1}.scan-card p{font-size:13px;max-width:280px}@keyframes spin{to{transform:rotate(360deg)}}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:26px 2px 12px}.text-link{color:var(--green);background:none;border:0;font-size:13px;font-weight:850;padding:8px 0}.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.quick{min-height:105px;text-align:left;padding:13px 10px;border-radius:17px;background:var(--panel);border:1px solid var(--line);color:var(--text)}.quick .emoji{font-size:22px;display:block;margin-bottom:11px}.quick strong{font-size:12px;display:block}.quick small{font-size:10px;color:var(--muted);display:block;margin-top:4px}
+.tip{margin-top:15px;padding:14px;border-radius:17px;background:linear-gradient(110deg,#123322,#102019);border:1px solid #24543a;display:flex;gap:11px;align-items:flex-start}.tip-icon{width:33px;height:33px;border-radius:11px;display:grid;place-items:center;background:#1d5b3a;color:var(--green);flex-shrink:0}.tip strong{display:block;font-size:13px;margin:1px 0 4px}.tip p{font-size:12px}
+.field{display:block;margin:15px 0}.field span{display:block;font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:750}.field input{width:100%;height:50px;border-radius:14px;border:1px solid var(--line);background:#0b1511;color:var(--text);padding:0 14px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-card,.result-card{border:1px solid var(--line);background:linear-gradient(145deg,#122019,#0e1813);border-radius:22px;padding:16px;margin-top:14px}.result-title{display:flex;gap:12px;align-items:center}.product-placeholder{width:61px;height:61px;display:grid;place-items:center;background:#1c3327;border-radius:17px;font-size:27px;flex-shrink:0}.result-title p{font-size:12px;margin-top:4px}.pill{display:inline-flex;align-items:center;gap:6px;color:var(--green);background:#153d29;border:1px solid #286c47;border-radius:100px;padding:7px 10px;font-size:11px;font-weight:850;margin-top:13px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}.stat{background:#0a1510;border:1px solid #20352a;border-radius:15px;padding:12px;min-width:0}.stat span{display:block;color:var(--muted);font-size:11px;margin-bottom:7px}.stat strong{font-size:21px;letter-spacing:-.5px;overflow-wrap:anywhere}.stat.profit{grid-column:1/-1;background:linear-gradient(100deg,#123e29,#10271c);border-color:#276c45}.stat.profit strong{color:var(--green);font-size:29px}.stat.recommended{border-color:var(--green);background:#09251d}.stat.online{border-color:#8b783b}.note,.disclaimer{font-size:11px;color:#8da497;line-height:1.5;margin-top:11px}.status-box{margin-top:12px;padding:12px;border-radius:13px;background:#0a1510;border:1px solid #20352a;color:var(--muted);font-size:13px;line-height:1.5}.ai-lines{white-space:pre-wrap;line-height:1.6;font-size:13px;margin-top:12px;color:#d8e5dc}.coin-stage{display:none;text-align:center;padding:20px 12px 12px;margin:14px 0;border:1px solid #24543a;border-radius:19px;background:radial-gradient(ellipse at center,#173a27,#09120d 72%)}.coin-stage.active{display:block}.scan-orb.small{width:94px;height:94px;margin:0 auto 14px}.scan-orb.small.busy:after{animation-duration:.65s}.scan-orb.small .scan-symbol{width:59px;height:59px;font-size:25px}.coin-stage strong{font-size:15px}.coin-stage p{font-size:12px;margin-top:5px}
+.market-list{margin-top:12px}.market-result{padding:12px;margin:9px 0;background:#0a1510;border:1px solid #2a4134;border-radius:13px}.market-result a{color:#bafbd5;text-decoration:none;font-weight:700}.market-result a:hover{text-decoration:underline}.price-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0}.result-verdict{border-radius:13px;padding:13px;text-align:center;font-size:18px;font-weight:900;margin:12px 0}.result-verdict.good{background:#09291e;border:1px solid #1c9d69;color:var(--green)}.result-verdict.unknown{background:#292313;border:1px solid #92752b;color:#ffe8a0}
+.saved-card{display:flex;align-items:center;gap:11px;border:1px solid var(--line);background:var(--panel);border-radius:17px;padding:12px;margin-top:10px}.saved-info{flex:1;min-width:0}.saved-info strong{display:block;font-size:13px;overflow-wrap:anywhere}.saved-info small{display:block;color:var(--muted);font-size:11px;margin-top:5px}.saved-profit{color:var(--green);font-weight:900;font-size:13px;white-space:nowrap}.saved-actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}.small-btn{border:1px solid var(--line);border-radius:10px;padding:7px 9px;background:#13221a;color:var(--text);font-size:11px;font-weight:800}.small-btn.danger{color:#ffaaaa;border-color:#613239}.empty{text-align:center;padding:32px 15px;border:1px dashed #2b4134;border-radius:20px;margin-top:15px}.empty-icon{font-size:30px;margin-bottom:10px}.empty h2{margin-bottom:7px}.empty p{font-size:13px;margin-bottom:15px}
+.bottom-nav{position:fixed;z-index:8;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:620px;padding:8px 10px calc(8px + var(--safeB));display:grid;grid-template-columns:repeat(4,1fr);background:#0b1511ed;backdrop-filter:blur(18px);border-top:1px solid #26382f}.nav-btn{border:0;background:transparent;color:#81978a;min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:10px;font-weight:800}.nav-icon{font-size:20px;line-height:1}.nav-btn.active{color:var(--green)}
+/* Edge-to-edge mobile camera */
+.camera-page{display:none;position:fixed;z-index:30;inset:0;background:#020604;max-width:620px;margin:auto;overflow:hidden;padding:0}.camera-page.active{display:block}#cameraVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#030705}.camera-shade{position:absolute;inset:0;background:linear-gradient(180deg,#0009 0%,transparent 25%,transparent 60%,#000b 100%);pointer-events:none}.camera-top{position:absolute;top:calc(12px + var(--safeT));left:18px;right:18px;display:flex;justify-content:space-between;align-items:center;z-index:2}.camera-label{text-align:center;font-weight:900;text-shadow:0 2px 12px #000}.camera-label small{display:block;color:#d1e3d8;font-weight:600;font-size:10px;letter-spacing:1.3px;margin-top:4px}.camera-close{background:#09130fc9;backdrop-filter:blur(12px);border:1px solid #ffffff35;color:white;border-radius:50%;width:44px;height:44px;font-size:23px}.camera-guide{position:absolute;left:11%;right:11%;top:24%;height:40%;z-index:1;pointer-events:none}.corner{position:absolute;width:34px;height:34px;border-color:var(--green);border-style:solid;filter:drop-shadow(0 0 7px #4bffa1a0)}.tl{top:0;left:0;border-width:3px 0 0 3px;border-radius:13px 0 0 0}.tr{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 13px 0 0}.bl{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 13px}.br{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 13px 0}.guide-line{position:absolute;left:4%;right:4%;top:50%;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);box-shadow:0 0 16px var(--green);animation:scanline 2.8s ease-in-out infinite}@keyframes scanline{0%,100%{transform:translateY(-60px);opacity:.45}50%{transform:translateY(60px);opacity:1}}.camera-bottom{position:absolute;z-index:2;bottom:calc(23px + var(--safeB));left:20px;right:20px;text-align:center}.camera-instruction{font-size:14px;color:white;text-shadow:0 2px 12px #000;margin-bottom:21px}.shutter-row{display:flex;align-items:center;justify-content:space-between;max-width:330px;margin:auto}.round-control{width:48px;height:48px;border-radius:50%;background:#07110ebd;border:1px solid #ffffff55;color:white;font-size:20px;display:grid;place-items:center}.shutter{width:78px;height:78px;border-radius:50%;border:4px solid white;background:var(--green);box-shadow:0 0 0 5px #ffffff30,0 0 35px #39ff9a55;display:grid;place-items:center}.shutter span{width:58px;height:58px;border:2px solid #0c5435;border-radius:50%;display:block}.hidden{display:none!important}.toast{position:fixed;z-index:60;left:50%;bottom:calc(95px + var(--safeB));transform:translate(-50%,14px);opacity:0;pointer-events:none;background:#e7fff0;color:#06321c;padding:12px 16px;border-radius:13px;font-weight:850;font-size:13px;box-shadow:0 8px 35px #0007;transition:.2s;max-width:90%;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:700px){body{background:#030805}.app,.camera-page{border-left:1px solid #15261c;border-right:1px solid #15261c}}@media(max-width:380px){.page{padding-left:13px;padding-right:13px}h1{font-size:28px}.quick{padding:11px 8px}.stat strong{font-size:19px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
-
 <body>
-<header>
-  <div class="eyebrow">AI-powered resale scout</div>
-  <h1>🪙 FLIP FINDER</h1>
-  <p>SCAN IT · VALUE IT · MAKE THE FLIP</p>
-</header>
+<main class="app">
+<header class="topbar"><div class="brand"><div class="brand-mark">F</div><div>Flip <span>Finder</span></div></div><button class="icon-btn" id="settingsBtn" aria-label="Profile and help">⚙</button></header>
 
-<main>
-  <section class="card">
-    <div class="eyebrow">01 / Identify</div><h2 class="hero-title">Scan your item</h2>
-    <p class="muted">The camera will be requested automatically when Flip Finder opens.</p>
+<section class="page active" id="homePage">
+  <div class="hero"><div class="eyebrow">Your AI resale sidekick</div><h1>Spot it.<br><span style="color:var(--green)">Scan it. Flip it.</span></h1><p>Discover an item's resale potential before you spend a dollar.</p></div>
+  <div class="scan-card"><div class="scan-orb"><div class="scan-symbol">⌗</div></div><h2>Ready when you are</h2><p>Point your camera at an item. Flip Finder will identify it and check available market prices.</p></div>
+  <div class="btnrow"><button class="primary" id="startScan">⌖ &nbsp; Scan an item</button><button class="secondary" id="uploadPhoto">▧ &nbsp; Upload photo</button></div>
+  <input class="hidden" id="photoUpload" type="file" accept="image/*" capture="environment">
+  <div class="section-head"><h2>Quick tools</h2></div>
+  <div class="quick-grid"><button class="quick" data-go="searchPage"><span class="emoji">⌕</span><strong>Find prices</strong><small>Search online</small></button><button class="quick" data-go="calculatorPage"><span class="emoji">＄</span><strong>Profit plan</strong><small>Know your numbers</small></button><button class="quick" data-go="savedPage"><span class="emoji">♡</span><strong>Saved flips</strong><small>Your shortlist</small></button></div>
+  <div class="tip"><div class="tip-icon">✦</div><div><strong>Flip smarter, not harder</strong><p>Leave room for fees, shipping, and unexpected costs before buying.</p></div></div>
+</section>
 
-    <video id="video" autoplay muted playsinline></video>
-    <canvas id="canvas" hidden></canvas>
-    <img id="preview" alt="Your scanned item">
+<section class="page" id="searchPage">
+  <div class="eyebrow">Marketplace research</div><h1>Find an item's value.</h1><p>Search by name and compare listings before deciding what to pay.</p>
+  <label class="field"><span>What are you looking for?</span><input id="itemName" placeholder="e.g. Nike Air Max 90" autocomplete="off"></label>
+  <div class="btnrow"><button class="primary" id="manualSearchEbay">Search eBay ↗</button><button class="secondary" id="manualSearchGoogle">Search Google ↗</button></div>
+  <div class="tip"><div class="tip-icon">ⓘ</div><div><strong>Better searches, better decisions</strong><p>Include brand, model, size, and condition. Active asking prices are not the same as confirmed sold prices.</p></div></div>
+  <div class="section-head"><h2>Automatic market research</h2></div><button class="secondary wide" id="researchButton">Check available prices</button>
+  <div id="searchPricingResults" class="market-list" aria-live="polite"></div>
+  <p class="disclaimer"><strong>Affiliate disclosure:</strong> Flip Finder may earn a commission on qualifying eBay purchases through affiliate links, at no extra cost to you. Commissions depend on program terms.</p>
+</section>
 
-    <div id="cameraStatus" role="status">Requesting camera access…</div>
-    <div id="aiStatus" role="status" aria-live="polite">AI identification starts automatically when you take or choose a picture.</div>
-    <div id="coinStage" class="coin-stage" aria-live="polite"><div id="coin" class="coin">₣</div><strong id="coinTitle">Checking your item…</strong><p id="coinSubtitle" class="muted">Identifying item details</p></div>
-    <div id="aiResults"></div>
-    <div id="pricingResults" aria-live="polite"></div>
+<section class="page" id="calculatorPage">
+  <div class="eyebrow">Know your numbers</div><h1>Profit planner.</h1><p>Use your own estimates or the market estimate from a scan. Actual results can vary.</p>
+  <div class="form-card">
+    <label class="field"><span>Item name</span><input id="calcName" placeholder="e.g. Vintage game console"></label>
+    <div class="two-col"><label class="field"><span>Purchase cost ($)</span><input id="cost" type="number" min="0" step=".01" value="0"></label><label class="field"><span>Expected selling price ($)</span><input id="value" type="number" min="0" step=".01" value="0"></label></div>
+    <label class="field"><span>Estimated selling fees ($)</span><input id="fees" type="number" min="0" step=".01" value="0"></label>
+    <div class="stats"><div class="stat"><span>Estimated profit</span><strong id="profit">$0.00</strong></div><div class="stat"><span>Return on investment</span><strong id="roi">0%</strong></div></div>
+    <p class="note">Profit = selling price − purchase cost − fees. Add shipping and other expenses to fees for a more realistic estimate.</p>
+    <button class="primary wide" id="saveFlip" style="margin-top:14px">♡ &nbsp; Save this flip</button>
+  </div>
+  <div id="coinStage" class="coin-stage" aria-live="polite">
+    <div class="scan-orb small" id="coinOrb"><div class="scan-symbol">⌗</div></div>
+    <strong id="coinTitle">Checking your item…</strong>
+    <p id="coinSubtitle">Identifying item details</p>
+  </div>
+  <div id="aiResults"></div>
+  <div id="calculatorMarketResults"></div>
+</section>
 
-    <div class="row" style="margin-top:12px">
-      <button id="capture" disabled>Take Picture</button>
-      <button id="retake" class="secondary" hidden>Retake</button>
-    </div>
+<section class="page" id="savedPage">
+  <div class="eyebrow">Your shortlist</div><h1>Saved flips.</h1><p>Track promising items, mark sales, and keep an eye on potential profit.</p>
+  <div class="stats"><div class="stat"><span>Items saved</span><strong id="totalItems">0</strong></div><div class="stat"><span>Potential profit</span><strong id="totalProfit">$0.00</strong></div></div>
+  <div id="savedList"></div><button class="secondary wide" style="margin-top:15px" data-go="searchPage">＋ Research another item</button>
+</section>
 
-    <label for="photoUpload" style="display:block;margin-top:15px">
-      Or choose a picture
-    </label>
-    <input id="photoUpload" type="file" accept="image/*" capture="environment">
-  </section>
+<section class="page" id="profilePage">
+  <div class="eyebrow">Your workspace</div><h1>Simple by design.</h1><p>Research first. Check the numbers. Buy with a plan.</p>
+  <div class="form-card"><h2>How to use Flip Finder</h2><div class="tip"><div class="tip-icon">1</div><div><strong>Scan or search</strong><p>Take a photo for AI identification or enter the item name.</p></div></div><div class="tip"><div class="tip-icon">2</div><div><strong>Check the numbers</strong><p>Review market estimates, fees, purchase cost, and potential profit.</p></div></div><div class="tip"><div class="tip-icon">3</div><div><strong>Save and track</strong><p>Save promising items, mark sold flips, or delete items you no longer need.</p></div></div></div>
+  <div class="form-card"><h2>Market data notes</h2><p style="font-size:13px;margin-top:8px">AI identification and marketplace pricing use your existing Flip Finder service. Market estimates may rely on active asking prices, which are not confirmed sale prices. Verify condition, sold listings, shipping, and fees before purchasing.</p></div>
+</section>
 
-  <section class="card">
-    <div class="eyebrow">02 / Profit plan</div><h2 class="hero-title">Know your numbers</h2>
+<section class="camera-page" id="cameraPage" aria-label="Full-screen item camera">
+  <video id="cameraVideo" autoplay muted playsinline></video><div class="camera-shade"></div>
+  <div class="camera-top"><button class="camera-close" id="closeCamera" aria-label="Close camera">×</button><div class="camera-label">Flip <span style="color:var(--green)">Finder</span><small>AI ITEM SCANNER</small></div><button class="camera-close" id="switchCamera" aria-label="Switch camera">↻</button></div>
+  <div class="camera-guide"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><div class="guide-line"></div></div>
+  <div class="camera-bottom"><div class="camera-instruction" id="cameraInstruction">Center the item inside the frame</div><div class="shutter-row"><button class="round-control" id="cameraUpload" aria-label="Choose a photo">▧</button><button class="shutter" id="takePhoto" aria-label="Take photo"><span></span></button><button class="round-control" id="cameraHelp" aria-label="Camera help">?</button></div></div>
+  <canvas id="cameraCanvas" class="hidden"></canvas>
+</section>
 
-   ```html
-<label for="itemName">Item name</label>
-<input id="itemName" placeholder="e.g. Nike Air Max">
-
-<div class="row">
-  <button id="manualSearchEbay" type="button">Search Item on eBay</button>
-  <button id="manualSearchGoogle" type="button" class="secondary">Search Google</button>
-</div>
-```
-
-    <div class="row">
-      <div style="flex:1;min-width:120px">
-        <label for="cost">Purchase cost ($)</label>
-        <input id="cost" type="number" min="0" step=".01" value="0">
-      </div>
-      <div style="flex:1;min-width:120px">
-        <label for="value">Expected selling price ($)</label>
-        <input id="value" type="number" min="0" step=".01" value="0">
-      </div>
-    </div>
-
-    <label for="fees">Estimated selling fees ($)</label>
-    <input id="fees" type="number" min="0" step=".01" value="0">
-
-    <div class="row">
-      <div class="stat">
-        <span class="muted">Estimated profit</span>
-        <strong id="profit">$0.00</strong>
-      </div>
-      <div class="stat">
-        <span class="muted">ROI</span>
-        <strong id="roi">0%</strong>
-      </div>
-    </div>
-
-    <p class="muted">Profit = selling price − purchase cost − fees.</p>
-    <button id="saveFlip" style="width:100%">Save This Flip</button>
-  </section>
-
-  <section class="card">
-    <div class="eyebrow">03 / Your inventory</div><h2 class="hero-title">My saved flips</h2>
-
-    <div class="row">
-      <div class="stat">
-        <span class="muted">Items saved</span>
-        <strong id="totalItems">0</strong>
-      </div>
-      <div class="stat">
-        <span class="muted">Potential profit</span>
-        <strong id="totalProfit">$0.00</strong>
-      </div>
-    </div>
-
-    <div id="savedList" style="margin-top:14px"></div>
-  </section>
-
-  <section class="card">
-    <div class="eyebrow">04 / Research</div><h2 class="hero-title">Marketplace research</h2>
-    <p>Search for comparable items and check prices before buying.</p>
-
-       <div class="row">
-      <button id="searchEbay">Search eBay</button>
-      <button id="searchGoogle" class="secondary">Search Google</button>
-    </div>
-
-    <p class="muted">
-      Flip Finder retrieves live eBay active listings when API access is
-      available. Other marketplaces currently provide search links only.
-      Active asking prices are not confirmed sold prices.
-    </p>
-
-    <p class="muted">
-      <strong>Affiliate disclosure:</strong> Flip Finder may earn a
-      commission when you click qualifying eBay links and make a purchase,
-      at no extra cost to you. Commissions are subject to eBay Partner
-      Network terms.
-    </p>
-  </section>
+<nav class="bottom-nav" id="bottomNav" aria-label="Main navigation"><button class="nav-btn active" data-page="homePage"><span class="nav-icon">⌂</span>Home</button><button class="nav-btn" data-page="searchPage"><span class="nav-icon">⌕</span>Search</button><button class="nav-btn" data-page="savedPage"><span class="nav-icon">♡</span>Saved</button><button class="nav-btn" data-page="profilePage"><span class="nav-icon">◉</span>Profile</button></nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 </main>
-
 <script>
 (() => {
   const $ = id => document.getElementById(id);
-  let stream = null;
-  let photoData = "";
+  const API = "https://flipfinder-ebay-notifications.onrender.com";
+  const STORAGE_KEY = "flipfinder_items"; // Keep existing saved flips.
+  let stream = null, photoData = "", facingMode = "environment", toastTimer = null, lastAnalysis = null;
 
-  function money(n) {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD"
-    }).format(Number(n) || 0);
+  function money(n) { return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(Number(n)||0); }
+  function safeText(value) { return String(value == null ? "" : value); }
+  function toast(message) { const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2700); }
+  function showPage(id) { stopCamera();document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));$("bottomNav").style.display="";document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===id));window.scrollTo({top:0,behavior:"smooth"});if(id==="savedPage")renderSaved(); }
+  function startCamera() {
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast("Camera needs HTTPS. Choose Upload photo instead.");$("photoUpload").click();return;}
+    navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:facingMode}}}).then(s=>{stopCamera();stream=s;$("cameraVideo").srcObject=s;$("cameraPage").classList.add("active");$("bottomNav").style.display="none";$("cameraInstruction").textContent="Center the item inside the frame";}).catch(err=>{console.error(err);toast("Camera unavailable or permission denied. Choose a photo instead.");$("photoUpload").click();});
   }
-
-  function renderPricing(data) {
-    const root = $("pricingResults");
-    root.replaceChildren();
-    const heading = document.createElement("h3");
-    heading.textContent = "Your flip plan";
-    root.appendChild(heading);
-    const verdict=document.createElement("div");
-    verdict.className="result-verdict unknown";
-    verdict.textContent="NEEDS MORE PRICE DATA";
-    root.appendChild(verdict);
-
-    if (data.summary && Number(data.summary.median_active_total) > 0) {
-      const online = Number(data.summary.median_active_total);
-      // Conservative planning assumptions: 15% selling costs and a 25% profit cushion.
-      const estimatedFees = online * 0.15;
-      const targetProfit = online * 0.25;
-      const maxBuy = Math.max(0, online - estimatedFees - targetProfit);
-      const grid=document.createElement("div"); grid.className="buy-plan";
-      [["Typical online asking",online,"online"],["Aim to pay at most",maxBuy,"recommended"],["Estimated fees",estimatedFees,""],["Target profit",targetProfit,""]].forEach(([label,amount,extra])=>{
-        const box=document.createElement("div");box.className="stat "+extra;
-        const cap=document.createElement("span");cap.className="muted";cap.textContent=label;
-        const val=document.createElement("strong");val.textContent=money(amount);
-        box.append(cap,val);grid.appendChild(box);
-      });
-      root.appendChild(grid);
-      const note=document.createElement("p");note.className="muted";note.textContent="Buy-price estimate uses active asking prices, assumes 15% selling costs and aims for 25% profit. Asking prices are not confirmed sold prices; check sold listings and item condition before buying.";root.appendChild(note);
-      $("value").value=online.toFixed(2);
-      $("fees").value=estimatedFees.toFixed(2);
-      // Pre-fill the recommended maximum buy price so the profit calculator shows the target scenario.
-      $("cost").value=maxBuy.toFixed(2);
-      calculate();
-      verdict.className="result-verdict good";
-      verdict.textContent="TARGET BUY PRICE: "+money(maxBuy);
-    } else {
-      const note=document.createElement("p");note.className="muted";note.textContent="Couldn't get an automatic online price for this item. Try a clearer photo or enter a price you find online. We won't guess a buy price without a market estimate.";root.appendChild(note);
-    }
-
-    const liveListings=(data.marketplaces||[]).filter(m=>Array.isArray(m.results)&&m.results.some(item=>item.url)).flatMap(m=>m.results.map(item=>({...item,source:m.marketplace||"Marketplace"}))).slice(0,3);
-    if(liveListings.length){
-      const sub=document.createElement("details");
-      const summary=document.createElement("summary");summary.textContent="Check comparable listings ("+liveListings.length+")";summary.style.cursor="pointer";summary.style.margin="10px 0";sub.appendChild(summary);
-     
-liveListings.forEach(item => {
-  const row = document.createElement("p");
-  row.className = "muted";
-  row.style.margin = "8px 0";
-
-  const link = document.createElement("a");
-  let listingUrl = item.url;
-
-  try {
-    const parsedUrl = new URL(item.url);
-    if (parsedUrl.hostname === "ebay.com" ||
-        parsedUrl.hostname.endsWith(".ebay.com")) {
-      parsedUrl.searchParams.set("mkcid", "1");
-      parsedUrl.searchParams.set("mkrid", "711-53200-19255-0");
-      parsedUrl.searchParams.set("siteid", "0");
-      parsedUrl.searchParams.set("campid", "5339219469");
-      parsedUrl.searchParams.set("customid", "flipfinder");
-      parsedUrl.searchParams.set("toolid", "10001");
-      parsedUrl.searchParams.set("mkevt", "1");
-      listingUrl = parsedUrl.toString();
-    }
-  } catch (error) {
-    // Keep the original link if the URL is invalid.
+  function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}if($("cameraVideo"))$("cameraVideo").srcObject=null;if($("cameraPage"))$("cameraPage").classList.remove("active");if($("bottomNav"))$("bottomNav").style.display="";}
+  function openExternal(url){const win=window.open(url,"_blank","noopener,noreferrer");if(!win)location.href=url;}
+  function searchListings(engine){const q=$("itemName").value.trim();if(!q){toast("Enter an item name first.");$("itemName").focus();return;}const url=engine==="ebay"?"https://www.ebay.com/sch/i.html?_nkw="+encodeURIComponent(q)+"&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339219469&customid=flipfinder&toolid=10001&mkevt=1":"https://www.google.com/search?q="+encodeURIComponent(q+" resale price");openExternal(url);}
+  function getSaved(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");}catch(e){return [];}}
+  function putSaved(items){localStorage.setItem(STORAGE_KEY,JSON.stringify(items));}
+  function calculate(){const cost=Math.max(0,Number($("cost").value)||0),value=Math.max(0,Number($("value").value)||0),fees=Math.max(0,Number($("fees").value)||0),profit=value-cost-fees,roi=cost>0?profit/cost*100:0;$("profit").textContent=money(profit);$("roi").textContent=roi.toFixed(1)+"%";return {cost,value,fees,profit,roi};}
+  function escapeHtml(s){return safeText(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+  function saveFlip(){
+    const name=$("itemName").value.trim()||$("calcName").value.trim()||(lastAnalysis&&lastAnalysis.item_name)||"Untitled flip";
+    const numbers=calculate();
+    const item={id:Date.now().toString(),name,...numbers,photo:photoData,sold:false,created:new Date().toISOString(),analysis:lastAnalysis||undefined};
+    try{const items=getSaved();items.push(item);putSaved(items);renderSaved();toast("Flip saved to this browser.");}
+    catch(e){toast("Browser storage is full. Try saving without a photo.");}
   }
-
-  link.href = listingUrl;
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.textContent =
-    (item.title || "View listing") +
-    (item.price == null ? "" :
-      " — " + money(Number(item.price) + (Number(item.shipping) || 0)));
-
-  row.appendChild(link);
-  sub.appendChild(row);
-});
-root.appendChild(sub);
-
-    }
-  }
-
-  async function researchPrices(itemName) {
-    const root=$("pricingResults");root.textContent="Searching available marketplace pricing…";
-    $("coinTitle").textContent="Researching prices…";$("coinSubtitle").textContent="Automatically checking available market prices";
-    try {
-      const response=await fetch("https://flipfinder-ebay-notifications.onrender.com/api/marketplace-prices",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({itemName})});
-      const data=await response.json().catch(()=>({}));
-      if(!response.ok||!data.success) throw new Error(data.error||"Marketplace pricing request failed.");
-      renderPricing(data);
-      $("coin").className="coin landed";
-      $("coinTitle").textContent=data.summary?"Pricing research complete":"Research links ready";
-      $("coinSubtitle").textContent=data.summary?"Active asking prices found. Verify sold prices before buying.":"No automatic price estimate available yet.";
-    } catch(error) {
-      root.textContent="Automatic price research could not finish. Please try again in a moment.";
-      $("coin").className="coin landed";$("coinTitle").textContent="Pricing unavailable";$("coinSubtitle").textContent="AI identification may still have succeeded.";
-    }
-  }
-
-  async function analyzeImage() {
-    if (!photoData) return;
-    const status=$("aiStatus"), results=$("aiResults");
-    status.textContent="AI is identifying your item… Please wait.";results.textContent="";$("pricingResults").replaceChildren();
-    $("coinStage").classList.add("active");$("coin").className="coin spinning";$("coinTitle").textContent="The coin is flipping…";$("coinSubtitle").textContent="Identifying the item before researching prices";
-    try {
-      const response=await fetch("https://flipfinder-ebay-notifications.onrender.com/api/analyze-image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:photoData,itemName:$("itemName").value.trim()})});
-      const data=await response.json().catch(()=>({}));
-      if(!response.ok||!data.success||!data.analysis) throw new Error(data.error||"AI identification failed. Please try another photo.");
-      const a=data.analysis, name=(a.item_name||"").trim();
-      if(name) $("itemName").value=name;
-      const lines=["Identified item: "+(name||"Unknown"),"Brand: "+(a.brand||"Unknown"),"Model: "+(a.model||"Unknown"),"Category: "+(a.category||"Unknown"),"Confidence: "+(Number(a.confidence)||0)+"%"];
-      if(Array.isArray(a.identifying_details)&&a.identifying_details.length) lines.push("Visible clues: "+a.identifying_details.join(", "));
-      if(Array.isArray(a.condition_observations)&&a.condition_observations.length) lines.push("Condition: "+a.condition_observations.join(", "));
-      if(Array.isArray(a.search_terms)&&a.search_terms.length) lines.push("Search terms: "+a.search_terms.join(" · "));
-      if(a.limitations) lines.push("Note: "+a.limitations);
-      results.textContent=lines.join("\n");status.textContent="AI identification complete. Automatically researching available marketplace prices…";
-      const query=String(a.search_query||[name,a.brand,a.model,a.category].filter(v=>v&&v!=="Unknown").join(" ")||(Array.isArray(a.search_terms)?a.search_terms.join(" "):"")).trim();
-      if(!query) throw new Error("AI did not return an item name. Enter one manually and try again.");
-      await researchPrices(query);
-    } catch(error) {
-      status.textContent="AI scan issue: "+error.message;$("coin").className="coin landed";$("coinTitle").textContent="Scan needs attention";$("coinSubtitle").textContent="Try another photo or enter the item name manually.";
-    }
-  }
-
-  function calculate() {
-    const cost = Math.max(0, Number($("cost").value) || 0);
-    const value = Math.max(0, Number($("value").value) || 0);
-    const fees = Math.max(0, Number($("fees").value) || 0);
-    const profit = value - cost - fees;
-    const roi = cost > 0 ? profit / cost * 100 : 0;
-
-    $("profit").textContent = money(profit);
-    $("roi").textContent = roi.toFixed(1) + "%";
-
-    return { cost, value, fees, profit, roi };
-  }
-
-  ["cost", "value", "fees"].forEach(id => {
-    $(id).addEventListener("input", calculate);
-  });
-
-  async function startCamera() {
-    if (!navigator.mediaDevices ||
-        !navigator.mediaDevices.getUserMedia) {
-      $("cameraStatus").textContent =
-        "Live camera is unavailable here. Use Choose a picture below.";
-      $("capture").disabled = true;
-      return;
-    }
-
-    try {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-
-      stream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: { facingMode: { ideal: "environment" } }
-      });
-
-      $("video").srcObject = stream;
-      $("video").style.display = "block";
-      $("preview").style.display = "none";
-      $("capture").disabled = false;
-      $("retake").hidden = true;
-      $("cameraStatus").textContent =
-        "Camera ready. Point it at your item.";
-
-      await $("video").play().catch(() => {});
-    } catch (error) {
-      $("cameraStatus").textContent =
-        "Camera permission is needed. Allow camera access in your browser, or choose a picture below.";
-      $("capture").disabled = true;
-    }
-  }
-
-  $("capture").addEventListener("click", () => {
-    const video = $("video");
-
-    if (!video.videoWidth) {
-      $("cameraStatus").textContent =
-        "Wait for the camera to finish starting.";
-      return;
-    }
-
-    const canvas = $("canvas");
-    const scale = Math.min(1, 1400 / video.videoWidth);
-
-    canvas.width = Math.round(video.videoWidth * scale);
-    canvas.height = Math.round(video.videoHeight * scale);
-
-    canvas.getContext("2d").drawImage(
-      video, 0, 0, canvas.width, canvas.height
-    );
-
-    photoData = canvas.toDataURL("image/jpeg", 0.82);
-    $("preview").src = photoData;
-    $("preview").style.display = "block";
-    video.style.display = "none";
-    $("retake").hidden = false;
-    $("cameraStatus").textContent = "Picture captured.";
-    analyzeImage();
-
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      stream = null;
-    }
-  });
-
-  $("retake").addEventListener("click", startCamera);
-
-  $("photoUpload").addEventListener("change", event => {
-    const file = event.target.files && event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      photoData = reader.result;
-      $("preview").src = photoData;
-      $("preview").style.display = "block";
-      $("video").style.display = "none";
-      $("retake").hidden = false;
-      $("cameraStatus").textContent = "Picture loaded.";
-      analyzeImage();
-
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-      }
-    };
-
-    reader.readAsDataURL(file);
-  });
-
-  function getSaved() {
-    try {
-      return JSON.parse(
-        localStorage.getItem("flipfinder_items") || "[]"
-      );
-    } catch {
-      return [];
-    }
-  }
-
-  function renderSaved() {
-    const items = getSaved();
-
-    $("totalItems").textContent = items.length;
-    $("totalProfit").textContent = money(
-      items.filter(item => !item.sold)
-        .reduce((sum, item) => sum + (Number(item.profit) || 0), 0)
-    );
-
-    const list = $("savedList");
+  function updateItem(id,changes){putSaved(getSaved().map(item=>String(item.id)===String(id)?{...item,...changes}:item));renderSaved();}
+  function renderSaved(){
+    const items=getSaved(),list=$("savedList");
+    $("totalItems").textContent=items.length;
+    $("totalProfit").textContent=money(items.filter(x=>!x.sold).reduce((sum,x)=>sum+(Number(x.profit)||0),0));
     list.replaceChildren();
-
-    if (!items.length) {
-      list.textContent =
-        "No saved flips yet. Scan an item to get started.";
-      list.className = "muted";
-      return;
-    }
-
-    list.className = "";
-
-    items.slice().reverse().forEach(item => {
-      const wrapper = document.createElement("div");
-      wrapper.className = "flip";
-
-      const title = document.createElement("h3");
-      title.textContent = item.name;
-      wrapper.appendChild(title);
-
-      const details = document.createElement("p");
-      details.className = "muted";
-      details.textContent =
-        "Cost " + money(item.cost) +
-        " · Sale " + money(item.value) +
-        " · Profit " + money(item.profit) +
-        (item.sold ? " · SOLD" : "");
-
-      wrapper.appendChild(details);
-
-      if (item.photo) {
-        const image = document.createElement("img");
-        image.src = item.photo;
-        image.alt = item.name;
-        image.style.cssText =
-          "width:100%;max-height:180px;object-fit:contain;border-radius:8px";
-        wrapper.appendChild(image);
-      }
-
-      const actions = document.createElement("div");
-      actions.className = "row";
-
-      if (!item.sold) {
-        const sold = document.createElement("button");
-        sold.textContent = "Mark Sold";
-        sold.addEventListener("click", () => {
-          updateItem(item.id, { sold: true });
-        });
-        actions.appendChild(sold);
-      }
-
-      const remove = document.createElement("button");
-      remove.textContent = "Delete";
-      remove.className = "danger";
-
-      remove.addEventListener("click", () => {
-        if (confirm("Delete this saved flip?")) {
-          localStorage.setItem(
-            "flipfinder_items",
-            JSON.stringify(getSaved().filter(x => x.id !== item.id))
-          );
-          renderSaved();
-        }
-      });
-
-      actions.appendChild(remove);
-      wrapper.appendChild(actions);
-      list.appendChild(wrapper);
+    if(!items.length){list.innerHTML='<div class="empty"><div class="empty-icon">♡</div><h2>No saved flips yet</h2><p>Scan an item or calculate a flip, then save it here.</p><button class="primary" id="emptyFind">Find an item</button></div>'; $("emptyFind").addEventListener("click",()=>showPage("searchPage"));return;}
+    items.slice().reverse().forEach(item=>{
+      const card=document.createElement("article");card.className="saved-card";
+      const icon=document.createElement("div");icon.className="product-placeholder";icon.textContent=item.photo?"▧":"✦";card.appendChild(icon);
+      const info=document.createElement("div");info.className="saved-info";
+      const title=document.createElement("strong");title.textContent=item.name||"Untitled flip";info.appendChild(title);
+      const details=document.createElement("small");details.textContent="Cost "+money(item.cost)+" · Sale "+money(item.value)+" · "+(item.sold?"SOLD":"Profit "+money(item.profit));info.appendChild(details);
+      const actions=document.createElement("div");actions.className="saved-actions";
+      if(!item.sold){const sold=document.createElement("button");sold.className="small-btn";sold.textContent="Mark sold";sold.addEventListener("click",()=>updateItem(item.id,{sold:true}));actions.appendChild(sold);}
+      const del=document.createElement("button");del.className="small-btn danger";del.textContent="Delete";del.addEventListener("click",()=>{if(confirm("Delete this saved flip?")){putSaved(getSaved().filter(x=>String(x.id)!==String(item.id)));renderSaved();toast("Saved flip removed.");}});actions.appendChild(del);
+      info.appendChild(actions);card.append(icon,info);
+      const profit=document.createElement("div");profit.className="saved-profit";profit.textContent=money(item.profit);card.appendChild(profit);list.appendChild(card);
     });
   }
-
-  function updateItem(id, changes) {
-    const items = getSaved().map(item =>
-      item.id === id ? { ...item, ...changes } : item
-    );
-
-    localStorage.setItem("flipfinder_items", JSON.stringify(items));
-    renderSaved();
+  function affiliateUrl(raw){try{const u=new URL(raw);if(u.hostname==="ebay.com"||u.hostname.endsWith(".ebay.com")){u.searchParams.set("mkcid","1");u.searchParams.set("mkrid","711-53200-19255-0");u.searchParams.set("siteid","0");u.searchParams.set("campid","5339219469");u.searchParams.set("customid","flipfinder");u.searchParams.set("toolid","10001");u.searchParams.set("mkevt","1");}return u.toString();}catch(e){return raw;}}
+  function appendListing(parent,item){
+    const row=document.createElement("div");row.className="market-result";
+    const link=document.createElement("a");link.href=affiliateUrl(item.url);link.target="_blank";link.rel="noopener noreferrer";link.textContent=(item.title||"View listing")+(item.price==null?"":" — "+money(Number(item.price)+(Number(item.shipping)||0)));
+    row.appendChild(link);const source=document.createElement("p");source.className="note";source.textContent=item.source||"Marketplace listing";row.appendChild(source);parent.appendChild(row);
+  }
+  function renderPricing(data,targetId){
+    const root=$(targetId);root.replaceChildren();
+    const heading=document.createElement("h2");heading.textContent="Your flip plan";root.appendChild(heading);
+    const summary=data.summary||{},online=Number(summary.median_active_total)||0;
+    if(online>0){
+      const fees=online*.15,target=online*.25,maxBuy=Math.max(0,online-fees-target);
+      const verdict=document.createElement("div");verdict.className="result-verdict good";verdict.textContent="TARGET BUY PRICE: "+money(maxBuy);root.appendChild(verdict);
+      const grid=document.createElement("div");grid.className="price-grid";
+      [["Typical active asking",online,"online"],["Aim to pay at most",maxBuy,"recommended"],["Estimated fees (15%)",fees,""],["Target profit (25%)",target,""]].forEach(([label,amount,cls])=>{const box=document.createElement("div");box.className="stat "+cls;const cap=document.createElement("span");cap.textContent=label;const val=document.createElement("strong");val.textContent=money(amount);box.append(cap,val);grid.appendChild(box);});
+      root.appendChild(grid);
+      const note=document.createElement("p");note.className="note";note.textContent="Estimate uses active asking prices, 15% selling costs and a 25% sale-price profit target. Asking prices are not confirmed sold prices.";root.appendChild(note);
+      $("value").value=online.toFixed(2);$("fees").value=fees.toFixed(2);$("cost").value=maxBuy.toFixed(2);calculate();
+    }else{const note=document.createElement("p");note.className="status-box";note.textContent="No automatic price estimate was returned. Try searching for the item or enter a price you find online. Flip Finder will not invent a market value.";root.appendChild(note);}
+    const listings=(data.marketplaces||[]).filter(m=>Array.isArray(m.results)).flatMap(m=>m.results.filter(x=>x.url).map(x=>({...x,source:m.marketplace||"Marketplace"}))).slice(0,5);
+    if(listings.length){const sub=document.createElement("details");const summaryEl=document.createElement("summary");summaryEl.textContent="Comparable listings ("+listings.length+")";summaryEl.style.cursor="pointer";summaryEl.style.margin="13px 0";sub.appendChild(summaryEl);listings.forEach(x=>appendListing(sub,x));root.appendChild(sub);}
+  }
+  async function researchPrices(itemName,targetId="searchPricingResults"){
+    const root=$(targetId);root.innerHTML='<div class="status-box">Checking available marketplace prices…</div>';
+    try{const response=await fetch(API+"/api/marketplace-prices",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({itemName})});const data=await response.json().catch(()=>({}));if(!response.ok||!data.success)throw new Error(data.error||"Marketplace pricing request failed.");renderPricing(data,targetId);return data;}
+    catch(err){root.innerHTML='<div class="status-box">Automatic price research could not finish. Try again or use the eBay and Google search buttons.</div>';console.error("Price research:",err);return null;}
+  }
+  async function analyzeImage(){
+    if(!photoData)return;
+    const status=$("cameraInstruction"),results=$("aiResults");
+    $("bottomNav").style.display="";$("cameraPage").classList.remove("active");showPage("calculatorPage");
+    $("coinStage").classList.add("active");$("coinTitle").textContent="Identifying your item";$("coinSubtitle").textContent="AI scan in progress";$("aiStatus")?.classList?.add("hidden");
+    const orb=$("coinOrb");if(orb)orb.classList.add("busy");
+    results.textContent="";$("calculatorMarketResults").replaceChildren();
+    try{
+      const response=await fetch(API+"/api/analyze-image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:photoData,itemName:$("itemName").value.trim()})});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok||!data.success||!data.analysis)throw new Error(data.error||"AI identification failed. Try another photo.");
+      const a=data.analysis;lastAnalysis=a;const name=(a.item_name||"").trim();if(name){$("itemName").value=name;$("calcName").value=name;}
+      const lines=["Identified item: "+(name||"Unknown"),"Brand: "+(a.brand||"Unknown"),"Model: "+(a.model||"Unknown"),"Category: "+(a.category||"Unknown"),"Confidence: "+(Number(a.confidence)||0)+"%"];
+      if(Array.isArray(a.identifying_details)&&a.identifying_details.length)lines.push("Visible clues: "+a.identifying_details.join(", "));
+      if(Array.isArray(a.condition_observations)&&a.condition_observations.length)lines.push("Condition: "+a.condition_observations.join(", "));
+      if(Array.isArray(a.search_terms)&&a.search_terms.length)lines.push("Search terms: "+a.search_terms.join(" · "));
+      if(a.limitations)lines.push("Note: "+a.limitations);
+      const info=document.createElement("div");info.className="form-card";const title=document.createElement("h2");title.textContent="Item identified";info.appendChild(title);const lineBox=document.createElement("div");lineBox.className="ai-lines";lineBox.textContent=lines.join("\n");info.appendChild(lineBox);results.replaceChildren(info);
+      $("coinTitle").textContent="Item identified";$("coinSubtitle").textContent="Now checking available market prices";
+      const query=String(a.search_query||[name,a.brand,a.model,a.category].filter(v=>v&&v!=="Unknown").join(" ")||(Array.isArray(a.search_terms)?a.search_terms.join(" "):"")).trim();
+      if(!query)throw new Error("AI did not return a search name. Enter the item name manually.");
+      await researchPrices(query,"calculatorMarketResults");
+      toast("AI identification finished.");
+    }catch(err){$("coinTitle").textContent="Scan needs attention";$("coinSubtitle").textContent="Try another photo or search by name";const box=document.createElement("div");box.className="status-box";box.textContent="AI scan issue: "+err.message;results.replaceChildren(box);console.error("Image analysis:",err);toast("Could not finish the AI scan.");}
+  }
+  function processImageFile(file){
+    if(!file)return;if(!file.type.startsWith("image/")){toast("Choose an image file.");return;}
+    const reader=new FileReader();reader.onload=()=>{photoData=String(reader.result||"");analyzeImage();};reader.onerror=()=>toast("Could not read that image. Try another photo.");reader.readAsDataURL(file);
   }
 
-  $("saveFlip").addEventListener("click", () => {
-    const name = $("itemName").value.trim();
-
-    if (!name) {
-      alert("Enter an item name before saving.");
-      $("itemName").focus();
-      return;
-    }
-
-    const numbers = calculate();
-    const item = {
-      id: Date.now().toString(),
-      name,
-      ...numbers,
-      photo: photoData,
-      sold: false,
-      created: new Date().toISOString()
-    };
-
-    try {
-      const items = getSaved();
-      items.push(item);
-      localStorage.setItem("flipfinder_items", JSON.stringify(items));
-      renderSaved();
-      alert("Flip saved!");
-    } catch {
-      alert("Storage is full. Try a smaller photo and save again.");
-    }
+  document.querySelectorAll("[data-page]").forEach(btn=>btn.addEventListener("click",()=>showPage(btn.dataset.page)));
+  document.querySelectorAll("[data-go]").forEach(btn=>btn.addEventListener("click",()=>showPage(btn.dataset.go)));
+  $("settingsBtn").addEventListener("click",()=>showPage("profilePage"));
+  $("startScan").addEventListener("click",startCamera);
+  $("uploadPhoto").addEventListener("click",()=>$("photoUpload").click());
+  $("cameraUpload").addEventListener("click",()=>$("photoUpload").click());
+  $("photoUpload").addEventListener("change",e=>{processImageFile(e.target.files&&e.target.files[0]);e.target.value="";});
+  $("closeCamera").addEventListener("click",stopCamera);
+  $("switchCamera").addEventListener("click",()=>{facingMode=facingMode==="environment"?"user":"environment";stopCamera();startCamera();});
+  $("cameraHelp").addEventListener("click",()=>toast("Use good light, keep the item inside the corners, then tap the green button."));
+  $("takePhoto").addEventListener("click",()=>{
+    const video=$("cameraVideo");if(!video.videoWidth){toast("Camera is still starting. Try again in a moment.");return;}
+    const canvas=$("cameraCanvas"),scale=Math.min(1,1400/video.videoWidth);canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);
+    const ctx=canvas.getContext("2d");if(facingMode==="user"){ctx.translate(canvas.width,0);ctx.scale(-1,1);}ctx.drawImage(video,0,0,canvas.width,canvas.height);
+    canvas.toBlob(blob=>{if(!blob){toast("Could not capture photo.");return;}processImageFile(new File([blob],"flipfinder-scan.jpg",{type:"image/jpeg"}));},"image/jpeg",.84);stopCamera();
   });
-
-  function searchListings(engine) {
-    const query = $("itemName").value.trim();
-
-    if (!query) {
-      alert("Enter an item name first.");
-      $("itemName").focus();
-      return;
-    }
-
-    
-const url = engine === "ebay"
-  ? "https://www.ebay.com/sch/i.html?_nkw=" +
-    encodeURIComponent(query) +
-    "&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339219469&customid=flipfinder&toolid=10001&mkevt=1"
-  : "https://www.google.com/search?q=" +
-    encodeURIComponent(query + " resale price");
-
-
-    window.open(url, "_blank", "noopener");
-  }
-
-  $("searchEbay").addEventListener("click", () => searchListings("ebay"));
-  $("searchGoogle").addEventListener("click", () => searchListings("google"));
-  $("manualSearchEbay").addEventListener("click", () => searchListings("ebay"));
-$("manualSearchGoogle").addEventListener("click", () => searchListings("google"));
-
-  renderSaved();
-  calculate();
-
-  // Request camera access automatically when the website opens.
-  // The browser may still require the user to approve permission.
-  if (location.protocol === "https:" ||
-      location.hostname === "localhost") {
-    startCamera();
-  } else {
-    $("cameraStatus").textContent =
-      "Open Flip Finder using its HTTPS website address to use the camera.";
-  }
-
-  // Stop the camera when leaving the page.
-  window.addEventListener("pagehide", () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
-  });
+  $("manualSearchEbay").addEventListener("click",()=>searchListings("ebay"));
+  $("manualSearchGoogle").addEventListener("click",()=>searchListings("google"));
+  $("searchEbay")?.addEventListener("click",()=>searchListings("ebay"));
+  $("searchGoogle")?.addEventListener("click",()=>searchListings("google"));
+  $("researchButton").addEventListener("click",()=>{const q=$("itemName").value.trim();if(!q){toast("Enter an item name first.");$("itemName").focus();return;}researchPrices(q);});
+  $("itemName").addEventListener("keydown",e=>{if(e.key==="Enter")searchListings("ebay");});
+  ["cost","value","fees"].forEach(id=>$(id).addEventListener("input",calculate));
+  $("saveFlip").addEventListener("click",saveFlip);
+  window.addEventListener("pagehide",stopCamera);
+  renderSaved();calculate();
 })();
 </script>
 </body>
