@@ -81,9 +81,22 @@
 </section>
 
 <section class="page" id="profilePage">
-  <div class="eyebrow">Your workspace</div><h1>Simple by design.</h1><p>Research first. Check the numbers. Buy with a plan.</p>
-  <div class="form-card"><h2>How to use Flip Finder</h2><div class="tip"><div class="tip-icon">1</div><div><strong>Scan or search</strong><p>Take a photo for AI identification or enter the item name.</p></div></div><div class="tip"><div class="tip-icon">2</div><div><strong>Check the numbers</strong><p>Review market estimates, fees, purchase cost, and potential profit.</p></div></div><div class="tip"><div class="tip-icon">3</div><div><strong>Save and track</strong><p>Save promising items, mark sold flips, or delete items you no longer need.</p></div></div></div>
-  <div class="form-card"><h2>Market data notes</h2><p style="font-size:13px;margin-top:8px">AI identification and marketplace pricing use your existing Flip Finder service. Market estimates may rely on active asking prices, which are not confirmed sale prices. Verify condition, sold listings, shipping, and fees before purchasing.</p></div>
+  <div class="eyebrow">Your space</div><h1>Account & settings.</h1><p>Make Flip Finder work the way you like.</p>
+  <div class="form-card">
+    <div class="result-title"><div class="product-placeholder" aria-hidden="true">👤</div><div><h2 id="accountGreeting">Your profile</h2><p id="accountStatus">This device only · Sign-in not connected yet</p></div></div>
+    <label class="field"><span>Display name</span><input id="profileName" maxlength="40" placeholder="What should we call you?"></label>
+    <label class="field"><span>Email (optional)</span><input id="profileEmail" type="email" maxlength="120" placeholder="you@example.com" autocomplete="email"></label>
+    <button class="primary wide" id="saveProfile">Save profile on this device</button>
+    <p class="note">Your profile here is stored only in this browser. It does not create a secure account or sync across devices yet.</p>
+  </div>
+  <div class="form-card"><h2>Preferences</h2>
+    <label class="field"><span>Appearance</span><select id="appearanceSelect" style="width:100%;height:50px;border-radius:14px;border:1px solid var(--line);background:#0b1511;color:var(--text);padding:0 12px"><option value="dark">Dark mode (recommended)</option><option value="system">Use device setting (coming soon)</option></select></label>
+    <label style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--line)"><span><strong style="display:block;font-size:14px">Price research notices</strong><small style="display:block;color:var(--muted);margin-top:4px">Show helpful notices while checking items</small></span><input id="researchNotices" type="checkbox" checked style="width:22px;height:22px;accent-color:var(--green)"></label>
+    <label style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--line)"><span><strong style="display:block;font-size:14px">Confirm before deleting saved flips</strong><small style="display:block;color:var(--muted);margin-top:4px">Help prevent accidental deletions</small></span><input id="confirmDelete" type="checkbox" checked style="width:22px;height:22px;accent-color:var(--green)"></label>
+    <button class="secondary wide" id="savePreferences" style="margin-top:10px">Save preferences</button>
+  </div>
+  <div class="form-card"><h2>Flip Finder Pro</h2><p style="font-size:13px;margin:6px 0 13px">Premium tools may include more scans, advanced pricing insights, and extra flip tracking.</p><button class="secondary wide" id="proInfo">Explore Pro</button><p class="note">Subscriptions and payments are not enabled yet.</p></div>
+  <div class="form-card"><h2>Help & market data</h2><div class="tip"><div class="tip-icon">1</div><div><strong>Scan or search</strong><p>Take a photo or enter an item name.</p></div></div><div class="tip"><div class="tip-icon">2</div><div><strong>Check the numbers</strong><p>Compare available prices and include your costs.</p></div></div><div class="tip"><div class="tip-icon">3</div><div><strong>Save and track</strong><p>Keep promising items in Saved flips.</p></div></div><p style="font-size:13px;margin-top:12px">Important: active asking prices are not confirmed sold prices. Verified sales history and secure account syncing still need to be connected.</p></div>
 </section>
 
 <section class="camera-page" id="cameraPage" aria-label="Full-screen item camera">
@@ -175,59 +188,58 @@
   }
   function renderPricing(data,targetId){
     const root=$(targetId);root.replaceChildren();
-    const heading=document.createElement("h2");heading.textContent="Your flip plan";root.appendChild(heading);
-    const summary=data.summary||{},online=Number(summary.median_active_total)||0;
+    const heading=document.createElement("h2");heading.textContent="Simple price guide";root.appendChild(heading);
+    const summaryData=data.summary||{},marketPrice=Number(summaryData.median_active_total)||0;
     const listings=(data.marketplaces||[]).filter(m=>Array.isArray(m.results)).flatMap(m=>m.results.filter(x=>x.url).map(x=>({...x,source:m.marketplace||"Marketplace"}))).slice(0,5);
-    if(online>0){
-      const enteredCost=Math.max(0,Number($("cost").value)||0);
-      const estimatedFees=online*.15;
-      const currentFees=Math.max(0,Number($("fees").value)||0);
-      const hasCost=enteredCost>0;
-      const estimatedProfit=online-enteredCost-(currentFees>0?currentFees:estimatedFees);
-      const verdict=document.createElement("div");
-      verdict.className="result-verdict "+(!hasCost?"unknown":estimatedProfit>0?"good":"bad");
-      verdict.textContent=!hasCost?"ADD YOUR BUYING COST":estimatedProfit>0?"GOOD FLIP":"BAD FLIP";
-      root.appendChild(verdict);
-      const explainer=document.createElement("p");explainer.className="note";
-      explainer.textContent=!hasCost
-        ?"Enter what you would pay in Purchase cost to get a profit verdict. This market figure is based on active asking prices, not confirmed sales."
-        :"Estimated profit at your entered purchase cost: "+money(estimatedProfit)+". This uses the current selling-fees field; confirm fees, shipping, condition, and actual sold prices before buying.";
-      root.appendChild(explainer);
-      const grid=document.createElement("div");grid.className="price-grid";
-      const count=Number(summary.active_listing_count)||0;
-      const low=Number(summary.lowest_active_total)||0;
-      const high=Number(summary.highest_active_total)||0;
-      const breakEven=Math.max(0,online-(currentFees>0?currentFees:estimatedFees));
-      [
-        ["Median active asking",online,"online"],
-        ["Lowest active total",low,""],
-        ["Highest active total",high,""],
-        ["Matching listings",count,""],
-        ["Estimated fees (15% fallback)",currentFees>0?currentFees:estimatedFees,""],
-        ["Break-even buy price",breakEven,"recommended"]
-      ].forEach(([label,amount,cls])=>{
-        const box=document.createElement("div");box.className="stat "+cls;
-        const cap=document.createElement("span");cap.textContent=label;
-        const val=document.createElement("strong");val.textContent=label==="Matching listings"?String(amount):money(amount);
-        box.append(cap,val);grid.appendChild(box);
-      });
-      root.appendChild(grid);
-      const note=document.createElement("p");note.className="note";
-      note.textContent="Pricing evidence: eBay active asking listings only. These are not verified completed sales and may include items with different models, conditions, shipping, or completeness. The 15% fee is an estimate, not a confirmed fee quote. Break-even means estimated profit of $0 before any unentered costs.";
-      root.appendChild(note);
-      $("value").value=online.toFixed(2);
-      if(!(Number($("fees").value)>0))$("fees").value=estimatedFees.toFixed(2);
-      calculate();
+    if(marketPrice>0){
+      const intro=document.createElement("p");intro.className="note";intro.textContent="Choose your side. Enter your costs and profit goal; Flip Finder calculates a guide price.";root.appendChild(intro);
+      const tabs=document.createElement("div");tabs.style.cssText="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0";
+      const buyerBtn=document.createElement("button"),sellerBtn=document.createElement("button");
+      [buyerBtn,sellerBtn].forEach(b=>{b.type="button";b.style.cssText="min-height:48px;border-radius:14px;border:1px solid var(--line);font-weight:850;background:#14233a;color:var(--text)";});
+      buyerBtn.textContent="🛒 I'm buying";sellerBtn.textContent="💵 I'm selling";tabs.append(buyerBtn,sellerBtn);root.appendChild(tabs);
+      const panel=document.createElement("div");root.appendChild(panel);
+      const fields=document.createElement("div");fields.className="form-card";fields.style.marginTop="0";
+      const marketLabel=document.createElement("p");marketLabel.textContent="Market price guide (active asking prices)";marketLabel.style.cssText="font-size:12px;margin-bottom:5px";
+      const marketValue=document.createElement("div");marketValue.style.cssText="font-size:27px;font-weight:900;color:var(--green)";marketValue.textContent=money(marketPrice);
+      fields.append(marketLabel,marketValue);
+      const costLabel=document.createElement("label");costLabel.className="field";costLabel.innerHTML='<span>Your item cost ($) — what you paid or plan to pay</span><input id="ffSideCost" type="number" min="0" step=".01" value="'+(Math.max(0,Number($("cost").value)||0))+'">';fields.appendChild(costLabel);
+      const goalLabel=document.createElement("label");goalLabel.className="field";goalLabel.innerHTML='<span>Profit you want ($)</span><input id="ffSideProfit" type="number" min="0" step=".01" value="'+(Math.round(marketPrice*.25*100)/100)+'">';fields.appendChild(goalLabel);
+      const shippingLabel=document.createElement("label");shippingLabel.className="field";shippingLabel.innerHTML='<span>Shipping and other costs ($)</span><input id="ffSideCosts" type="number" min="0" step=".01" value="10">';fields.appendChild(shippingLabel);
+      const feeLabel=document.createElement("label");feeLabel.className="field";feeLabel.innerHTML='<span>Estimated selling fee (%)</span><input id="ffSideFeeRate" type="number" min="0" max="99" step=".5" value="15">';fields.appendChild(feeLabel);
+      panel.appendChild(fields);
+      const answer=document.createElement("div");answer.className="result-card";panel.appendChild(answer);
+      const note=document.createElement("p");note.className="note";note.textContent="Important: the market figure is based on active asking prices, not verified completed sales. Fee and cost fields are estimates—adjust them for your actual situation.";panel.appendChild(note);
+      function draw(mode){
+        buyerBtn.style.background=mode==="buyer"?"linear-gradient(100deg,#73ceff,#258bff)":"#14233a";buyerBtn.style.color=mode==="buyer"?"#04162d":"var(--text)";sellerBtn.style.background=mode==="seller"?"linear-gradient(100deg,#73ceff,#258bff)":"#14233a";sellerBtn.style.color=mode==="seller"?"#04162d":"var(--text)";
+        const cost=Math.max(0,Number($("ffSideCost").value)||0),goal=Math.max(0,Number($("ffSideProfit").value)||0),other=Math.max(0,Number($("ffSideCosts").value)||0),rate=Math.min(99,Math.max(0,Number($("ffSideFeeRate").value)||0))/100;
+        let result,title,detail;
+        if(mode==="buyer"){
+          result=marketPrice*(1-rate)-other-goal;
+          title="MAXIMUM YOU SHOULD PAY";
+          detail="At this purchase price, your target profit is about "+money(goal)+" if the item sells for the market guide price and the estimated costs are accurate.";
+        }else{
+          result=(cost+goal+other)/(1-rate);
+          title="MINIMUM PRICE TO ASK";
+          detail="This asking price aims to cover your item cost, estimated fees, other costs, and "+money(goal)+" profit. Buyers may not accept this price.";
+        }
+        answer.replaceChildren();
+        const t=document.createElement("p");t.textContent=title;t.style.cssText="font-size:12px;font-weight:850;color:var(--muted)";
+        const v=document.createElement("div");v.textContent=money(Math.max(0,result));v.style.cssText="font-size:34px;font-weight:950;letter-spacing:-1px;color:var(--green);margin:6px 0 10px";
+        const d=document.createElement("p");d.textContent=result<0&&mode==="buyer"?"Your profit goal is too high for this market price and the costs entered. Lower the goal or skip this item.":detail;
+        answer.append(t,v,d);
+        const badge=document.createElement("div");badge.className="result-verdict "+(mode==="buyer"?(cost<=Math.max(0,result)?"good":"bad"):"unknown");badge.textContent=mode==="buyer"?(cost<=0?"ENTER YOUR OFFER PRICE":cost<=result?"WITHIN YOUR BUY LIMIT":"ABOVE YOUR BUY LIMIT"):"SELLER PRICE GUIDE";answer.appendChild(badge);
+        if(mode==="buyer"){$("cost").value=cost.toFixed(2);}
+      }
+      buyerBtn.addEventListener("click",()=>draw("buyer"));sellerBtn.addEventListener("click",()=>draw("seller"));
+      ["ffSideCost","ffSideProfit","ffSideCosts","ffSideFeeRate"].forEach(id=>$(id).addEventListener("input",()=>draw(sellerBtn.dataset.active==="yes"?"seller":"buyer")));
+      const originalBuyer=draw;const sellerClick=()=>{sellerBtn.dataset.active="yes";draw("seller")};const buyerClick=()=>{sellerBtn.dataset.active="no";draw("buyer")};
+      buyerBtn.onclick=buyerClick;sellerBtn.onclick=sellerClick;draw("buyer");
+      const stats=document.createElement("div");stats.className="price-grid";
+      [["Lowest active total",Number(summaryData.lowest_active_total)||0],["Highest active total",Number(summaryData.highest_active_total)||0],["Matching listings",Number(summaryData.active_listing_count)||0]].forEach(([label,amount])=>{const box=document.createElement("div");box.className="stat";const cap=document.createElement("span");cap.textContent=label;const val=document.createElement("strong");val.textContent=label==="Matching listings"?String(amount):money(amount);box.append(cap,val);stats.appendChild(box)});root.appendChild(stats);
     }else{
-      const note=document.createElement("p");note.className="status-box";
-      note.textContent="No automatic price estimate was returned. Try searching for the item or enter a price you find online. Flip Finder will not invent a market value.";
-      root.appendChild(note);
+      const note=document.createElement("p");note.className="status-box";note.textContent="No automatic price estimate was returned. Search for the item or enter a price you find online. Flip Finder will not invent a market value.";root.appendChild(note);
     }
-    if(listings.length){
-      const sub=document.createElement("details");
-      const summaryEl=document.createElement("summary");summaryEl.textContent="Comparable listings ("+listings.length+")";summaryEl.style.cursor="pointer";summaryEl.style.margin="13px 0";sub.appendChild(summaryEl);
-      listings.forEach(x=>appendListing(sub,x));root.appendChild(sub);
-    }
+    if(listings.length){const sub=document.createElement("details");const summaryEl=document.createElement("summary");summaryEl.textContent="Comparable listings ("+listings.length+")";summaryEl.style.cursor="pointer";summaryEl.style.margin="13px 0";sub.appendChild(summaryEl);listings.forEach(x=>appendListing(sub,x));root.appendChild(sub);}
   }
   async function researchPrices(itemName,targetId="searchPricingResults"){
     const root=$(targetId);root.innerHTML='<div class="status-box">Checking available marketplace prices…</div>';
@@ -267,6 +279,38 @@
   document.querySelectorAll("[data-page]").forEach(btn=>btn.addEventListener("click",()=>showPage(btn.dataset.page)));
   document.querySelectorAll("[data-go]").forEach(btn=>btn.addEventListener("click",()=>showPage(btn.dataset.go)));
   $("settingsBtn").addEventListener("click",()=>showPage("profilePage"));
+  const PROFILE_KEY = "flipfinder_profile_v1";
+  const PREFS_KEY = "flipfinder_preferences_v1";
+  function loadProfileAndPreferences() {
+    try {
+      const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}");
+      $("profileName").value = profile.name || "";
+      $("profileEmail").value = profile.email || "";
+      $("accountGreeting").textContent = profile.name ? `Hi, ${profile.name}` : "Your profile";
+      const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) || "{}");
+      $("appearanceSelect").value = prefs.appearance || "dark";
+      $("researchNotices").checked = prefs.researchNotices !== false;
+      $("confirmDelete").checked = prefs.confirmDelete !== false;
+    } catch (e) { console.warn("Could not load local profile settings", e); }
+  }
+  $("saveProfile").addEventListener("click", () => {
+    const name = $("profileName").value.trim();
+    const email = $("profileEmail").value.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast("Please enter a valid email, or leave it blank."); return; }
+    try {
+      localStorage.setItem(PROFILE_KEY, JSON.stringify({name, email}));
+      $("accountGreeting").textContent = name ? `Hi, ${name}` : "Your profile";
+      toast("Profile saved on this device.");
+    } catch (e) { toast("Couldn't save profile in this browser."); }
+  });
+  $("savePreferences").addEventListener("click", () => {
+    try {
+      localStorage.setItem(PREFS_KEY, JSON.stringify({appearance:$("appearanceSelect").value, researchNotices:$("researchNotices").checked, confirmDelete:$("confirmDelete").checked}));
+      toast("Preferences saved on this device.");
+    } catch (e) { toast("Couldn't save preferences in this browser."); }
+  });
+  $("proInfo").addEventListener("click", () => toast("Flip Finder Pro isn't available yet. We're building the core features first."));
+  loadProfileAndPreferences();
   $("startScan").addEventListener("click",startCamera);
   $("retryCamera").addEventListener("click",startCamera);
   $("fallbackUpload").addEventListener("click",()=>$("photoUpload").click());
