@@ -1,4 +1,3 @@
-```
 <!doctype html>
 <html lang="en">
 <head>
@@ -51,7 +50,12 @@
   <div class="btnrow"><button class="primary" id="manualSearchEbay">Search eBay ↗</button><button class="secondary" id="manualSearchGoogle">Search Google ↗</button></div>
   <div class="tip"><div class="tip-icon">ⓘ</div><div><strong>Better searches, better decisions</strong><p>Include brand, model, size, and condition. Active asking prices are not the same as confirmed sold prices.</p></div></div>
   <div class="section-head"><h2>Automatic market research</h2></div><button class="secondary wide" id="researchButton">Check available prices</button>
-  <div id="searchPricingResults" class="market-list" aria-live="polite"></div>
+  <div id="searchPricingResults" class="market-list" aria-live="polite">
+    <div class="result-card">
+      <h2>Price results will appear here</h2>
+      <p>Enter an item name above, then choose <strong>Check available prices</strong>. If automatic research is unavailable, use the eBay and Google buttons to see current listings.</p>
+    </div>
+  </div>
   <p class="disclaimer"><strong>Affiliate disclosure:</strong> Flip Finder may earn a commission on qualifying eBay purchases through affiliate links, at no extra cost to you. Commissions depend on program terms.</p>
 </section>
 
@@ -79,8 +83,6 @@
   <div class="stats"><div class="stat"><span>Items saved</span><strong id="totalItems">0</strong></div><div class="stat"><span>Potential profit</span><strong id="totalProfit">$0.00</strong></div></div>
   <div id="savedList"></div><button class="secondary wide" style="margin-top:15px" data-go="searchPage">＋ Research another item</button>
 </section>
-
-<section class="page" id="profilePage">
 
 <section class="page" id="profilePage">
   <div class="eyebrow">Your space</div>
@@ -367,9 +369,26 @@
     if(listings.length){const sub=document.createElement("details");const summaryEl=document.createElement("summary");summaryEl.textContent="Comparable listings ("+listings.length+")";summaryEl.style.cursor="pointer";summaryEl.style.margin="13px 0";sub.appendChild(summaryEl);listings.forEach(x=>appendListing(sub,x));root.appendChild(sub);}
   }
   async function researchPrices(itemName,targetId="searchPricingResults"){
-    const root=$(targetId);root.innerHTML='<div class="status-box">Checking available marketplace prices…</div>';
-    try{const response=await fetch(API+"/api/marketplace-prices",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({itemName})});const data=await response.json().catch(()=>({}));if(!response.ok||!data.success)throw new Error(data.error||"Marketplace pricing request failed.");renderPricing(data,targetId);if(targetId!=="homeFlipPlan")renderPricing(data,"homeFlipPlan");return data;}
-    catch(err){root.innerHTML='<div class="status-box">Automatic price research could not finish. Try again or use the eBay and Google search buttons.</div>';console.error("Price research:",err);return null;}
+    const root=$(targetId);
+    const q=String(itemName||"").trim();
+    if(!q){root.innerHTML='<div class="status-box">Enter an item name to see price results.</div>';return null;}
+    root.innerHTML='<div class="result-card"><h2>Checking prices for '+escapeHtml(q)+'</h2><p>Contacting the marketplace pricing service…</p></div>';
+    try{
+      const response=await fetch(API+"/api/marketplace-prices",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({itemName:q})});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok||!data.success)throw new Error(data.error||"Marketplace pricing service did not return results.");
+      renderPricing(data,targetId);
+      if(targetId!=="homeFlipPlan")renderPricing(data,"homeFlipPlan");
+      return data;
+    }catch(err){
+      const ebay="https://www.ebay.com/sch/i.html?_nkw="+encodeURIComponent(q);
+      const google="https://www.google.com/search?q="+encodeURIComponent(q+" resale price");
+      root.innerHTML='<div class="result-card"><h2>Automatic prices are unavailable</h2><p>The pricing service did not return a result, so Flip Finder will not make up a price. You can still check live listings below.</p><div class="btnrow"><button class="primary" type="button" id="fallbackEbay">Search eBay ↗</button><button class="secondary" type="button" id="fallbackGoogle">Search Google ↗</button></div></div>';
+      $("fallbackEbay").addEventListener("click",()=>openExternal(ebay));
+      $("fallbackGoogle").addEventListener("click",()=>openExternal(google));
+      if(targetId!=="homeFlipPlan")$("homeFlipPlan").innerHTML='<div class="section-head" style="margin-top:18px"><h2>Your flip plan</h2><span class="eyebrow">AI MARKET CHECK</span></div><div class="status-box">Automatic prices are unavailable right now. Use Search to look up current listings; no market value has been assumed.</div>';
+      console.error("Price research:",err);return null;
+    }
   }
   async function analyzeImage(){
     if(!photoData)return;
@@ -461,8 +480,6 @@
   $("saveFlip").addEventListener("click",saveFlip);
   window.addEventListener("pagehide",stopCamera);
   renderSaved();calculate();
-  // Launch directly into the full-screen scanner. Browsers may still require permission or a tap.
-  window.addEventListener("load",()=>{startCamera();},{once:true});
 })();
 </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -579,4 +596,3 @@ supabaseClient.auth.getSession().then(({ data, error }) => {
 </script>
 </body>
 </html>
-```
