@@ -81,22 +81,147 @@
 </section>
 
 <section class="page" id="profilePage">
-  <div class="eyebrow">Your space</div><h1>Account & settings.</h1><p>Make Flip Finder work the way you like.</p>
+
+<section class="page" id="profilePage">
+  <div class="eyebrow">Your space</div>
+  <h1>Account &amp; settings.</h1>
+  <p>Make Flip Finder work the way you like.</p>
+
   <div class="form-card">
-    <div class="result-title"><div class="product-placeholder" aria-hidden="true">👤</div><div><h2 id="accountGreeting">Your profile</h2><p id="accountStatus">This device only · Sign-in not connected yet</p></div></div>
-    <label class="field"><span>Display name</span><input id="profileName" maxlength="40" placeholder="What should we call you?"></label>
-    <label class="field"><span>Email (optional)</span><input id="profileEmail" type="email" maxlength="120" placeholder="you@example.com" autocomplete="email"></label>
-    <button class="primary wide" id="saveProfile">Save profile on this device</button>
-    <p class="note">Your profile here is stored only in this browser. It does not create a secure account or sync across devices yet.</p>
+    <div class="result-title">
+      <div class="product-placeholder" aria-hidden="true">👤</div>
+      <div>
+        <h2 id="accountGreeting">Your profile</h2>
+        <p id="accountStatus">Checking account status...</p>
+      </div>
+    </div>
+
+    <label class="field">
+      <span>Display name</span>
+      <input id="profileName" maxlength="40"
+        placeholder="What should we call you?">
+    </label>
+
+    <label class="field">
+      <span>Email address</span>
+      <input id="profileEmail" type="email" maxlength="120"
+        placeholder="you@example.com" autocomplete="email">
+    </label>
+
+    <label class="field">
+      <span>Password</span>
+      <input id="accountPassword" type="password" minlength="8"
+        placeholder="At least 8 characters"
+        autocomplete="current-password">
+    </label>
+
+    <button class="primary wide" id="createAccount" type="button">
+      Create Account
+    </button>
+
+    <button class="secondary wide" id="signIn" type="button"
+      style="margin-top:10px">
+      Sign In
+    </button>
+
+    <button class="secondary wide" id="signOut" type="button"
+      style="display:none;margin-top:10px">
+      Sign Out
+    </button>
+
+    <button class="secondary wide" id="saveProfile" type="button"
+      style="margin-top:10px">
+      Save Profile on This Device
+    </button>
+
+    <p class="note">
+      Create an account to sign in. Saved flips still need account
+      syncing before they will be available across devices.
+    </p>
   </div>
-  <div class="form-card"><h2>Preferences</h2>
-    <label class="field"><span>Appearance</span><select id="appearanceSelect" style="width:100%;height:50px;border-radius:14px;border:1px solid var(--line);background:#0b1511;color:var(--text);padding:0 12px"><option value="dark">Dark mode (recommended)</option><option value="system">Use device setting (coming soon)</option></select></label>
-    <label style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--line)"><span><strong style="display:block;font-size:14px">Price research notices</strong><small style="display:block;color:var(--muted);margin-top:4px">Show helpful notices while checking items</small></span><input id="researchNotices" type="checkbox" checked style="width:22px;height:22px;accent-color:var(--green)"></label>
-    <label style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--line)"><span><strong style="display:block;font-size:14px">Confirm before deleting saved flips</strong><small style="display:block;color:var(--muted);margin-top:4px">Help prevent accidental deletions</small></span><input id="confirmDelete" type="checkbox" checked style="width:22px;height:22px;accent-color:var(--green)"></label>
-    <button class="secondary wide" id="savePreferences" style="margin-top:10px">Save preferences</button>
+
+  <div class="form-card">
+    <h2>Preferences</h2>
+
+    <label class="field">
+      <span>Appearance</span>
+      <select id="appearanceSelect"
+        style="width:100%;height:50px;border-radius:14px;border:1px solid var(--line);background:#0b1511;color:var(--text);padding:0 12px">
+        <option value="dark">Dark mode (recommended)</option>
+        <option value="system">Use device setting (coming soon)</option>
+      </select>
+    </label>
+
+    <label style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--line)">
+      <span>
+        <strong style="display:block;font-size:14px">Price research notices</strong>
+        <small style="display:block;color:var(--muted);margin-top:4px">Show helpful notices while checking items</small>
+      </span>
+      <input id="researchNotices" type="checkbox" checked
+        style="width:22px;height:22px;accent-color:var(--green)">
+    </label>
+
+    <label style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--line)">
+      <span>
+        <strong style="display:block;font-size:14px">Confirm before deleting saved flips</strong>
+        <small style="display:block;color:var(--muted);margin-top:4px">Help prevent accidental deletions</small>
+      </span>
+      <input id="confirmDelete" type="checkbox" checked
+        style="width:22px;height:22px;accent-color:var(--green)">
+    </label>
+
+    <button class="secondary wide" id="savePreferences"
+      style="margin-top:10px" type="button">
+      Save preferences
+    </button>
   </div>
-  <div class="form-card"><h2>Flip Finder Pro</h2><p style="font-size:13px;margin:6px 0 13px">Premium tools may include more scans, advanced pricing insights, and extra flip tracking.</p><button class="secondary wide" id="proInfo">Explore Pro</button><p class="note">Subscriptions and payments are not enabled yet.</p></div>
-  <div class="form-card"><h2>Help & market data</h2><div class="tip"><div class="tip-icon">1</div><div><strong>Scan or search</strong><p>Take a photo or enter an item name.</p></div></div><div class="tip"><div class="tip-icon">2</div><div><strong>Check the numbers</strong><p>Compare available prices and include your costs.</p></div></div><div class="tip"><div class="tip-icon">3</div><div><strong>Save and track</strong><p>Keep promising items in Saved flips.</p></div></div><p style="font-size:13px;margin-top:12px">Important: active asking prices are not confirmed sold prices. Verified sales history and secure account syncing still need to be connected.</p></div>
+
+  <div class="form-card">
+    <h2>Flip Finder Pro</h2>
+    <p style="font-size:13px;margin:6px 0 13px">
+      Premium tools may include more scans, advanced pricing insights,
+      and extra flip tracking.
+    </p>
+    <button class="secondary wide" id="proInfo" type="button">
+      Explore Pro
+    </button>
+    <p class="note">Subscriptions and payments are not enabled yet.</p>
+  </div>
+
+  <div class="form-card">
+    <h2>Help &amp; market data</h2>
+
+    <div class="tip">
+      <div class="tip-icon">1</div>
+      <div>
+        <strong>Scan or search</strong>
+        <p>Take a photo or enter an item name.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <div class="tip-icon">2</div>
+      <div>
+        <strong>Check the numbers</strong>
+        <p>Compare available prices and include your costs.</p>
+      </div>
+    </div>
+
+    <div class="tip">
+      <div class="tip-icon">3</div>
+      <div>
+        <strong>Save and track</strong>
+        <p>Keep promising items in Saved flips.</p>
+      </div>
+    </div>
+
+    <p style="font-size:13px;margin-top:12px">
+      Active asking prices are not confirmed sold prices.
+      Saved-flip syncing and verified sales history still need to be connected.
+    </p>
+  </div>
+
+
 </section>
 
 <section class="camera-page" id="cameraPage" aria-label="Full-screen item camera">
