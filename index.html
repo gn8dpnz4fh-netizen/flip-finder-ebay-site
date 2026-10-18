@@ -349,6 +349,105 @@
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY
   );
+    
+const accountEmail = document.getElementById("profileEmail");
+const accountName = document.getElementById("profileName");
+const accountPassword = document.getElementById("accountPassword");
+
+const createAccountBtn = document.getElementById("createAccount");
+const signInBtn = document.getElementById("signIn");
+const signOutBtn = document.getElementById("signOut");
+const accountStatus = document.getElementById("accountStatus");
+
+function updateAccountStatus(user) {
+  if (user) {
+    accountStatus.textContent = `Signed in as ${user.email}`;
+    createAccountBtn.hidden = true;
+    signInBtn.hidden = true;
+    signOutBtn.hidden = false;
+  } else {
+    accountStatus.textContent =
+      "Not signed in. Your saved flips remain on this device.";
+    createAccountBtn.hidden = false;
+    signInBtn.hidden = false;
+    signOutBtn.hidden = true;
+  }
+}
+
+createAccountBtn.addEventListener("click", async () => {
+  const email = accountEmail.value.trim();
+  const password = accountPassword.value;
+
+  if (!email || password.length < 8) {
+    alert("Enter your email and a password of at least 8 characters.");
+    return;
+  }
+
+  createAccountBtn.disabled = true;
+
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: accountName.value.trim() }
+      }
+    });
+
+    if (error) throw error;
+
+    if (data.session) {
+      updateAccountStatus(data.user);
+      alert("Account created successfully!");
+    } else {
+      accountStatus.textContent =
+        "Check your email for the account confirmation link.";
+      alert("Check your email to confirm your account.");
+    }
+  } catch (error) {
+    alert("Could not create account: " + error.message);
+  } finally {
+    createAccountBtn.disabled = false;
+  }
+});
+
+signInBtn.addEventListener("click", async () => {
+  try {
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email: accountEmail.value.trim(),
+        password: accountPassword.value
+      });
+
+    if (error) throw error;
+
+    updateAccountStatus(data.user);
+    alert("You're signed in!");
+  } catch (error) {
+    alert("Sign-in failed: " + error.message);
+  }
+});
+
+signOutBtn.addEventListener("click", async () => {
+  const { error } = await supabaseClient.auth.signOut();
+
+  if (error) {
+    alert("Sign-out failed: " + error.message);
+    return;
+  }
+
+  updateAccountStatus(null);
+});
+
+supabaseClient.auth.getSession().then(({ data, error }) => {
+  if (error) {
+    accountStatus.textContent = "Unable to check your sign-in status.";
+    return;
+  }
+
+  updateAccountStatus(data.session?.user ?? null);
+});
+
 </script>
 </body>
 </html>
