@@ -38,9 +38,28 @@
 .home-search{margin:15px 0 9px}
 .home-search input{background:#0e1b2d}
 #homeResearch{margin-bottom:6px}
+
+/* Flip Finder intro and swipeable deal screens */
+#ffSplash{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 35%,#12375e 0%,#09182d 45%,#050b15 100%);transition:opacity .45s ease,visibility .45s ease}
+#ffSplash.hide{opacity:0;visibility:hidden;pointer-events:none}
+#ffSplash .splash-name{font-size:clamp(38px,10vw,58px);font-weight:950;letter-spacing:-2.4px;color:#f3f8ff}
+#ffSplash .splash-name span{color:#55b8ff}
+#ffSplash .splash-tag{margin-top:10px;color:#b8d8ff;font-size:15px;letter-spacing:2px;font-weight:750}
+#ffSplash .splash-mark{width:68px;height:68px;border-radius:22px;display:grid;place-items:center;margin:0 auto 24px;background:linear-gradient(145deg,#83d5ff,#258bff);color:#04162d;font-size:30px;font-weight:950;box-shadow:0 0 55px #258bff40}
+#ffSplash .splash-credit{position:absolute;right:18px;bottom:calc(14px + env(safe-area-inset-bottom,0px));font-size:11px;color:#8ba6c9;letter-spacing:.4px}
+.ff-swipe-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;gap:12px;padding:2px 1px 12px;overscroll-behavior-x:contain;scrollbar-width:none}
+.ff-swipe-track::-webkit-scrollbar{display:none}.ff-swipe-panel{flex:0 0 100%;min-width:0;scroll-snap-align:start}
+.ff-swipe-hint{display:flex;justify-content:center;align-items:center;gap:7px;color:var(--muted);font-size:11px;margin:8px 0 2px}
+.ff-dots{display:flex;justify-content:center;gap:6px;margin-top:8px}.ff-dots i{width:6px;height:6px;border-radius:20px;background:#314766}.ff-dots i.active{width:19px;background:var(--green)}
+.ff-verdict-big{border-radius:17px;padding:15px;text-align:center;font-size:21px;font-weight:950;letter-spacing:.4px;margin-top:12px}.ff-verdict-big.good{background:#0d3429;border:1px solid #2b9c73;color:#7ff0bd}.ff-verdict-big.bad{background:#35131c;border:1px solid #b83e59;color:#ff9bad}.ff-verdict-big.unknown{background:#292313;border:1px solid #92752b;color:#ffe8a0}
+.ff-primary-number{font-size:clamp(35px,9vw,45px);font-weight:950;letter-spacing:-1.5px;color:var(--green);margin:5px 0 8px}.ff-price-label{font-size:12px;font-weight:850;letter-spacing:.7px;color:var(--muted);text-transform:uppercase}
 </style>
 </head>
 <body>
+<div id="ffSplash" aria-label="Flip Finder introduction">
+  <div><div class="splash-mark">↗</div><div class="splash-name">Flip<span>Finder</span></div><div class="splash-tag">Flip Smarter.</div></div>
+  <div class="splash-credit">by Wormy Cox</div>
+</div>
 <main class="app">
 <header class="topbar"><div class="brand"><div class="brand-mark">F</div><div>Flip <span>Finder</span></div></div><button class="icon-btn" id="settingsBtn" aria-label="Profile and help">⚙</button></header>
 
@@ -354,12 +373,12 @@
       if(!value||typeof value!=="object")return;
       if(Array.isArray(value)){value.forEach(walk);return;}
       const title=value.title||value.title_text||value.item_title;
-      const priceRaw=(value.displayed_price&&typeof value.displayed_price==="object"?value.displayed_price.amount:value.displayed_price)??(value.price&&typeof value.price==="object"?value.price.amount:value.price)??value.sold_price??value.sale_price;
+      const priceRaw=value.displayed_price??value.price??value.sold_price??value.sale_price;
       const url=value.link||value.url||value.item_url;
       const soldDate=value.sold_date||value.soldDate||value.date_sold||value.sold_date_text;
       if(title&&priceRaw!==undefined&&(url||soldDate||value.id)){
         const price=typeof priceRaw==="number"?priceRaw:Number(String(priceRaw).replace(/[^0-9.]/g,""));
-        if(Number.isFinite(price)&&price>0){const key=String(value.id||title)+":"+price+":"+String(soldDate||"");if(!seen.has(key)){seen.add(key);found.push({title:String(title),price,shipping:Number((value.displayed_shipping&&typeof value.displayed_shipping==="object"?value.displayed_shipping.amount:undefined)??value.shipping??value.shipping_cost??0)||0,url:String(url||""),soldDate:String(soldDate||""),condition:String(value.condition||""),source:"Soldgraph eBay sold listing"});}}
+        if(Number.isFinite(price)&&price>0){const key=String(value.id||title)+":"+price+":"+String(soldDate||"");if(!seen.has(key)){seen.add(key);found.push({title:String(title),price,shipping:Number(value.shipping??value.shipping_cost??0)||0,url:String(url||""),soldDate:String(soldDate||""),condition:String(value.condition||""),source:"Soldgraph sold listing"});}}
       }
       Object.values(value).forEach(walk);
     }
@@ -368,23 +387,28 @@
   function median(values){if(!values.length)return 0;const s=values.slice().sort((a,b)=>a-b),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;}
   function renderPricing(data,targetId){
     const root=$(targetId);root.replaceChildren();const listings=collectSoldListings(data),prices=listings.map(x=>x.price).filter(x=>x>0),marketPrice=median(prices);
-    const heading=document.createElement("h2");heading.textContent="Sold-price market report";root.appendChild(heading);
-    if(!prices.length){const note=document.createElement("div");note.className="status-box";note.textContent="Soldgraph responded, but no recognizable sold listings with prices were found. Try a more specific item name, such as brand and model.";root.appendChild(note);return;}
-    const intro=document.createElement("p");intro.className="note";intro.textContent="Based on "+prices.length+" sold listings returned by Soldgraph. This is a sample, not a guarantee; check model, condition, size, and included accessories.";root.appendChild(intro);
-    const stats=document.createElement("div");stats.className="price-grid";
-    [["Typical sold price",money(marketPrice)],["Lowest in sample",money(Math.min(...prices))],["Highest in sample",money(Math.max(...prices))],["Sold listings found",String(prices.length)]].forEach(([label,value])=>{const box=document.createElement("div");box.className="stat";const cap=document.createElement("span");cap.textContent=label;const val=document.createElement("strong");val.textContent=value;box.append(cap,val);stats.appendChild(box);});root.appendChild(stats);
-    const tabs=document.createElement("div");tabs.style.cssText="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0";const buyerBtn=document.createElement("button"),sellerBtn=document.createElement("button");
-    [buyerBtn,sellerBtn].forEach(b=>{b.type="button";b.style.cssText="min-height:48px;border-radius:14px;border:1px solid var(--line);font-weight:850;background:#14233a;color:var(--text)";});buyerBtn.textContent="🛒 I'm buying";sellerBtn.textContent="💵 I'm selling";tabs.append(buyerBtn,sellerBtn);root.appendChild(tabs);
-    const fields=document.createElement("div");fields.className="form-card";fields.style.marginTop="0";
-    const addField=(id,label,value)=>{const wrap=document.createElement("label");wrap.className="field";const span=document.createElement("span");span.textContent=label;const input=document.createElement("input");input.id=id;input.type="number";input.min="0";input.step=".01";input.value=String(value);wrap.append(span,input);fields.appendChild(wrap);};
-    addField("ffSideCost","Your item cost ($)",Math.max(0,Number($("cost").value)||0));addField("ffSideProfit","Profit you want ($)",Math.round(marketPrice*.25*100)/100);addField("ffSideCosts","Shipping and other costs ($)",10);addField("ffSideFeeRate","Estimated selling fee (%)",15);root.appendChild(fields);
-    const answer=document.createElement("div");answer.className="result-card";root.appendChild(answer);const note=document.createElement("p");note.className="note";note.textContent="Calculations use your estimated fees and costs. Sold listings do not guarantee how quickly your item will sell.";root.appendChild(note);let mode="buyer";
-    function draw(nextMode){mode=nextMode;buyerBtn.style.background=mode==="buyer"?"linear-gradient(100deg,#73ceff,#258bff)":"#14233a";buyerBtn.style.color=mode==="buyer"?"#04162d":"var(--text)";sellerBtn.style.background=mode==="seller"?"linear-gradient(100deg,#73ceff,#258bff)":"#14233a";sellerBtn.style.color=mode==="seller"?"#04162d":"var(--text)";
-      const cost=Math.max(0,Number($("ffSideCost").value)||0),goal=Math.max(0,Number($("ffSideProfit").value)||0),other=Math.max(0,Number($("ffSideCosts").value)||0),rate=Math.min(99,Math.max(0,Number($("ffSideFeeRate").value)||0))/100;const result=mode==="buyer"?marketPrice*(1-rate)-other-goal:(cost+goal+other)/(1-rate);answer.replaceChildren();
-      const t=document.createElement("p");t.textContent=mode==="buyer"?"MAXIMUM YOU SHOULD PAY":"SUGGESTED LISTING PRICE";t.style.cssText="font-size:12px;font-weight:850;color:var(--muted)";const v=document.createElement("div");v.textContent=money(Math.max(0,result));v.style.cssText="font-size:34px;font-weight:950;letter-spacing:-1px;color:var(--green);margin:6px 0 10px";const d=document.createElement("p");d.textContent=mode==="buyer"?"Estimated from the typical sold price, target profit, selling fees, and other costs.":"A price intended to cover your cost, fees, other costs, and target profit; buyers may offer less.";const badge=document.createElement("div");badge.className="result-verdict "+(mode==="buyer"?(cost>0&&cost<=result?"good":"bad"):"unknown");badge.textContent=mode==="buyer"?(cost<=0?"ENTER YOUR OFFER COST":cost<=result?"WITHIN YOUR BUY LIMIT":"ABOVE YOUR BUY LIMIT"):"SELLER PRICE GUIDE";answer.append(t,v,d,badge);if(mode==="buyer")$("cost").value=cost.toFixed(2);
-    }
-    buyerBtn.addEventListener("click",()=>draw("buyer"));sellerBtn.addEventListener("click",()=>draw("seller"));["ffSideCost","ffSideProfit","ffSideCosts","ffSideFeeRate"].forEach(id=>$(id).addEventListener("input",()=>draw(mode)));draw("buyer");
-    const sub=document.createElement("details"),sum=document.createElement("summary");sum.textContent="Sold comparables ("+listings.length+")";sum.style.cssText="cursor:pointer;margin:13px 0";sub.appendChild(sum);listings.slice(0,30).forEach(item=>{const row=document.createElement("div");row.className="market-result";if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent=item.title+" — "+money(item.price);row.appendChild(a);}else{const title=document.createElement("strong");title.textContent=item.title+" — "+money(item.price);row.appendChild(title);}const meta=document.createElement("p");meta.className="note";meta.textContent=[item.condition,item.soldDate].filter(Boolean).join(" · ")||"Soldgraph result";row.appendChild(meta);sub.appendChild(row);});root.appendChild(sub);
+    const heading=document.createElement("h2");heading.textContent="Your flip decision";root.appendChild(heading);
+    if(!prices.length){const note=document.createElement("div");note.className="status-box";note.textContent="Not enough reliable sold-price data to make a safe recommendation. Try a more specific item name.";root.appendChild(note);return;}
+    const intro=document.createElement("p");intro.className="note";intro.textContent="Based on "+prices.length+" sold listings. Check condition, model, size, and included accessories before deciding.";root.appendChild(intro);
+    const track=document.createElement("div");track.className="ff-swipe-track";track.setAttribute("aria-label","Swipe between flip decision and cost details");root.appendChild(track);
+    const main=document.createElement("section");main.className="ff-swipe-panel";track.appendChild(main);
+    const costPanel=document.createElement("section");costPanel.className="ff-swipe-panel";track.appendChild(costPanel);
+    const maxSpend=document.createElement("div");maxSpend.className="result-card";maxSpend.style.marginTop="12px";maxSpend.innerHTML='<div class="ff-price-label">Maximum to spend when buying</div><div class="ff-primary-number" id="ffMaxSpend">—</div><p>Keep your purchase at or below this amount to protect your profit goal.</p>';main.appendChild(maxSpend);
+    const lowest=document.createElement("div");lowest.className="result-card";lowest.innerHTML='<div class="ff-price-label">Lowest offer to accept when selling</div><div class="ff-primary-number" id="ffLowestAccept">—</div><p>Estimated minimum based on your costs and target profit.</p>';main.appendChild(lowest);
+    const askWrap=document.createElement("label");askWrap.className="field";const askLabel=document.createElement("span");askLabel.textContent="Seller’s asking price ($)";const askInput=document.createElement("input");askInput.type="number";askInput.min="0";askInput.step=".01";askInput.placeholder="Enter the price they want";askInput.value=String(Math.max(0,Number($("cost").value)||0)||"");askWrap.append(askLabel,askInput);main.appendChild(askWrap);
+    const verdict=document.createElement("div");verdict.className="ff-verdict-big unknown";verdict.textContent="ENTER ASKING PRICE";main.appendChild(verdict);
+    const swipe=document.createElement("div");swipe.className="ff-swipe-hint";swipe.innerHTML='<span>←</span><span>Swipe for fees &amp; costs</span><span>→</span>';main.appendChild(swipe);
+    const dots=document.createElement("div");dots.className="ff-dots";dots.innerHTML='<i class="active"></i><i></i>';main.appendChild(dots);
+    const costHeading=document.createElement("h3");costHeading.textContent="Your costs & profit goal";costPanel.appendChild(costHeading);const costIntro=document.createElement("p");costIntro.className="note";costIntro.textContent="Adjust these estimates. Flip Finder uses them to calculate the buy limit and minimum offer to accept.";costPanel.appendChild(costIntro);
+    const fields=document.createElement("div");fields.className="form-card";fields.style.marginTop="10px";costPanel.appendChild(fields);
+    const addField=(id,label,value)=>{const wrap=document.createElement("label");wrap.className="field";const span=document.createElement("span");span.textContent=label;const input=document.createElement("input");input.id=id;input.type="number";input.min="0";input.step=".01";input.value=String(value);wrap.append(span,input);fields.appendChild(wrap);return input;};
+    const costInput=addField("ffSideCost","Your item cost / offer ($)",Math.max(0,Number($("cost").value)||0));const goalInput=addField("ffSideProfit","Profit you want ($)",15);const otherInput=addField("ffSideCosts","Shipping and other costs ($)",10);const feeInput=addField("ffSideFeeRate","Estimated selling fee (%)",15);
+    const costSwipe=document.createElement("div");costSwipe.className="ff-swipe-hint";costSwipe.innerHTML='<span>←</span><span>Swipe back to your decision</span><span>→</span>';costPanel.appendChild(costSwipe);
+    const stats=document.createElement("div");stats.className="price-grid";[["Typical sold price",money(marketPrice)],["Lowest sold",money(Math.min(...prices))],["Highest sold",money(Math.max(...prices))],["Sold listings",String(prices.length)]].forEach(([label,value])=>{const box=document.createElement("div");box.className="stat";const cap=document.createElement("span");cap.textContent=label;const val=document.createElement("strong");val.textContent=value;box.append(cap,val);stats.appendChild(box);});costPanel.appendChild(stats);
+    function update(){const cost=Math.max(0,Number(costInput.value)||0),goal=Math.max(0,Number(goalInput.value)||0),other=Math.max(0,Number(otherInput.value)||0),rate=Math.min(99,Math.max(0,Number(feeInput.value)||0))/100;const buyLimit=Math.max(0,marketPrice*(1-rate)-other-goal),lowestAccept=(cost+goal+other)/(1-rate);$("ffMaxSpend").textContent=money(buyLimit);$("ffLowestAccept").textContent=money(lowestAccept);const ask=Math.max(0,Number(askInput.value)||0);verdict.className="ff-verdict-big "+(!askInput.value?"unknown":(ask<=buyLimit&&prices.length>=5?"good":"bad"));verdict.textContent=!askInput.value?"ENTER ASKING PRICE":prices.length<5?"NOT ENOUGH DATA":ask<=buyLimit?"GOOD FLIP · BUY AT THIS PRICE OR LESS":"BAD FLIP · PASS AT THIS PRICE";$("cost").value=(askInput.value?ask:cost).toFixed(2);}
+    askInput.addEventListener("input",()=>{costInput.value=askInput.value||"0";update();});[costInput,goalInput,otherInput,feeInput].forEach(el=>el.addEventListener("input",()=>{if(el===costInput){askInput.value=el.value;}update();}));
+    track.addEventListener("scroll",()=>{const idx=track.scrollLeft>track.clientWidth*.35?1:0;[...dots.children].forEach((d,i)=>d.classList.toggle("active",i===idx));},{passive:true});update();
+    const sub=document.createElement("details"),sum=document.createElement("summary");sum.textContent="View sold comparables ("+listings.length+")";sum.style.cssText="cursor:pointer;margin:13px 0";sub.appendChild(sum);listings.slice(0,30).forEach(item=>{const row=document.createElement("div");row.className="market-result";if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent=item.title+" — "+money(item.price);row.appendChild(a);}else{const title=document.createElement("strong");title.textContent=item.title+" — "+money(item.price);row.appendChild(title);}const meta=document.createElement("p");meta.className="note";meta.textContent=[item.condition,item.soldDate].filter(Boolean).join(" · ")||"Soldgraph result";row.appendChild(meta);sub.appendChild(row);});costPanel.appendChild(sub);
   }
   async function researchPrices(itemName,targetId="searchPricingResults"){
     const root=$(targetId),q=String(itemName||"").trim();if(!q){root.innerHTML='<div class="status-box">Enter an item name to see price results.</div>';return null;}
@@ -605,6 +629,9 @@ supabaseClient.auth.getSession().then(({ data, error }) => {
   updateAccountStatus(data.session?.user ?? null);
 });
 
+</script>
+<script>
+(() => { const splash=document.getElementById('ffSplash'); if(!splash)return; const dismiss=()=>splash.classList.add('hide'); window.setTimeout(dismiss,1900); splash.addEventListener('click',dismiss,{once:true}); })();
 </script>
 </body>
 </html>
