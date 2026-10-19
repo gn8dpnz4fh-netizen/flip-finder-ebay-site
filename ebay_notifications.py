@@ -1,7 +1,17 @@
 
 import os
+import json
 import hashlib
 import logging
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
+from urllib.parse import (
+    urlencode,
+    urljoin,
+    urlparse,
+    parse_qsl,
+    urlunparse,
+)
 
 from flask import Flask, request, jsonify
 
@@ -10,15 +20,24 @@ logging.basicConfig(level=logging.INFO)
 
 VERIFICATION_TOKEN = os.environ.get("EBAY_VERIFICATION_TOKEN", "")
 ENDPOINT_URL = os.environ.get("EBAY_ENDPOINT_URL", "")
+SOLDGRAPH_BASE = "https://api.soldgraph.com"
 
+
+# ==================================================
+# HEALTH CHECK
+# ==================================================
 
 @app.route("/", methods=["GET"])
 def health_check():
     return jsonify({
         "service": "Flip Finder notifications",
-        "status": "running"
+        "status": "running",
     }), 200
 
+
+# ==================================================
+# EBAY NOTIFICATION ENDPOINT
+# ==================================================
 
 @app.route("/ebay/notifications", methods=["GET"])
 def verify_endpoint():
@@ -26,12 +45,12 @@ def verify_endpoint():
 
     if not challenge_code:
         return jsonify({
-            "error": "Missing challenge_code"
+            "error": "Missing challenge_code",
         }), 400
 
     if not VERIFICATION_TOKEN or not ENDPOINT_URL:
         return jsonify({
-            "error": "Endpoint not configured"
+            "error": "Endpoint not configured",
         }), 503
 
     digest = hashlib.sha256(
@@ -43,7 +62,7 @@ def verify_endpoint():
     ).hexdigest()
 
     return jsonify({
-        "challengeResponse": digest
+        "challengeResponse": digest,
     }), 200
 
 
@@ -55,28 +74,13 @@ def receive_notification():
     )
 
     return jsonify({
-        "error": "Secure processing is not configured"
+        "error": "Secure processing is not configured",
     }), 503
 
 
-if __name__ == "__main__":
-    app.run(
-        host="127.0.0.1",
-        port=5000,
-        debug=False
-    )
-    # --- Soldgraph API test route ---
-import os
-import json
-from urllib.request import Request, urlopen
-from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode, urljoin, urlparse, parse_qsl, urlunparse
-
-from flask import jsonify, request
-
-
-SOLDGRAPH_BASE = "https://api.soldgraph.com"
-
+# ==================================================
+# SOLDGRAPH API HELPER
+# ==================================================
 
 def soldgraph_request(url, api_key, timeout=25):
     req = Request(
@@ -90,34 +94,42 @@ def soldgraph_request(url, api_key, timeout=25):
 
     try:
         with urlopen(req, timeout=timeout) as response:
-            return response.status, json.loads(
-                response.read().decode("utf-8")
-            )
+            body = response.read().decode("utf-8")
+            return response.status, json.loads(body)
+
     except HTTPError as exc:
         try:
             body = json.loads(exc.read().decode("utf-8"))
-        except Exception:
+        except (ValueError, UnicodeDecodeError):
             body = {}
+
         return exc.code, body
+
     except (URLError, TimeoutError):
         raise
 
 
+# ==================================================
+# SOLDGRAPH TEST ENDPOINT
+# ==================================================
+
 @app.route("/api/soldgraph-test", methods=["GET"])
 def soldgraph_test():
-    api_key = os.environ.get("SOLDGRAPH_KEY")
+    api_key = os.environ.get("SOLDGRAPH_KEY", "").strip()
+
     if not api_key:
         return jsonify({
             "ok": False,
-            "error": "SOLDGRAPH_KEY is not configured on the server."
+            "error": "SOLDGRAPH_KEY is not configured in Render.",
         }), 500
 
     query = request.args.get("q", "").strip()
+
     if not query or len(query) > 200:
         return jsonify({
             "ok": False,
             "error": "Provide a search query between 1 and 200 characters.",
-            "example": "/api/soldgraph-test?q=nintendo%20switch%20oled"
+            "example": "/api/soldgraph-test?q=nintendo%20switch%20oled",
         }), 400
 
     try:
@@ -127,45 +139,58 @@ def soldgraph_test():
             "sort": "recently_sold",
             "item_location": "domestic",
         })
-        status, data = soldgraph_request(
-            f"{SOLDGRAPH_BASE}/v1/ebay/sold?{params}",
-            api_key,
-        )
 
-        # Soldgraph can return HTTP 202 while a search is processing.
+        url = f"{SOLDGRAPH_BASE}/v1/ebay/sold?{params}"
+
+        status, data = soldgraph_request(url, api_key)
+
+        # Handle pending Soldgraph search jobs.
         for _ in range(3):
             if status != 202 or data.get("status") != "pending":
                 break
 
             poll_path = data.get("poll_url")
+
             if not poll_path:
                 break
 
             poll_url = urljoin(SOLDGRAPH_BASE, poll_path)
             parsed = urlparse(poll_url)
 
-            # Only allow polling Soldgraph's own API.
+            # Restrict polling to the official Soldgraph API host.
             if (
                 parsed.scheme != "https"
                 or parsed.hostname != "api.soldgraph.com"
             ):
                 return jsonify({
                     "ok": False,
-                    "error": "Unexpected Soldgraph polling URL."
+                    "error": "Unexpected Soldgraph polling URL.",
                 }), 502
 
-            poll_params = parse_qsl(parsed.query)
             poll_params = [
-                (k, v) for k, v in poll_params if k != "wait"
+                (key, value)
+                for key, value in parse_qsl(parsed.query)
+                if key != "wait"
             ]
             poll_params.append(("wait", "20"))
+
             poll_url = urlunparse(
-                parsed._replace(query=urlencode(poll_params))
+                parsed._replace(
+                    query=urlencode(poll_params)
+                )
             )
 
-            status, data = soldgraph_request(poll_url, api_key)
+            status, data = soldgraph_request(
+                poll_url,
+                api_key,
+                timeout=25,
+            )
 
         if status not in (200, 202):
+            logging.error(
+                "Soldgraph returned HTTP %s", status
+            )
+
             return jsonify({
                 "ok": False,
                 "error": "Soldgraph request failed.",
@@ -177,13 +202,13 @@ def soldgraph_test():
             return jsonify({
                 "ok": False,
                 "status": "pending",
-                "message": "Search is still processing. Try again shortly."
+                "message": "Search is still processing. Try again shortly.",
             }), 202
 
         if data.get("status") == "failed":
             return jsonify({
                 "ok": False,
-                "error": data.get("error", {})
+                "error": data.get("error", {}),
             }), 502
 
         result = data.get("result", {})
@@ -213,18 +238,32 @@ def soldgraph_test():
                 }
                 for item in result.get("data", [])[:20]
             ],
-        })
+        }), 200
 
     except (URLError, TimeoutError):
+        logging.exception("Soldgraph connection failed")
+
         return jsonify({
             "ok": False,
-            "error": "Soldgraph connection timed out. Try again."
+            "error": "Could not connect to Soldgraph. Check Render logs.",
         }), 504
+
     except Exception:
-        app.logger.exception("Soldgraph test failed")
+        logging.exception("Soldgraph test failed")
+
         return jsonify({
             "ok": False,
-            "error": "Unexpected server error. Check Render logs."
+            "error": "Unexpected server error. Check Render logs.",
         }), 500
 
-# --- End Soldgraph API test route ---
+
+# ==================================================
+# START SERVER
+# ==================================================
+
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", "5000")),
+        debug=False,
+    )
