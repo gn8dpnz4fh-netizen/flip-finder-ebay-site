@@ -354,12 +354,12 @@
       if(!value||typeof value!=="object")return;
       if(Array.isArray(value)){value.forEach(walk);return;}
       const title=value.title||value.title_text||value.item_title;
-      const priceRaw=value.displayed_price??value.price??value.sold_price??value.sale_price;
+      const priceRaw=(value.displayed_price&&typeof value.displayed_price==="object"?value.displayed_price.amount:value.displayed_price)??(value.price&&typeof value.price==="object"?value.price.amount:value.price)??value.sold_price??value.sale_price;
       const url=value.link||value.url||value.item_url;
       const soldDate=value.sold_date||value.soldDate||value.date_sold||value.sold_date_text;
       if(title&&priceRaw!==undefined&&(url||soldDate||value.id)){
         const price=typeof priceRaw==="number"?priceRaw:Number(String(priceRaw).replace(/[^0-9.]/g,""));
-        if(Number.isFinite(price)&&price>0){const key=String(value.id||title)+":"+price+":"+String(soldDate||"");if(!seen.has(key)){seen.add(key);found.push({title:String(title),price,shipping:Number(value.shipping??value.shipping_cost??0)||0,url:String(url||""),soldDate:String(soldDate||""),condition:String(value.condition||""),source:"Soldgraph sold listing"});}}
+        if(Number.isFinite(price)&&price>0){const key=String(value.id||title)+":"+price+":"+String(soldDate||"");if(!seen.has(key)){seen.add(key);found.push({title:String(title),price,shipping:Number((value.displayed_shipping&&typeof value.displayed_shipping==="object"?value.displayed_shipping.amount:undefined)??value.shipping??value.shipping_cost??0)||0,url:String(url||""),soldDate:String(soldDate||""),condition:String(value.condition||""),source:"Soldgraph eBay sold listing"});}}
       }
       Object.values(value).forEach(walk);
     }
