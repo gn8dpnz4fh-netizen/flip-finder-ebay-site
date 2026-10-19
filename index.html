@@ -348,84 +348,49 @@
     const link=document.createElement("a");link.href=affiliateUrl(item.url);link.target="_blank";link.rel="noopener noreferrer";link.textContent=(item.title||"View listing")+(item.price==null?"":" — "+money(Number(item.price)+(Number(item.shipping)||0)));
     row.appendChild(link);const source=document.createElement("p");source.className="note";source.textContent=item.source||"Marketplace listing";row.appendChild(source);parent.appendChild(row);
   }
-  function renderPricing(data,targetId){
-    const root=$(targetId);root.replaceChildren();
-    const heading=document.createElement("h2");heading.textContent="Simple price guide";root.appendChild(heading);
-    const summaryData=data.summary||{},marketPrice=Number(summaryData.median_sold_total ?? summaryData.median_active_total)||0;
-    const hasSoldData=Number(summaryData.sold_listing_count)>0 && Number(summaryData.median_sold_total)>0;
-    const hasMarketData=Number(summaryData.active_listing_count)>0 || Number(summaryData.sold_listing_count)>0;
-    const listings=(data.marketplaces||[]).filter(m=>Array.isArray(m.results)).flatMap(m=>m.results.filter(x=>x.url).map(x=>({...x,source:m.marketplace||"Marketplace"}))).slice(0,5);
-    if(marketPrice>0){
-      const intro=document.createElement("p");intro.className="note";intro.textContent="Choose your side. Enter your costs and profit goal; Flip Finder calculates a guide price.";root.appendChild(intro);
-      const tabs=document.createElement("div");tabs.style.cssText="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0";
-      const buyerBtn=document.createElement("button"),sellerBtn=document.createElement("button");
-      [buyerBtn,sellerBtn].forEach(b=>{b.type="button";b.style.cssText="min-height:48px;border-radius:14px;border:1px solid var(--line);font-weight:850;background:#14233a;color:var(--text)";});
-      buyerBtn.textContent="🛒 I'm buying";sellerBtn.textContent="💵 I'm selling";tabs.append(buyerBtn,sellerBtn);root.appendChild(tabs);
-      const panel=document.createElement("div");root.appendChild(panel);
-      const fields=document.createElement("div");fields.className="form-card";fields.style.marginTop="0";
-      const marketLabel=document.createElement("p");marketLabel.textContent=hasSoldData?"Estimated typical sold price (completed sales data returned)":"Active asking-price guide (not confirmed sold prices)";marketLabel.style.cssText="font-size:12px;margin-bottom:5px";
-      const marketValue=document.createElement("div");marketValue.style.cssText="font-size:27px;font-weight:900;color:var(--green)";marketValue.textContent=money(marketPrice);
-      fields.append(marketLabel,marketValue);
-      const costLabel=document.createElement("label");costLabel.className="field";costLabel.innerHTML='<span>Your item cost ($) — what you paid or plan to pay</span><input id="ffSideCost" type="number" min="0" step=".01" value="'+(Math.max(0,Number($("cost").value)||0))+'">';fields.appendChild(costLabel);
-      const goalLabel=document.createElement("label");goalLabel.className="field";goalLabel.innerHTML='<span>Profit you want ($)</span><input id="ffSideProfit" type="number" min="0" step=".01" value="'+(Math.round(marketPrice*.25*100)/100)+'">';fields.appendChild(goalLabel);
-      const shippingLabel=document.createElement("label");shippingLabel.className="field";shippingLabel.innerHTML='<span>Shipping and other costs ($)</span><input id="ffSideCosts" type="number" min="0" step=".01" value="10">';fields.appendChild(shippingLabel);
-      const feeLabel=document.createElement("label");feeLabel.className="field";feeLabel.innerHTML='<span>Estimated selling fee (%)</span><input id="ffSideFeeRate" type="number" min="0" max="99" step=".5" value="15">';fields.appendChild(feeLabel);
-      panel.appendChild(fields);
-      const answer=document.createElement("div");answer.className="result-card";panel.appendChild(answer);
-      const note=document.createElement("p");note.className="note";note.textContent=hasSoldData?"Sold-price data was returned by the pricing service. Check the sample size, condition, and match quality before buying. Fee and cost fields are estimates.":"This is an active asking-price guide, not proof that items sell for this amount. Verified sold history and sell-through data were not returned, so demand cannot yet be confirmed. Fee and cost fields are estimates.";panel.appendChild(note);
-      function draw(mode){
-        buyerBtn.style.background=mode==="buyer"?"linear-gradient(100deg,#73ceff,#258bff)":"#14233a";buyerBtn.style.color=mode==="buyer"?"#04162d":"var(--text)";sellerBtn.style.background=mode==="seller"?"linear-gradient(100deg,#73ceff,#258bff)":"#14233a";sellerBtn.style.color=mode==="seller"?"#04162d":"var(--text)";
-        const cost=Math.max(0,Number($("ffSideCost").value)||0),goal=Math.max(0,Number($("ffSideProfit").value)||0),other=Math.max(0,Number($("ffSideCosts").value)||0),rate=Math.min(99,Math.max(0,Number($("ffSideFeeRate").value)||0))/100;
-        let result,title,detail;
-        if(mode==="buyer"){
-          result=marketPrice*(1-rate)-other-goal;
-          title="MAXIMUM YOU SHOULD PAY";
-          detail="At this purchase price, your target profit is about "+money(goal)+" if the item sells for the market guide price and the estimated costs are accurate.";
-        }else{
-          result=(cost+goal+other)/(1-rate);
-          title="MINIMUM PRICE TO ASK";
-          detail="This asking price aims to cover your item cost, estimated fees, other costs, and "+money(goal)+" profit. Buyers may not accept this price.";
-        }
-        answer.replaceChildren();
-        const t=document.createElement("p");t.textContent=title;t.style.cssText="font-size:12px;font-weight:850;color:var(--muted)";
-        const v=document.createElement("div");v.textContent=money(Math.max(0,result));v.style.cssText="font-size:34px;font-weight:950;letter-spacing:-1px;color:var(--green);margin:6px 0 10px";
-        const d=document.createElement("p");d.textContent=result<0&&mode==="buyer"?"Your profit goal is too high for this market price and the costs entered. Lower the goal or skip this item.":detail;
-        answer.append(t,v,d);
-        const badge=document.createElement("div");badge.className="result-verdict "+(mode==="buyer"?(cost<=Math.max(0,result)?"good":"bad"):"unknown");badge.textContent=mode==="buyer"?(cost<=0?"ENTER YOUR OFFER PRICE":cost<=result?"WITHIN YOUR BUY LIMIT":"ABOVE YOUR BUY LIMIT"):"SELLER PRICE GUIDE";answer.appendChild(badge);
-        if(mode==="buyer"){$("cost").value=cost.toFixed(2);}
+  function collectSoldListings(payload){
+    const found=[],seen=new Set();
+    function walk(value){
+      if(!value||typeof value!=="object")return;
+      if(Array.isArray(value)){value.forEach(walk);return;}
+      const title=value.title||value.title_text||value.item_title;
+      const priceRaw=value.displayed_price??value.price??value.sold_price??value.sale_price;
+      const url=value.link||value.url||value.item_url;
+      const soldDate=value.sold_date||value.soldDate||value.date_sold||value.sold_date_text;
+      if(title&&priceRaw!==undefined&&(url||soldDate||value.id)){
+        const price=typeof priceRaw==="number"?priceRaw:Number(String(priceRaw).replace(/[^0-9.]/g,""));
+        if(Number.isFinite(price)&&price>0){const key=String(value.id||title)+":"+price+":"+String(soldDate||"");if(!seen.has(key)){seen.add(key);found.push({title:String(title),price,shipping:Number(value.shipping??value.shipping_cost??0)||0,url:String(url||""),soldDate:String(soldDate||""),condition:String(value.condition||""),source:"Soldgraph sold listing"});}}
       }
-      buyerBtn.addEventListener("click",()=>draw("buyer"));sellerBtn.addEventListener("click",()=>draw("seller"));
-      ["ffSideCost","ffSideProfit","ffSideCosts","ffSideFeeRate"].forEach(id=>$(id).addEventListener("input",()=>draw(sellerBtn.dataset.active==="yes"?"seller":"buyer")));
-      const originalBuyer=draw;const sellerClick=()=>{sellerBtn.dataset.active="yes";draw("seller")};const buyerClick=()=>{sellerBtn.dataset.active="no";draw("buyer")};
-      buyerBtn.onclick=buyerClick;sellerBtn.onclick=sellerClick;draw("buyer");
-      const stats=document.createElement("div");stats.className="price-grid";
-      [[hasSoldData?"Lowest sold price":"Lowest active total",Number(hasSoldData?summaryData.lowest_sold_total:summaryData.lowest_active_total)||0],[hasSoldData?"Highest sold price":"Highest active total",Number(hasSoldData?summaryData.highest_sold_total:summaryData.highest_active_total)||0],[hasSoldData?"Recent sold listings":"Active listings",Number(hasSoldData?summaryData.sold_listing_count:summaryData.active_listing_count)||0]].forEach(([label,amount])=>{const box=document.createElement("div");box.className="stat";const cap=document.createElement("span");cap.textContent=label;const val=document.createElement("strong");val.textContent=label==="Matching listings"?String(amount):money(amount);box.append(cap,val);stats.appendChild(box)});root.appendChild(stats);
-    }else{
-      const note=document.createElement("p");note.className="status-box";note.textContent="No automatic price estimate was returned. Search for the item or enter a price you find online. Flip Finder will not invent a market value.";root.appendChild(note);
+      Object.values(value).forEach(walk);
     }
-    if(listings.length){const sub=document.createElement("details");const summaryEl=document.createElement("summary");summaryEl.textContent="Comparable listings ("+listings.length+")";summaryEl.style.cursor="pointer";summaryEl.style.margin="13px 0";sub.appendChild(summaryEl);listings.forEach(x=>appendListing(sub,x));root.appendChild(sub);}
+    walk(payload);return found;
+  }
+  function median(values){if(!values.length)return 0;const s=values.slice().sort((a,b)=>a-b),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+  function renderPricing(data,targetId){
+    const root=$(targetId);root.replaceChildren();const listings=collectSoldListings(data),prices=listings.map(x=>x.price).filter(x=>x>0),marketPrice=median(prices);
+    const heading=document.createElement("h2");heading.textContent="Sold-price market report";root.appendChild(heading);
+    if(!prices.length){const note=document.createElement("div");note.className="status-box";note.textContent="Soldgraph responded, but no recognizable sold listings with prices were found. Try a more specific item name, such as brand and model.";root.appendChild(note);return;}
+    const intro=document.createElement("p");intro.className="note";intro.textContent="Based on "+prices.length+" sold listings returned by Soldgraph. This is a sample, not a guarantee; check model, condition, size, and included accessories.";root.appendChild(intro);
+    const stats=document.createElement("div");stats.className="price-grid";
+    [["Typical sold price",money(marketPrice)],["Lowest in sample",money(Math.min(...prices))],["Highest in sample",money(Math.max(...prices))],["Sold listings found",String(prices.length)]].forEach(([label,value])=>{const box=document.createElement("div");box.className="stat";const cap=document.createElement("span");cap.textContent=label;const val=document.createElement("strong");val.textContent=value;box.append(cap,val);stats.appendChild(box);});root.appendChild(stats);
+    const tabs=document.createElement("div");tabs.style.cssText="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0";const buyerBtn=document.createElement("button"),sellerBtn=document.createElement("button");
+    [buyerBtn,sellerBtn].forEach(b=>{b.type="button";b.style.cssText="min-height:48px;border-radius:14px;border:1px solid var(--line);font-weight:850;background:#14233a;color:var(--text)";});buyerBtn.textContent="🛒 I'm buying";sellerBtn.textContent="💵 I'm selling";tabs.append(buyerBtn,sellerBtn);root.appendChild(tabs);
+    const fields=document.createElement("div");fields.className="form-card";fields.style.marginTop="0";
+    const addField=(id,label,value)=>{const wrap=document.createElement("label");wrap.className="field";const span=document.createElement("span");span.textContent=label;const input=document.createElement("input");input.id=id;input.type="number";input.min="0";input.step=".01";input.value=String(value);wrap.append(span,input);fields.appendChild(wrap);};
+    addField("ffSideCost","Your item cost ($)",Math.max(0,Number($("cost").value)||0));addField("ffSideProfit","Profit you want ($)",Math.round(marketPrice*.25*100)/100);addField("ffSideCosts","Shipping and other costs ($)",10);addField("ffSideFeeRate","Estimated selling fee (%)",15);root.appendChild(fields);
+    const answer=document.createElement("div");answer.className="result-card";root.appendChild(answer);const note=document.createElement("p");note.className="note";note.textContent="Calculations use your estimated fees and costs. Sold listings do not guarantee how quickly your item will sell.";root.appendChild(note);let mode="buyer";
+    function draw(nextMode){mode=nextMode;buyerBtn.style.background=mode==="buyer"?"linear-gradient(100deg,#73ceff,#258bff)":"#14233a";buyerBtn.style.color=mode==="buyer"?"#04162d":"var(--text)";sellerBtn.style.background=mode==="seller"?"linear-gradient(100deg,#73ceff,#258bff)":"#14233a";sellerBtn.style.color=mode==="seller"?"#04162d":"var(--text)";
+      const cost=Math.max(0,Number($("ffSideCost").value)||0),goal=Math.max(0,Number($("ffSideProfit").value)||0),other=Math.max(0,Number($("ffSideCosts").value)||0),rate=Math.min(99,Math.max(0,Number($("ffSideFeeRate").value)||0))/100;const result=mode==="buyer"?marketPrice*(1-rate)-other-goal:(cost+goal+other)/(1-rate);answer.replaceChildren();
+      const t=document.createElement("p");t.textContent=mode==="buyer"?"MAXIMUM YOU SHOULD PAY":"SUGGESTED LISTING PRICE";t.style.cssText="font-size:12px;font-weight:850;color:var(--muted)";const v=document.createElement("div");v.textContent=money(Math.max(0,result));v.style.cssText="font-size:34px;font-weight:950;letter-spacing:-1px;color:var(--green);margin:6px 0 10px";const d=document.createElement("p");d.textContent=mode==="buyer"?"Estimated from the typical sold price, target profit, selling fees, and other costs.":"A price intended to cover your cost, fees, other costs, and target profit; buyers may offer less.";const badge=document.createElement("div");badge.className="result-verdict "+(mode==="buyer"?(cost>0&&cost<=result?"good":"bad"):"unknown");badge.textContent=mode==="buyer"?(cost<=0?"ENTER YOUR OFFER COST":cost<=result?"WITHIN YOUR BUY LIMIT":"ABOVE YOUR BUY LIMIT"):"SELLER PRICE GUIDE";answer.append(t,v,d,badge);if(mode==="buyer")$("cost").value=cost.toFixed(2);
+    }
+    buyerBtn.addEventListener("click",()=>draw("buyer"));sellerBtn.addEventListener("click",()=>draw("seller"));["ffSideCost","ffSideProfit","ffSideCosts","ffSideFeeRate"].forEach(id=>$(id).addEventListener("input",()=>draw(mode)));draw("buyer");
+    const sub=document.createElement("details"),sum=document.createElement("summary");sum.textContent="Sold comparables ("+listings.length+")";sum.style.cssText="cursor:pointer;margin:13px 0";sub.appendChild(sum);listings.slice(0,30).forEach(item=>{const row=document.createElement("div");row.className="market-result";if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent=item.title+" — "+money(item.price);row.appendChild(a);}else{const title=document.createElement("strong");title.textContent=item.title+" — "+money(item.price);row.appendChild(title);}const meta=document.createElement("p");meta.className="note";meta.textContent=[item.condition,item.soldDate].filter(Boolean).join(" · ")||"Soldgraph result";row.appendChild(meta);sub.appendChild(row);});root.appendChild(sub);
   }
   async function researchPrices(itemName,targetId="searchPricingResults"){
-    const root=$(targetId);
-    const q=String(itemName||"").trim();
-    if(!q){root.innerHTML='<div class="status-box">Enter an item name to see price results.</div>';return null;}
-    root.innerHTML='<div class="result-card"><h2>Checking prices for '+escapeHtml(q)+'</h2><p>Contacting the marketplace pricing service…</p></div>';
-    try{
-      const response=await fetch(API+"/api/marketplace-prices",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({itemName:q})});
-      const data=await response.json().catch(()=>({}));
-      if(!response.ok||!data.success)throw new Error(data.error||"Marketplace pricing service did not return results.");
-      renderPricing(data,targetId);
-      if(targetId!=="homeFlipPlan")renderPricing(data,"homeFlipPlan");
-      return data;
-    }catch(err){
-      const ebay="https://www.ebay.com/sch/i.html?_nkw="+encodeURIComponent(q);
-      const google="https://www.google.com/search?q="+encodeURIComponent(q+" resale price");
-      root.innerHTML='<div class="result-card"><h2>Automatic prices are unavailable</h2><p>The pricing service did not return a result, so Flip Finder will not make up a price. You can still check live listings below.</p><div class="btnrow"><button class="primary" type="button" id="fallbackEbay">Search eBay ↗</button><button class="secondary" type="button" id="fallbackGoogle">Search Google ↗</button></div></div>';
-      $("fallbackEbay").addEventListener("click",()=>openExternal(ebay));
-      $("fallbackGoogle").addEventListener("click",()=>openExternal(google));
-      if(targetId!=="homeFlipPlan")$("homeFlipPlan").innerHTML='<div class="section-head" style="margin-top:18px"><h2>Your flip plan</h2><span class="eyebrow">AI MARKET CHECK</span></div><div class="status-box">Automatic prices are unavailable right now. Use Search to look up current listings; no market value has been assumed.</div>';
-      console.error("Price research:",err);return null;
-    }
+    const root=$(targetId),q=String(itemName||"").trim();if(!q){root.innerHTML='<div class="status-box">Enter an item name to see price results.</div>';return null;}
+    root.innerHTML='<div class="result-card"><h2>Checking sold prices for '+escapeHtml(q)+'</h2><p>Contacting Soldgraph…</p></div>';
+    try{const response=await fetch(API+"/api/soldgraph-test?q="+encodeURIComponent(q),{method:"GET"});const data=await response.json().catch(()=>({}));if(!response.ok||data.ok===false||data.error)throw new Error(data.error||data.details?.message||("Soldgraph request failed ("+response.status+")."));renderPricing(data,targetId);if(targetId!=="homeFlipPlan")renderPricing(data,"homeFlipPlan");return data;}
+    catch(err){const ebay="https://www.ebay.com/sch/i.html?_nkw="+encodeURIComponent(q),google="https://www.google.com/search?q="+encodeURIComponent(q+" resale price");root.innerHTML='<div class="result-card"><h2>Sold prices unavailable</h2><p>'+escapeHtml(err.message)+' Flip Finder will not invent a market value.</p><div class="btnrow"><button class="primary" type="button" id="fallbackEbay">Search eBay ↗</button><button class="secondary" type="button" id="fallbackGoogle">Search Google ↗</button></div></div>';$("fallbackEbay").addEventListener("click",()=>openExternal(ebay));$("fallbackGoogle").addEventListener("click",()=>openExternal(google));if(targetId!=="homeFlipPlan")$("homeFlipPlan").innerHTML='<div class="section-head" style="margin-top:18px"><h2>Your flip plan</h2></div><div class="status-box">Sold-price data is unavailable. No market value has been assumed.</div>';console.error("Soldgraph pricing:",err);return null;}
   }
   async function analyzeImage(){
     if(!photoData)return;
