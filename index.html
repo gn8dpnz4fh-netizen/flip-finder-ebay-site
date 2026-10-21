@@ -120,7 +120,16 @@
 </section>
 
 <section class="page" id="calculatorPage">
-  <div class="eyebrow">Know your numbers</div><h1>Profit planner.</h1><p>Use your own estimates or the market estimate from a scan. Actual results can vary.</p>
+  <div class="eyebrow">AI-powered scan</div><h1>Identify &amp; price your item.</h1><p>Flip Finder identifies the item first, then uses that name to check prices.</p>
+  <div id="coinStage" class="coin-stage" aria-live="polite">
+    <div class="scan-orb small" id="coinOrb"><div class="scan-symbol">⌗</div></div>
+    <strong id="coinTitle">Checking your item…</strong>
+    <p id="coinSubtitle">Identifying item details</p>
+  </div>
+  <div id="aiResults"></div>
+  <div id="calculatorMarketResults"></div>
+  <div class="section-head"><h2>Manual profit calculator</h2></div>
+  <p>Optional: enter your own buy price and selling price to calculate profit.</p>
   <div class="form-card">
     <label class="field"><span>Item name</span><input id="calcName" placeholder="e.g. Vintage game console"></label>
     <div class="two-col"><label class="field"><span>Purchase cost ($)</span><input id="cost" type="number" min="0" step=".01" value="0"></label><label class="field"><span>Expected selling price ($)</span><input id="value" type="number" min="0" step=".01" value="0"></label></div>
@@ -129,13 +138,6 @@
     <p class="note">Profit = selling price − purchase cost − fees. Add shipping and other expenses to fees for a more realistic estimate.</p>
     <button class="primary wide" id="saveFlip" style="margin-top:14px">♡ &nbsp; Save this flip</button>
   </div>
-  <div id="coinStage" class="coin-stage" aria-live="polite">
-    <div class="scan-orb small" id="coinOrb"><div class="scan-symbol">⌗</div></div>
-    <strong id="coinTitle">Checking your item…</strong>
-    <p id="coinSubtitle">Identifying item details</p>
-  </div>
-  <div id="aiResults"></div>
-  <div id="calculatorMarketResults"></div>
 </section>
 
 <section class="page" id="savedPage">
@@ -557,8 +559,15 @@
       if(a.limitations){const limit=document.createElement("p");limit.textContent="Note: "+a.limitations;limit.style.marginTop="8px";info.appendChild(limit);}
       results.replaceChildren(info);
       $("coinTitle").textContent="Item identified";$("coinSubtitle").textContent="Now checking available market prices";
-      const query=String(a.search_query||[name,a.brand,a.model,a.category].filter(v=>v&&v!=="Unknown").join(" ")||(Array.isArray(a.search_terms)?a.search_terms.join(" "):"")).trim();
-      if(!query)throw new Error("AI did not return a search name. Enter the item name manually.");
+      // Price the AI-identified item first. A generic category such as "cap" must never replace the real item name.
+      const identityParts=[name,a.brand,a.model].map(v=>String(v||"").trim()).filter(v=>v&&v.toLowerCase()!=="unknown");
+      const uniqueIdentityParts=[...new Set(identityParts)];
+      let query=uniqueIdentityParts.join(" ").trim();
+      const aiSearch=String(a.search_query||"").trim();
+      const genericOnly=/^(cap|hat|clothing|accessory|item|product|unknown)$/i.test(aiSearch);
+      if(!query&&!genericOnly)query=aiSearch;
+      if(!query&&Array.isArray(a.search_terms))query=a.search_terms.map(v=>String(v||"").trim()).filter(Boolean).join(" ");
+      if(!query)throw new Error("AI did not return a useful item name. Enter the item name manually.");
       await researchPrices(query,"calculatorMarketResults");
       toast("AI identification finished.");
     }catch(err){$("coinTitle").textContent="Scan needs attention";$("coinSubtitle").textContent="Try another photo or search by name";const box=document.createElement("div");box.className="status-box";box.textContent="AI scan issue: "+err.message;results.replaceChildren(box);console.error("Image analysis:",err);toast("Could not finish the AI scan.");}
