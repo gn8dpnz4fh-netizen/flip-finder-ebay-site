@@ -28,6 +28,48 @@
 .camera-page{display:none;position:fixed;z-index:30;inset:0;background:#020604;max-width:620px;margin:auto;overflow:hidden;padding:0}.camera-page.active{display:block}#cameraVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#030705}.camera-shade{position:absolute;inset:0;background:linear-gradient(180deg,#0009 0%,transparent 25%,transparent 60%,#000b 100%);pointer-events:none}.camera-top{position:absolute;top:calc(12px + var(--safeT));left:18px;right:18px;display:flex;justify-content:space-between;align-items:center;z-index:2}.camera-label{text-align:center;font-weight:900;text-shadow:0 2px 12px #000}.camera-label small{display:block;color:#d1e3d8;font-weight:600;font-size:10px;letter-spacing:1.3px;margin-top:4px}.camera-close{background:#09130fc9;backdrop-filter:blur(12px);border:1px solid #ffffff35;color:white;border-radius:50%;width:44px;height:44px;font-size:23px}.camera-guide{position:absolute;left:11%;right:11%;top:24%;height:40%;z-index:1;pointer-events:none}.corner{position:absolute;width:34px;height:34px;border-color:var(--green);border-style:solid;filter:drop-shadow(0 0 7px #4bffa1a0)}.tl{top:0;left:0;border-width:3px 0 0 3px;border-radius:13px 0 0 0}.tr{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 13px 0 0}.bl{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 13px}.br{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 13px 0}.guide-line{position:absolute;left:4%;right:4%;top:50%;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);box-shadow:0 0 16px var(--green);animation:scanline 2.8s ease-in-out infinite}@keyframes scanline{0%,100%{transform:translateY(-60px);opacity:.45}50%{transform:translateY(60px);opacity:1}}.camera-fallback{position:absolute;z-index:3;left:22px;right:22px;top:50%;transform:translateY(-50%);max-width:390px;margin:auto;padding:22px;border:1px solid #ffffff30;border-radius:22px;background:#071426ed;backdrop-filter:blur(16px);text-align:center;box-shadow:0 18px 60px #0008}.camera-fallback h2{margin:0 0 8px}.camera-fallback p{font-size:13px;margin-bottom:15px}.camera-fallback .primary,.camera-fallback .secondary{width:100%;margin-top:8px}.camera-bottom{position:absolute;z-index:2;bottom:calc(23px + var(--safeB));left:20px;right:20px;text-align:center}.camera-instruction{font-size:14px;color:white;text-shadow:0 2px 12px #000;margin-bottom:21px}.shutter-row{display:flex;align-items:center;justify-content:space-between;max-width:330px;margin:auto}.round-control{width:48px;height:48px;border-radius:50%;background:#07142abd;border:1px solid #ffffff55;color:white;font-size:20px;display:grid;place-items:center}.shutter{width:78px;height:78px;border-radius:50%;border:4px solid white;background:var(--green);box-shadow:0 0 0 5px #ffffff30,0 0 35px #55b8ff55;display:grid;place-items:center}.shutter span{width:58px;height:58px;border:2px solid #0c3f78;border-radius:50%;display:block}.hidden{display:none!important}.toast{position:fixed;z-index:60;left:50%;bottom:calc(95px + var(--safeB));transform:translate(-50%,14px);opacity:0;pointer-events:none;background:#e7f5ff;color:#062348;padding:12px 16px;border-radius:13px;font-weight:850;font-size:13px;box-shadow:0 8px 35px #0007;transition:.2s;max-width:90%;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
 @media(min-width:700px){body{background:#030805}.app,.camera-page{border-left:1px solid #15261c;border-right:1px solid #15261c}}@media(max-width:380px){.page{padding-left:13px;padding-right:13px}h1{font-size:28px}.quick{padding:11px 8px}.stat strong{font-size:19px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 
+
+/* Clear, polished buy/sell decision card */
+.price-report{margin-top:14px}
+.price-hero{border:1px solid #294a70;border-radius:22px;overflow:hidden;background:linear-gradient(145deg,#142946,#09172a 76%);box-shadow:0 18px 42px #0002}
+.price-hero-head{padding:17px 17px 13px}
+.price-eyebrow{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:900;color:#91b9e8}
+.price-product-name{font-size:20px;font-weight:900;line-height:1.2;letter-spacing:-.4px;margin-top:6px;overflow-wrap:anywhere}
+.price-product-meta{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+.price-decision{margin:0 13px 13px;border-radius:17px;padding:14px;background:#0d1e32;border:1px solid #29425f}
+.price-decision.good{background:linear-gradient(125deg,#0e3a2b,#0a241d);border-color:#21a66c}
+.price-decision.bad{background:linear-gradient(125deg,#431722,#25101a);border-color:#db4f65}
+.price-decision.unknown{background:#292313;border-color:#92752b}
+.price-verdict{font-size:19px;letter-spacing:.2px;font-weight:950;display:flex;align-items:center;gap:8px}
+.price-decision.good .price-verdict{color:#66efb0}
+.price-decision.bad .price-verdict{color:#ff8e9d}
+.price-decision.unknown .price-verdict{color:#ffe39a}
+.price-verdict-sub{font-size:12px;color:#d0dce9;line-height:1.5;margin-top:5px}
+.price-decision-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 13px 13px}
+.price-number{border-radius:15px;padding:13px;background:#081426;border:1px solid #243b58;min-width:0}
+.price-number.primary-number{background:linear-gradient(145deg,#103b2c,#0b251d);border-color:#1b8d59}
+.price-number span{display:block;font-size:10px;color:var(--muted);font-weight:850;letter-spacing:.8px;text-transform:uppercase}
+.price-number strong{display:block;font-size:25px;line-height:1.2;letter-spacing:-.7px;margin-top:7px;overflow-wrap:anywhere}
+.price-number.primary-number strong{color:#66efb0}
+.price-number small{display:block;font-size:10px;color:var(--muted);margin-top:5px;line-height:1.4}
+.price-input-wrap{padding:0 13px 14px}
+.price-input-wrap label{display:block;color:#d5e2f1;font-size:12px;font-weight:800;margin-bottom:7px}
+.price-ask-input{width:100%;height:49px;border-radius:13px;border:1px solid #345171;background:#071326;color:#fff;padding:0 13px;font-size:17px;font-weight:800}
+.price-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 13px 14px}
+.price-control{min-width:0}
+.price-control label{display:block;font-size:10px;color:var(--muted);font-weight:800;min-height:26px;line-height:1.3;margin-bottom:6px}
+.price-control input{width:100%;height:42px;border:1px solid #2b4562;background:#071326;color:#f3f8ff;border-radius:11px;padding:0 10px;font-weight:750}
+.price-report-foot{padding:0 15px 15px;font-size:11px;line-height:1.5;color:#9cafc5}
+.price-chip-row{display:flex;flex-wrap:wrap;gap:7px;padding:0 13px 13px}
+.price-chip{border-radius:99px;padding:6px 9px;background:#0a1b30;border:1px solid #29415f;font-size:10px;color:#bbcee4;font-weight:800}
+.price-report details{margin:12px 2px 0;border:1px solid var(--line);border-radius:14px;padding:12px;background:#091527}
+.price-report details summary{font-size:12px;font-weight:850;cursor:pointer;color:#c7d9ef}
+.identification-card{margin-top:12px;border:1px solid #2b486b;background:linear-gradient(135deg,#11233c,#0a1728);border-radius:17px;padding:14px}
+.identification-card h3{font-size:15px;margin:0 0 8px}
+.identification-card p{font-size:12px;line-height:1.55;color:#c4d4e7}
+.identification-card .identification-warning{border-radius:11px;border:1px solid #9b782d;background:#2b2414;padding:10px;color:#ffe39a;margin-top:10px}
+@media(max-width:360px){.price-number strong{font-size:22px}.price-product-name{font-size:18px}}
+
 /* Simplified home screen */
 .simple-scan{min-height:0;padding:22px 18px 18px;border-color:#244b76;background:linear-gradient(145deg,#12233c,#081322 75%);margin-top:2px}
 .simple-scan .scan-orb{width:126px;height:126px;margin-bottom:14px}
@@ -38,28 +80,9 @@
 .home-search{margin:15px 0 9px}
 .home-search input{background:#0e1b2d}
 #homeResearch{margin-bottom:6px}
-
-/* Flip Finder intro and swipeable deal screens */
-#ffSplash{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 35%,#12375e 0%,#09182d 45%,#050b15 100%);transition:opacity .45s ease,visibility .45s ease}
-#ffSplash.hide{opacity:0;visibility:hidden;pointer-events:none}
-#ffSplash .splash-name{font-size:clamp(38px,10vw,58px);font-weight:950;letter-spacing:-2.4px;color:#f3f8ff}
-#ffSplash .splash-name span{color:#55b8ff}
-#ffSplash .splash-tag{margin-top:10px;color:#b8d8ff;font-size:15px;letter-spacing:2px;font-weight:750}
-#ffSplash .splash-mark{width:68px;height:68px;border-radius:22px;display:grid;place-items:center;margin:0 auto 24px;background:linear-gradient(145deg,#83d5ff,#258bff);color:#04162d;font-size:30px;font-weight:950;box-shadow:0 0 55px #258bff40}
-#ffSplash .splash-credit{position:absolute;right:18px;bottom:calc(14px + env(safe-area-inset-bottom,0px));font-size:11px;color:#8ba6c9;letter-spacing:.4px}
-.ff-swipe-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;gap:12px;padding:2px 1px 12px;overscroll-behavior-x:contain;scrollbar-width:none}
-.ff-swipe-track::-webkit-scrollbar{display:none}.ff-swipe-panel{flex:0 0 100%;min-width:0;scroll-snap-align:start}
-.ff-swipe-hint{display:flex;justify-content:center;align-items:center;gap:7px;color:var(--muted);font-size:11px;margin:8px 0 2px}
-.ff-dots{display:flex;justify-content:center;gap:6px;margin-top:8px}.ff-dots i{width:6px;height:6px;border-radius:20px;background:#314766}.ff-dots i.active{width:19px;background:var(--green)}
-.ff-verdict-big{border-radius:17px;padding:15px;text-align:center;font-size:21px;font-weight:950;letter-spacing:.4px;margin-top:12px}.ff-verdict-big.good{background:#0d3429;border:1px solid #2b9c73;color:#7ff0bd}.ff-verdict-big.bad{background:#35131c;border:1px solid #b83e59;color:#ff9bad}.ff-verdict-big.unknown{background:#292313;border:1px solid #92752b;color:#ffe8a0}
-.ff-primary-number{font-size:clamp(35px,9vw,45px);font-weight:950;letter-spacing:-1.5px;color:var(--green);margin:5px 0 8px}.ff-price-label{font-size:12px;font-weight:850;letter-spacing:.7px;color:var(--muted);text-transform:uppercase}
 </style>
 </head>
 <body>
-<div id="ffSplash" aria-label="Flip Finder introduction">
-  <div><div class="splash-mark">↗</div><div class="splash-name">Flip<span>Finder</span></div><div class="splash-tag">Flip Smarter.</div></div>
-  <div class="splash-credit">by Wormy Cox</div>
-</div>
 <main class="app">
 <header class="topbar"><div class="brand"><div class="brand-mark">F</div><div>Flip <span>Finder</span></div></div><button class="icon-btn" id="settingsBtn" aria-label="Profile and help">⚙</button></header>
 
@@ -298,10 +321,14 @@
       toast("Camera access is unavailable. You can upload a photo.");
       return;
     }
-    navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:facingMode}}}).then(async s=>{
+    navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:facingMode},width:{ideal:2560},height:{ideal:1440}}}).then(async s=>{
       if(stream)s.getTracks().forEach(t=>t.stop());
       stream=s;
       const video=$("cameraVideo");
+      const cameraTrack=s.getVideoTracks&&s.getVideoTracks()[0];
+      if(cameraTrack&&cameraTrack.getCapabilities){
+        try{const caps=cameraTrack.getCapabilities();if(caps.focusMode&&caps.focusMode.includes("continuous"))await cameraTrack.applyConstraints({advanced:[{focusMode:"continuous"}]});}catch(focusError){console.debug("Continuous focus is not supported by this camera.",focusError);}
+      }
       video.srcObject=s;
       $("cameraFallbackTitle").textContent="Camera readying…";
       $("cameraFallbackText").textContent="Hold your item in the frame. The camera preview will appear here.";
@@ -367,54 +394,145 @@
     const link=document.createElement("a");link.href=affiliateUrl(item.url);link.target="_blank";link.rel="noopener noreferrer";link.textContent=(item.title||"View listing")+(item.price==null?"":" — "+money(Number(item.price)+(Number(item.shipping)||0)));
     row.appendChild(link);const source=document.createElement("p");source.className="note";source.textContent=item.source||"Marketplace listing";row.appendChild(source);parent.appendChild(row);
   }
+  function parseMoney(value){
+    if(value==null)return null;
+    if(typeof value==="number")return Number.isFinite(value)?value:null;
+    if(typeof value==="object"){
+      for(const key of ["amount","value","display_value","formatted_amount"])if(value[key]!=null){const n=parseMoney(value[key]);if(n!=null)return n;}
+      return null;
+    }
+    const match=String(value).replace(/,/g,"").match(/-?\d+(?:\.\d{1,2})?/);
+    if(!match)return null;
+    const n=Number(match[0]);return Number.isFinite(n)?n:null;
+  }
   function collectSoldListings(payload){
     const found=[],seen=new Set();
     function walk(value){
       if(!value||typeof value!=="object")return;
       if(Array.isArray(value)){value.forEach(walk);return;}
-      const title=value.title||value.title_text||value.item_title;
-      const priceRaw=value.displayed_price??value.price??value.sold_price??value.sale_price;
-      const url=value.link||value.url||value.item_url;
-      const soldDate=value.sold_date||value.soldDate||value.date_sold||value.sold_date_text;
-      if(title&&priceRaw!==undefined&&(url||soldDate||value.id)){
-        const price=typeof priceRaw==="number"?priceRaw:Number(String(priceRaw).replace(/[^0-9.]/g,""));
-        if(Number.isFinite(price)&&price>0){const key=String(value.id||title)+":"+price+":"+String(soldDate||"");if(!seen.has(key)){seen.add(key);found.push({title:String(title),price,shipping:Number(value.shipping??value.shipping_cost??0)||0,url:String(url||""),soldDate:String(soldDate||""),condition:String(value.condition||""),source:"Soldgraph sold listing"});}}
+      const title=value.title||value.title_text||value.item_title||value.name;
+      const priceRaw=value.displayed_price??value.price??value.sold_price??value.sale_price??value.soldPrice??value.final_price;
+      const price=parseMoney(priceRaw);
+      const shippingRaw=value.displayed_shipping??value.shipping??value.shipping_cost??value.shippingCost;
+      const shipping=parseMoney(shippingRaw);
+      const url=value.link||value.url||value.item_url||value.itemWebUrl||value.item_url_link;
+      const soldDate=value.sold_date||value.soldDate||value.date_sold||value.sold_date_text||value.end_date||value.date;
+      if(title&&price!=null&&price>0){
+        const normalizedTitle=String(title).trim();
+        const key=normalizedTitle.toLowerCase()+":"+price.toFixed(2)+":"+String(soldDate||"");
+        if(normalizedTitle&&!seen.has(key)){
+          seen.add(key);
+          found.push({title:normalizedTitle,price,shipping:shipping&&shipping>0?shipping:0,url:typeof url==="string"?url:"",soldDate:typeof soldDate==="string"?soldDate:"",condition:String(value.condition||value.condition_text||""),source:"SoldGraph eBay sold listing"});
+        }
       }
       Object.values(value).forEach(walk);
     }
-    walk(payload);return found;
+    walk(payload);
+    return found;
   }
-  function median(values){if(!values.length)return 0;const s=values.slice().sort((a,b)=>a-b),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;}
-  function renderPricing(data,targetId){
-    const root=$(targetId);root.replaceChildren();const listings=collectSoldListings(data),prices=listings.map(x=>x.price).filter(x=>x>0),marketPrice=median(prices);
-    const heading=document.createElement("h2");heading.textContent="Your flip decision";root.appendChild(heading);
-    if(!prices.length){const note=document.createElement("div");note.className="status-box";note.textContent="Not enough reliable sold-price data to make a safe recommendation. Try a more specific item name.";root.appendChild(note);return;}
-    const intro=document.createElement("p");intro.className="note";intro.textContent="Based on "+prices.length+" sold listings. Check condition, model, size, and included accessories before deciding.";root.appendChild(intro);
-    const track=document.createElement("div");track.className="ff-swipe-track";track.setAttribute("aria-label","Swipe between flip decision and cost details");root.appendChild(track);
-    const main=document.createElement("section");main.className="ff-swipe-panel";track.appendChild(main);
-    const costPanel=document.createElement("section");costPanel.className="ff-swipe-panel";track.appendChild(costPanel);
-    const maxSpend=document.createElement("div");maxSpend.className="result-card";maxSpend.style.marginTop="12px";maxSpend.innerHTML='<div class="ff-price-label">Maximum to spend when buying</div><div class="ff-primary-number" id="ffMaxSpend">—</div><p>Keep your purchase at or below this amount to protect your profit goal.</p>';main.appendChild(maxSpend);
-    const lowest=document.createElement("div");lowest.className="result-card";lowest.innerHTML='<div class="ff-price-label">Lowest offer to accept when selling</div><div class="ff-primary-number" id="ffLowestAccept">—</div><p>Estimated minimum based on your costs and target profit.</p>';main.appendChild(lowest);
-    const askWrap=document.createElement("label");askWrap.className="field";const askLabel=document.createElement("span");askLabel.textContent="Seller’s asking price ($)";const askInput=document.createElement("input");askInput.type="number";askInput.min="0";askInput.step=".01";askInput.placeholder="Enter the price they want";askInput.value=String(Math.max(0,Number($("cost").value)||0)||"");askWrap.append(askLabel,askInput);main.appendChild(askWrap);
-    const verdict=document.createElement("div");verdict.className="ff-verdict-big unknown";verdict.textContent="ENTER ASKING PRICE";main.appendChild(verdict);
-    const swipe=document.createElement("div");swipe.className="ff-swipe-hint";swipe.innerHTML='<span>←</span><span>Swipe for fees &amp; costs</span><span>→</span>';main.appendChild(swipe);
-    const dots=document.createElement("div");dots.className="ff-dots";dots.innerHTML='<i class="active"></i><i></i>';main.appendChild(dots);
-    const costHeading=document.createElement("h3");costHeading.textContent="Your costs & profit goal";costPanel.appendChild(costHeading);const costIntro=document.createElement("p");costIntro.className="note";costIntro.textContent="Adjust these estimates. Flip Finder uses them to calculate the buy limit and minimum offer to accept.";costPanel.appendChild(costIntro);
-    const fields=document.createElement("div");fields.className="form-card";fields.style.marginTop="10px";costPanel.appendChild(fields);
-    const addField=(id,label,value)=>{const wrap=document.createElement("label");wrap.className="field";const span=document.createElement("span");span.textContent=label;const input=document.createElement("input");input.id=id;input.type="number";input.min="0";input.step=".01";input.value=String(value);wrap.append(span,input);fields.appendChild(wrap);return input;};
-    const costInput=addField("ffSideCost","Your item cost / offer ($)",Math.max(0,Number($("cost").value)||0));const goalInput=addField("ffSideProfit","Profit you want ($)",15);const otherInput=addField("ffSideCosts","Shipping and other costs ($)",10);const feeInput=addField("ffSideFeeRate","Estimated selling fee (%)",15);
-    const costSwipe=document.createElement("div");costSwipe.className="ff-swipe-hint";costSwipe.innerHTML='<span>←</span><span>Swipe back to your decision</span><span>→</span>';costPanel.appendChild(costSwipe);
-    const stats=document.createElement("div");stats.className="price-grid";[["Typical sold price",money(marketPrice)],["Lowest sold",money(Math.min(...prices))],["Highest sold",money(Math.max(...prices))],["Sold listings",String(prices.length)]].forEach(([label,value])=>{const box=document.createElement("div");box.className="stat";const cap=document.createElement("span");cap.textContent=label;const val=document.createElement("strong");val.textContent=value;box.append(cap,val);stats.appendChild(box);});costPanel.appendChild(stats);
-    function update(){const cost=Math.max(0,Number(costInput.value)||0),goal=Math.max(0,Number(goalInput.value)||0),other=Math.max(0,Number(otherInput.value)||0),rate=Math.min(99,Math.max(0,Number(feeInput.value)||0))/100;const buyLimit=Math.max(0,marketPrice*(1-rate)-other-goal),lowestAccept=(cost+goal+other)/(1-rate);$("ffMaxSpend").textContent=money(buyLimit);$("ffLowestAccept").textContent=money(lowestAccept);const ask=Math.max(0,Number(askInput.value)||0);verdict.className="ff-verdict-big "+(!askInput.value?"unknown":(ask<=buyLimit&&prices.length>=5?"good":"bad"));verdict.textContent=!askInput.value?"ENTER ASKING PRICE":prices.length<5?"NOT ENOUGH DATA":ask<=buyLimit?"GOOD FLIP · BUY AT THIS PRICE OR LESS":"BAD FLIP · PASS AT THIS PRICE";$("cost").value=(askInput.value?ask:cost).toFixed(2);}
-    askInput.addEventListener("input",()=>{costInput.value=askInput.value||"0";update();});[costInput,goalInput,otherInput,feeInput].forEach(el=>el.addEventListener("input",()=>{if(el===costInput){askInput.value=el.value;}update();}));
-    track.addEventListener("scroll",()=>{const idx=track.scrollLeft>track.clientWidth*.35?1:0;[...dots.children].forEach((d,i)=>d.classList.toggle("active",i===idx));},{passive:true});update();
-    const sub=document.createElement("details"),sum=document.createElement("summary");sum.textContent="View sold comparables ("+listings.length+")";sum.style.cssText="cursor:pointer;margin:13px 0";sub.appendChild(sum);listings.slice(0,30).forEach(item=>{const row=document.createElement("div");row.className="market-result";if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent=item.title+" — "+money(item.price);row.appendChild(a);}else{const title=document.createElement("strong");title.textContent=item.title+" — "+money(item.price);row.appendChild(title);}const meta=document.createElement("p");meta.className="note";meta.textContent=[item.condition,item.soldDate].filter(Boolean).join(" · ")||"Soldgraph result";row.appendChild(meta);sub.appendChild(row);});costPanel.appendChild(sub);
+  function median(values){if(!values.length)return 0;const sorted=values.slice().sort((a,b)=>a-b),m=Math.floor(sorted.length/2);return sorted.length%2?sorted[m]:(sorted[m-1]+sorted[m])/2;}
+  function quantile(values,p){if(!values.length)return 0;const a=values.slice().sort((x,y)=>x-y),i=(a.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return a[lo]+(a[hi]-a[lo])*(i-lo);}
+  function comparisonTokens(text){
+    const stop=new Set(["the","and","for","with","from","new","used","good","like","condition","authentic","original","item","items","pair","set","lot","size","mens","womens","men","women","kids","adult","ebay","sold","listing","model","style","brand"]);
+    return Array.from(new Set((String(text||"").toLowerCase().replace(/[^a-z0-9]+/g," ").match(/[a-z0-9]+/g)||[]).filter(t=>t.length>1&&!stop.has(t))));
+  }
+  function renderPricing(data,targetId,query){
+    const root=$(targetId);root.replaceChildren();root.classList.add("price-report");
+    const q=String(query||data.query||"").trim();
+    const allListings=collectSoldListings(data);
+    const tokens=comparisonTokens(q);
+    const ranked=allListings.map(item=>{const titleTokens=new Set(comparisonTokens(item.title));const matched=tokens.filter(t=>titleTokens.has(t)).length;return {...item,matchCount:matched,matchScore:tokens.length?matched/tokens.length:1};});
+    const required=tokens.length===0?0:(tokens.length<=2?1:Math.max(2,Math.ceil(tokens.length*0.34)));
+    let listings=ranked.filter(x=>x.matchCount>=required);
+    if(!tokens.length)listings=ranked;
+    const heading=document.createElement("h2");heading.textContent="Your Flip Plan";root.appendChild(heading);
+    const hero=document.createElement("div");hero.className="price-hero";root.appendChild(hero);
+    const head=document.createElement("div");head.className="price-hero-head";const eyebrow=document.createElement("div");eyebrow.className="price-eyebrow";eyebrow.textContent="SOLD-PRICE RESEARCH";const name=document.createElement("div");name.className="price-product-name";name.textContent=q||"Your item";const meta=document.createElement("div");meta.className="price-product-meta";meta.textContent="Using completed-sale results where available — not just what sellers are asking.";head.append(eyebrow,name,meta);hero.appendChild(head);
+    if(!listings.length){
+      const decision=document.createElement("div");decision.className="price-decision unknown";decision.innerHTML='<div class="price-verdict">⚠ NO RELIABLE MATCH YET</div><div class="price-verdict-sub">Flip Finder found sold listings, but could not confidently match their titles to this item. Try adding the exact brand and model, or take a clearer photo of its label or markings. No buy recommendation is being guessed.</div>';hero.appendChild(decision);
+      if(allListings.length){const details=document.createElement("details");const summary=document.createElement("summary");summary.textContent="Review sold listings found ("+allListings.length+")";details.appendChild(summary);allListings.slice(0,10).forEach(item=>{const row=document.createElement("div");row.className="market-result";const text=document.createElement("strong");text.textContent=item.title+" — "+money(item.price);row.appendChild(text);if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Open listing";row.appendChild(a);}details.appendChild(row);});root.appendChild(details);}
+      const ebay="https://www.ebay.com/sch/i.html?_nkw="+encodeURIComponent(q),google="https://www.google.com/search?q="+encodeURIComponent(q+" sold price");const buttons=document.createElement("div");buttons.className="btnrow";const e=document.createElement("button");e.className="primary";e.textContent="Search eBay";e.type="button";e.addEventListener("click",()=>openExternal(ebay));const g=document.createElement("button");g.className="secondary";g.textContent="Search Google";g.type="button";g.addEventListener("click",()=>openExternal(google));buttons.append(e,g);root.appendChild(buttons);return false;
+    }
+    const prices=listings.map(x=>x.price+(Number(x.shipping)||0)).filter(x=>x>0&&Number.isFinite(x));
+    if(!prices.length){const noPrice=document.createElement("div");noPrice.className="status-box";noPrice.textContent="No usable sold prices were returned for this item. Try a more specific search.";hero.appendChild(noPrice);return false;}
+    const marketPrice=median(prices);
+    const targetProfit=Math.max(10,Math.round(marketPrice*0.25*100)/100);
+    let askPrice=0,otherCosts=10,feeRate=15,profitGoal=targetProfit;
+    const decision=document.createElement("div");decision.className="price-decision unknown";const verdict=document.createElement("div");verdict.className="price-verdict";const verdictSub=document.createElement("div");verdictSub.className="price-verdict-sub";decision.append(verdict,verdictSub);hero.appendChild(decision);
+    const grid=document.createElement("div");grid.className="price-decision-grid";const makeNumber=(label,initial,subtext,primary=false)=>{const el=document.createElement("div");el.className="price-number"+(primary?" primary-number":"");const cap=document.createElement("span");cap.textContent=label;const amount=document.createElement("strong");amount.textContent=money(initial);const sub=document.createElement("small");sub.textContent=subtext;el.append(cap,amount,sub);grid.appendChild(el);return amount;};
+    const sellAmount=makeNumber("SELL AROUND",marketPrice,"Typical completed-sale price");
+    const buyAmount=makeNumber("PAY NO MORE THAN",0,"Leaves room for estimated costs and profit",true);
+    const profitAmount=makeNumber("ESTIMATED PROFIT",0,"At the asking price you enter");
+    const rangeAmount=makeNumber("TYPICAL SOLD RANGE",quantile(prices,0.1),"Middle 80% of the price sample");rangeAmount.textContent=money(quantile(prices,0.1))+"–"+money(quantile(prices,0.9));
+    hero.appendChild(grid);
+    const chipRow=document.createElement("div");chipRow.className="price-chip-row";const chip=document.createElement("span");chip.className="price-chip";chip.textContent=listings.length+" likely matching sold listing"+(listings.length===1?"":"s");const chip2=document.createElement("span");chip2.className="price-chip";chip2.textContent="Median used for estimate";chipRow.append(chip,chip2);hero.appendChild(chipRow);
+    const inputArea=document.createElement("div");inputArea.className="price-input-wrap";const askLabel=document.createElement("label");askLabel.textContent="How much is the seller asking?";const askInput=document.createElement("input");askInput.className="price-ask-input";askInput.type="number";askInput.min="0";askInput.step="0.01";askInput.placeholder="Enter asking price (e.g. 20)";askInput.setAttribute("aria-label","Seller asking price");inputArea.append(askLabel,askInput);hero.appendChild(inputArea);
+    const controls=document.createElement("div");controls.className="price-controls";
+    function addControl(labelText,val,min,max,step){const wrap=document.createElement("div");wrap.className="price-control";const label=document.createElement("label");label.textContent=labelText;const inp=document.createElement("input");inp.type="number";inp.min=String(min);if(max!=null)inp.max=String(max);inp.step=String(step);inp.value=String(val);wrap.append(label,inp);controls.appendChild(wrap);return inp;}
+    const costInput=addControl("Shipping / other costs ($)",otherCosts,0,100000,1);
+    const feeInput=addControl("Selling fees (%)",feeRate,0,99,1);
+    const goalInput=addControl("Profit you want ($)",profitGoal,0,100000,1);
+    hero.appendChild(controls);
+    function updateDecision(){
+      askPrice=Math.max(0,Number(askInput.value)||0);otherCosts=Math.max(0,Number(costInput.value)||0);feeRate=Math.min(99,Math.max(0,Number(feeInput.value)||0));profitGoal=Math.max(0,Number(goalInput.value)||0);const expectedSale=marketPrice;const maxBuy=Math.max(0,expectedSale*(1-feeRate/100)-otherCosts-profitGoal);const estimatedProfit=expectedSale*(1-feeRate/100)-otherCosts-askPrice;
+      sellAmount.textContent=money(expectedSale);buyAmount.textContent=money(maxBuy);profitAmount.textContent=askInput.value.trim()?money(estimatedProfit):"—";
+      profitAmount.style.color=askInput.value.trim()?(estimatedProfit>=profitGoal?"#66efb0":estimatedProfit>0?"#ffe39a":"#ff8e9d"):"var(--text)";
+      if(!askInput.value.trim()||askPrice<=0){decision.className="price-decision unknown";verdict.textContent="⌁ ENTER THE ASKING PRICE";verdictSub.textContent="Flip Finder has the sold-price estimate. Enter the seller's price to see GOOD FLIP or BAD FLIP.";}
+      else if(askPrice<=maxBuy){decision.className="price-decision good";verdict.textContent="✓ GOOD FLIP";verdictSub.textContent="This price is within your buy limit. Estimated profit is "+money(estimatedProfit)+" after estimated fees and costs.";}
+      else{decision.className="price-decision bad";verdict.textContent="✕ BAD FLIP AT THIS PRICE";verdictSub.textContent="The asking price is above your buy limit. Offer no more than "+money(maxBuy)+" to target "+money(profitGoal)+" profit.";}
+      if(estimatedProfit<0&&askInput.value.trim())profitAmount.style.color="#ff8e9d";
+    }
+    [askInput,costInput,feeInput,goalInput].forEach(input=>input.addEventListener("input",updateDecision));updateDecision();
+    const note=document.createElement("div");note.className="price-report-foot";note.textContent="Estimate uses the median of likely matching completed sales, your fee estimate, other costs and profit goal. Actual sale price, fees, condition, size, shipping and time-to-sell can differ. Check that the sold items match this exact model and condition.";hero.appendChild(note);
+    const details=document.createElement("details");const summary=document.createElement("summary");summary.textContent="View matching sold listings ("+listings.length+")";details.appendChild(summary);listings.slice(0,30).forEach(item=>{const row=document.createElement("div");row.className="market-result";if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent=item.title+" — "+money(item.price+(Number(item.shipping)||0));row.appendChild(a);}else{const title=document.createElement("strong");title.textContent=item.title+" — "+money(item.price+(Number(item.shipping)||0));row.appendChild(title);}const meta=document.createElement("p");meta.className="note";meta.textContent=[item.condition,item.soldDate].filter(Boolean).join(" · ")||"SoldGraph eBay sold result";row.appendChild(meta);details.appendChild(row);});root.appendChild(details);return true;
+  }
+  function renderActiveFallback(data,targetId,q){
+    const root=$(targetId);root.replaceChildren();root.classList.add("price-report");
+    const markets=Array.isArray(data.marketplaces)?data.marketplaces:[];
+    const listings=markets.flatMap(m=>(Array.isArray(m.results)?m.results:[]).map(x=>({title:x.title||"Marketplace listing",price:parseMoney(x.price),shipping:parseMoney(x.shipping)||0,url:x.url||"",source:m.marketplace||"Active listing"}))).filter(x=>x.price!=null&&x.price>0);
+    const summary=data.summary||{};
+    const prices=listings.map(x=>x.price+x.shipping).filter(x=>x>0&&Number.isFinite(x));
+    const activeMedian=parseMoney(summary.median_active_total)||median(prices);
+    if(!activeMedian||!Number.isFinite(activeMedian))return false;
+    const resale=Math.max(1,Math.round(activeMedian*.80*100)/100);
+    const fees=15,costs=10,goal=Math.max(10,Math.round(resale*.25*100)/100);
+    const maxBuy=Math.max(0,Math.round((resale*(1-fees/100)-costs-goal)*100)/100);
+    const heading=document.createElement("h2");heading.textContent="Your Flip Plan";root.appendChild(heading);
+    const hero=document.createElement("div");hero.className="price-hero";root.appendChild(hero);
+    const head=document.createElement("div");head.className="price-hero-head";
+    const eyebrow=document.createElement("div");eyebrow.className="price-eyebrow";eyebrow.textContent="BACKUP MARKET ESTIMATE";
+    const name=document.createElement("div");name.className="price-product-name";name.textContent=q||"Your item";
+    const meta=document.createElement("div");meta.className="price-product-meta";meta.textContent="Sold data was unavailable. This estimate uses active asking prices, reduced by 20% as a cautious sale-price allowance.";head.append(eyebrow,name,meta);hero.appendChild(head);
+    const decision=document.createElement("div");decision.className="price-decision unknown";
+    const verdict=document.createElement("div");verdict.className="price-verdict";verdict.textContent="⚠ ESTIMATE — VERIFY BEFORE BUYING";
+    const sub=document.createElement("div");sub.className="price-verdict-sub";sub.textContent="This is a fallback estimate, not a confirmed sold-price average. Match the exact model and condition before spending money.";decision.append(verdict,sub);hero.appendChild(decision);
+    const grid=document.createElement("div");grid.className="price-decision-grid";
+    function num(label,value,caption,primary=false){const el=document.createElement("div");el.className="price-number"+(primary?" primary-number":"");const a=document.createElement("span");a.textContent=label;const b=document.createElement("strong");b.textContent=money(value);const c=document.createElement("small");c.textContent=caption;el.append(a,b,c);grid.appendChild(el);}
+    num("EST. RESALE",resale,"After 20% reduction from active listings");num("PAY NO MORE THAN",maxBuy,"Targets about "+money(goal)+" profit",true);num("ACTIVE PRICE MEDIAN",activeMedian,"What sellers are asking");num("EST. PROFIT AT BUY LIMIT",goal,"After 15% fees and $10 other costs");hero.appendChild(grid);
+    const foot=document.createElement("div");foot.className="price-report-foot";foot.textContent="Backup source: active listings only. The 20% adjustment is a rule of thumb, not proof of what buyers paid. Actual prices depend on exact model, condition, shipping, fees and demand.";hero.appendChild(foot);
+    if(listings.length){const details=document.createElement("details");const summaryEl=document.createElement("summary");summaryEl.textContent="Review active listings ("+listings.length+")";details.appendChild(summaryEl);listings.slice(0,10).forEach(item=>{const row=document.createElement("div");row.className="market-result";if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent=item.title+" — "+money(item.price+item.shipping);row.appendChild(a);}else{row.textContent=item.title+" — "+money(item.price+item.shipping);}details.appendChild(row);});root.appendChild(details);}
+    return true;
+  }
+  function renderAIEstimate(data,targetId,q){
+    const root=$(targetId);root.replaceChildren();root.classList.add("price-report");const e=data.estimate||data;
+    const low=parseMoney(e.low_price??e.estimate_low??e.low),typical=parseMoney(e.typical_resale_price??e.typical_price??e.estimated_resale??e.mid_price),high=parseMoney(e.high_price??e.estimate_high??e.high);
+    if(!typical||typical<=0)return false;
+    const costs=10,goal=Math.max(10,Math.round(typical*.25*100)/100),maxBuy=Math.max(0,Math.round((typical*.85-costs-goal)*100)/100);
+    const heading=document.createElement("h2");heading.textContent="Your Flip Plan";root.appendChild(heading);const hero=document.createElement("div");hero.className="price-hero";root.appendChild(hero);
+    const head=document.createElement("div");head.className="price-hero-head";const eyebrow=document.createElement("div");eyebrow.className="price-eyebrow";eyebrow.textContent="AI BACKUP ESTIMATE";const name=document.createElement("div");name.className="price-product-name";name.textContent=q||"Your item";const meta=document.createElement("div");meta.className="price-product-meta";meta.textContent="No usable live prices were returned. This is an AI rough estimate, not a verified market price.";head.append(eyebrow,name,meta);hero.appendChild(head);
+    const decision=document.createElement("div");decision.className="price-decision unknown";const verdict=document.createElement("div");verdict.className="price-verdict";verdict.textContent="⚠ ROUGH ESTIMATE — VERIFY BEFORE BUYING";const sub=document.createElement("div");sub.className="price-verdict-sub";sub.textContent="Use this only as a starting point. Confirm the exact model and compare sold listings before buying.";decision.append(verdict,sub);hero.appendChild(decision);
+    const grid=document.createElement("div");grid.className="price-decision-grid";function num(label,value,caption,primary=false){const el=document.createElement("div");el.className="price-number"+(primary?" primary-number":"");const a=document.createElement("span");a.textContent=label;const b=document.createElement("strong");b.textContent=value==null?"—":money(value);const c=document.createElement("small");c.textContent=caption;el.append(a,b,c);grid.appendChild(el);}num("EST. RESALE",typical,"AI estimate, not live data");num("PAY NO MORE THAN",maxBuy,"Targets about "+money(goal)+" profit",true);num("POSSIBLE LOW",low,"Rough range only");num("POSSIBLE HIGH",high,"Rough range only");hero.appendChild(grid);
+    const foot=document.createElement("div");foot.className="price-report-foot";foot.textContent="Pricing basis: AI knowledge and item description only. It may be outdated or wrong, especially for rare, vintage, damaged, collectible, or model-specific items. Fees assumed at 15% and other costs at $10.";hero.appendChild(foot);return true;
   }
   async function researchPrices(itemName,targetId="searchPricingResults"){
-    const root=$(targetId),q=String(itemName||"").trim();if(!q){root.innerHTML='<div class="status-box">Enter an item name to see price results.</div>';return null;}
-    root.innerHTML='<div class="result-card"><h2>Checking sold prices for '+escapeHtml(q)+'</h2><p>Contacting Soldgraph…</p></div>';
-    try{const response=await fetch(API+"/api/soldgraph-test?q="+encodeURIComponent(q),{method:"GET"});const data=await response.json().catch(()=>({}));if(!response.ok||data.ok===false||data.error)throw new Error(data.error||data.details?.message||("Soldgraph request failed ("+response.status+")."));renderPricing(data,targetId);if(targetId!=="homeFlipPlan")renderPricing(data,"homeFlipPlan");return data;}
-    catch(err){const ebay="https://www.ebay.com/sch/i.html?_nkw="+encodeURIComponent(q),google="https://www.google.com/search?q="+encodeURIComponent(q+" resale price");root.innerHTML='<div class="result-card"><h2>Sold prices unavailable</h2><p>'+escapeHtml(err.message)+' Flip Finder will not invent a market value.</p><div class="btnrow"><button class="primary" type="button" id="fallbackEbay">Search eBay ↗</button><button class="secondary" type="button" id="fallbackGoogle">Search Google ↗</button></div></div>';$("fallbackEbay").addEventListener("click",()=>openExternal(ebay));$("fallbackGoogle").addEventListener("click",()=>openExternal(google));if(targetId!=="homeFlipPlan")$("homeFlipPlan").innerHTML='<div class="section-head" style="margin-top:18px"><h2>Your flip plan</h2></div><div class="status-box">Sold-price data is unavailable. No market value has been assumed.</div>';console.error("Soldgraph pricing:",err);return null;}
+    const root=$(targetId),q=String(itemName||"").trim();
+    if(!q){root.innerHTML='<div class="status-box">Type an item name or scan/upload a photo first so Flip Finder knows what to price.</div>';return null;}
+    root.innerHTML='<div class="result-card"><h2>Finding your price…</h2><p>Checking sold results, active listings, then an AI backup estimate if needed.</p></div>';
+    let lastError="";
+    try{const response=await fetch(API+"/api/soldgraph-test?q="+encodeURIComponent(q),{method:"GET"});const data=await response.json().catch(()=>({}));if(response.ok&&data.ok!==false&&!data.error&&renderPricing(data,targetId,q)){if(targetId!=="homeFlipPlan")renderPricing(data,"homeFlipPlan",q);return data;}lastError=data.error||"No usable matching sold prices were returned.";}catch(err){lastError=err.message||"Sold-price search failed.";}
+    try{const response=await fetch(API+"/api/marketplace-prices",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({itemName:q})});const data=await response.json().catch(()=>({}));if(response.ok&&data.success&&renderActiveFallback(data,targetId,q)){if(targetId!=="homeFlipPlan")renderActiveFallback(data,"homeFlipPlan",q);return data;}lastError+=(lastError?" ":"")+(data.error||"No active listing prices were returned.");}catch(err){lastError+=(lastError?" ":"")+(err.message||"Active listing search failed.");}
+    try{const response=await fetch(API+"/api/estimate-price",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({itemName:q,condition:"unknown; assume used unless the item description says otherwise"})});const data=await response.json().catch(()=>({}));if(response.ok&&data.success&&renderAIEstimate(data,targetId,q)){if(targetId!=="homeFlipPlan")renderAIEstimate(data,"homeFlipPlan",q);return data;}lastError+=(lastError?" ":"")+(data.error||"AI backup estimate did not return a usable number.");}catch(err){lastError+=(lastError?" ":"")+(err.message||"AI backup estimate failed.");}
+    root.innerHTML='<div class="result-card"><h2>Could not calculate a price yet</h2><p>All pricing methods failed. Check that the backend has redeployed and OPENAI_API_KEY is set in Render. '+escapeHtml(lastError)+'</p><p class="note">Flip Finder will not invent a number when every pricing service is offline.</p></div>';if(targetId!=="homeFlipPlan")$("homeFlipPlan").innerHTML='<div class="section-head" style="margin-top:18px"><h2>Your Flip Plan</h2></div><div class="status-box">Pricing service is not responding. Check the backend deployment in Render.</div>';return null;
   }
   async function analyzeImage(){
     if(!photoData)return;
@@ -428,12 +546,16 @@
       const data=await response.json().catch(()=>({}));
       if(!response.ok||!data.success||!data.analysis)throw new Error(data.error||"AI identification failed. Try another photo.");
       const a=data.analysis;lastAnalysis=a;const name=(a.item_name||"").trim();if(name){$("itemName").value=name;$("calcName").value=name;}
-      const lines=["Identified item: "+(name||"Unknown"),"Brand: "+(a.brand||"Unknown"),"Model: "+(a.model||"Unknown"),"Category: "+(a.category||"Unknown"),"Confidence: "+(Number(a.confidence)||0)+"%"];
-      if(Array.isArray(a.identifying_details)&&a.identifying_details.length)lines.push("Visible clues: "+a.identifying_details.join(", "));
-      if(Array.isArray(a.condition_observations)&&a.condition_observations.length)lines.push("Condition: "+a.condition_observations.join(", "));
-      if(Array.isArray(a.search_terms)&&a.search_terms.length)lines.push("Search terms: "+a.search_terms.join(" · "));
-      if(a.limitations)lines.push("Note: "+a.limitations);
-      const info=document.createElement("div");info.className="form-card";const title=document.createElement("h2");title.textContent="Item identified";info.appendChild(title);const lineBox=document.createElement("div");lineBox.className="ai-lines";lineBox.textContent=lines.join("\n");info.appendChild(lineBox);results.replaceChildren(info);
+      const confidence=Math.max(0,Math.min(100,Number(a.confidence)||0));
+      const info=document.createElement("div");info.className="identification-card";
+      const title=document.createElement("h3");title.textContent="AI identified";info.appendChild(title);
+      const identity=document.createElement("p");identity.textContent=(name||"Unknown item")+" · "+(a.brand||"Brand unknown")+" · "+(a.model||"Model unknown");info.appendChild(identity);
+      const category=document.createElement("p");category.textContent="Category: "+(a.category||"Unknown")+" | Identification confidence: "+confidence+"%";category.style.marginTop="6px";info.appendChild(category);
+      if(Array.isArray(a.identifying_details)&&a.identifying_details.length){const clues=document.createElement("p");clues.textContent="Visible clues: "+a.identifying_details.join(" · ");clues.style.marginTop="6px";info.appendChild(clues);}
+      if(Array.isArray(a.condition_observations)&&a.condition_observations.length){const condition=document.createElement("p");condition.textContent="Condition seen: "+a.condition_observations.join(" · ");condition.style.marginTop="6px";info.appendChild(condition);}
+      if(confidence<70||(Array.isArray(a.uncertain_details)&&a.uncertain_details.length)){const warning=document.createElement("p");warning.className="identification-warning";warning.textContent="Identification is not fully certain. For the best pricing match, take another sharp photo of the logo, tag, label, model number, or mint mark. Compare the sold listings before buying.";info.appendChild(warning);}
+      if(a.limitations){const limit=document.createElement("p");limit.textContent="Note: "+a.limitations;limit.style.marginTop="8px";info.appendChild(limit);}
+      results.replaceChildren(info);
       $("coinTitle").textContent="Item identified";$("coinSubtitle").textContent="Now checking available market prices";
       const query=String(a.search_query||[name,a.brand,a.model,a.category].filter(v=>v&&v!=="Unknown").join(" ")||(Array.isArray(a.search_terms)?a.search_terms.join(" "):"")).trim();
       if(!query)throw new Error("AI did not return a search name. Enter the item name manually.");
@@ -441,9 +563,35 @@
       toast("AI identification finished.");
     }catch(err){$("coinTitle").textContent="Scan needs attention";$("coinSubtitle").textContent="Try another photo or search by name";const box=document.createElement("div");box.className="status-box";box.textContent="AI scan issue: "+err.message;results.replaceChildren(box);console.error("Image analysis:",err);toast("Could not finish the AI scan.");}
   }
-  function processImageFile(file){
-    if(!file)return;if(!file.type.startsWith("image/")){toast("Choose an image file.");return;}
-    const reader=new FileReader();reader.onload=()=>{photoData=String(reader.result||"");analyzeImage();};reader.onerror=()=>toast("Could not read that image. Try another photo.");reader.readAsDataURL(file);
+  async function imageFileToDataUrl(file){
+    let source=null,objectUrl=null;
+    try{
+      if("createImageBitmap" in window){source=await createImageBitmap(file);}
+      else{
+        objectUrl=URL.createObjectURL(file);
+        source=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("This image format could not be opened. Save it as JPG or PNG and try again."));img.src=objectUrl;});
+      }
+      const originalWidth=source.width||source.naturalWidth,originalHeight=source.height||source.naturalHeight;
+      if(!originalWidth||!originalHeight)throw new Error("The image has no readable dimensions.");
+      let scale=Math.min(1,2400/Math.max(originalWidth,originalHeight)),quality=.92,dataUrl="";
+      const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");
+      for(let attempt=0;attempt<8;attempt++){
+        canvas.width=Math.max(1,Math.round(originalWidth*scale));canvas.height=Math.max(1,Math.round(originalHeight*scale));
+        ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(source,0,0,canvas.width,canvas.height);
+        dataUrl=canvas.toDataURL("image/jpeg",quality);
+        if(dataUrl.length<=6400000)break;
+        if(quality>.78)quality-=.06;else scale*=.86;
+      }
+      if(dataUrl.length>6600000)throw new Error("This photo is too large after compression. Try a smaller photo.");
+      return dataUrl;
+    }finally{if(source&&typeof source.close==="function")source.close();if(objectUrl)URL.revokeObjectURL(objectUrl);}
+  }
+  async function processImageFile(file){
+    if(!file)return;
+    if(!file.type.startsWith("image/")){toast("Choose an image file.");return;}
+    toast("Preparing a clear, high-resolution photo…");
+    try{photoData=await imageFileToDataUrl(file);await analyzeImage();}
+    catch(err){console.error("Photo preparation:",err);toast(err.message||"Could not read that photo. Try a clear JPG or PNG.");}
   }
 
   document.querySelectorAll("[data-page]").forEach(btn=>btn.addEventListener("click",()=>showPage(btn.dataset.page)));
@@ -489,12 +637,12 @@
   $("photoUpload").addEventListener("change",e=>{processImageFile(e.target.files&&e.target.files[0]);e.target.value="";});
   $("closeCamera").addEventListener("click",stopCamera);
   $("switchCamera").addEventListener("click",()=>{facingMode=facingMode==="environment"?"user":"environment";stopCamera();startCamera();});
-  $("cameraHelp").addEventListener("click",()=>toast("Use good light, keep the item inside the corners, then tap the green button."));
+  $("cameraHelp").addEventListener("click",()=>toast("Use bright, even light. Hold steady, fill the frame, and show logos, labels, model numbers, and any damage. Tap to focus if your camera supports it."));
   $("takePhoto").addEventListener("click",()=>{
     const video=$("cameraVideo");if(!video.videoWidth){toast("Camera is still starting. Try again in a moment.");return;}
-    const canvas=$("cameraCanvas"),scale=Math.min(1,1400/video.videoWidth);canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);
+    const canvas=$("cameraCanvas"),scale=Math.min(1,2400/Math.max(video.videoWidth,video.videoHeight));canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);
     const ctx=canvas.getContext("2d");if(facingMode==="user"){ctx.translate(canvas.width,0);ctx.scale(-1,1);}ctx.drawImage(video,0,0,canvas.width,canvas.height);
-    canvas.toBlob(blob=>{if(!blob){toast("Could not capture photo.");return;}processImageFile(new File([blob],"flipfinder-scan.jpg",{type:"image/jpeg"}));},"image/jpeg",.84);stopCamera();
+    canvas.toBlob(blob=>{if(!blob){toast("Could not capture photo.");return;}processImageFile(new File([blob],"flipfinder-scan.jpg",{type:"image/jpeg"}));},"image/jpeg",.94);stopCamera();
   });
   $("manualSearchEbay").addEventListener("click",()=>searchListings("ebay"));
   $("manualSearchGoogle").addEventListener("click",()=>searchListings("google"));
@@ -629,9 +777,6 @@ supabaseClient.auth.getSession().then(({ data, error }) => {
   updateAccountStatus(data.session?.user ?? null);
 });
 
-</script>
-<script>
-(() => { const splash=document.getElementById('ffSplash'); if(!splash)return; const dismiss=()=>splash.classList.add('hide'); window.setTimeout(dismiss,1900); splash.addEventListener('click',dismiss,{once:true}); })();
 </script>
 </body>
 </html>
