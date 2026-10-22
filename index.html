@@ -88,10 +88,29 @@
 .identification-card{padding:11px;margin-top:9px}.identification-card h3{font-size:14px}.identification-card p{font-size:11px;line-height:1.45}
 .price-report{font-size:13px}.price-product-meta,.price-verdict-sub{font-size:11px;line-height:1.45}.price-number{padding:10px}.price-number span{font-size:10px}.price-number strong{font-size:21px}.price-number small{font-size:10px}
 .marketplace-search-panel{padding:12px}.marketplace-search-panel .field{margin:10px 0}.marketplace-search-panel p{font-size:12px}
+
+/* First-run sign-in gate: the app remains unavailable until Supabase confirms a session. */
+.auth-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(ellipse at 50% 0%,#163b2a 0,transparent 55%),#050908;overflow-y:auto}
+.auth-gate.hidden{display:none!important}.auth-panel{width:100%;max-width:420px;border:1px solid #2b4335;border-radius:24px;padding:24px 20px;background:linear-gradient(145deg,#12213a,#0b1210);box-shadow:0 24px 80px #0008}.auth-brand{font-size:28px;font-weight:950;font-style:italic;letter-spacing:-1.2px;margin-bottom:7px}.auth-brand span{color:var(--green)}.auth-panel h1{font-size:23px;margin:16px 0 7px}.auth-panel p{font-size:13px}.auth-panel .field{margin:14px 0}.auth-message{min-height:18px;margin:10px 0;color:#ffd98b;font-size:12px;line-height:1.45}.auth-switch{display:flex;gap:8px;margin-top:12px}.auth-switch button{flex:1}.auth-panel .note{margin-top:14px}
 </style>
 </head>
 <body>
-<main class="app">
+<div class="auth-gate" id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="auth-panel">
+    <div class="auth-brand">Flip<span>Finder</span></div>
+    <p>Scan smarter. Flip better.</p>
+    <h1 id="authTitle">Sign in to continue</h1>
+    <p>Create an account or sign in to use Flip Finder and start your Pro trial.</p>
+    <label class="field"><span>Email address</span><input id="gateEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+    <label class="field"><span>Password</span><input id="gatePassword" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters" required></label>
+    <label class="field hidden" id="gateNameWrap"><span>Your name (optional)</span><input id="gateName" type="text" autocomplete="name" placeholder="Your name"></label>
+    <button class="primary wide" id="gateSignIn" type="button">Sign In</button>
+    <button class="secondary wide" id="gateCreate" type="button" style="margin-top:9px">Create Account</button>
+    <div class="auth-message" id="gateMessage" aria-live="polite"></div>
+    <p class="note">Your account keeps your sign-in tied to you. Pro is optional and starts with a 7-day free trial.</p>
+  </div>
+</div>
+<main class="app" id="mainApp">
 <header class="topbar"><div class="brand"><div>Flip<span>Finder</span></div></div><button class="icon-btn" id="settingsBtn" aria-label="Profile and help">⚙</button></header>
 
 <section class="page active" id="homePage">
@@ -681,6 +700,13 @@
     const status = $("proCheckoutStatus");
     const emailField = $("profileEmail");
     const email = emailField ? emailField.value.trim() : "";
+    const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+    if (sessionError || !sessionData.session?.user) {
+      showAuthGate();
+      status.classList.remove("hidden");
+      status.textContent = "Please sign in before starting your Pro trial.";
+      return;
+    }
     const originalText = button.textContent;
     button.disabled = true;
     button.textContent = "Opening secure checkout…";
@@ -697,10 +723,11 @@
         })
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || !(data.checkout_url || data.url)) {
+      const checkoutUrl = data.checkout_url || data.url;
+      if (!response.ok || !checkoutUrl) {
         throw new Error(data.error || "Checkout could not be started. Please try again.");
       }
-      window.location.href = data.checkout_url || data.url;
+      window.location.href = checkoutUrl;
     } catch (error) {
       status.textContent = (error && error.message) || "Could not connect to Stripe. Please try again.";
       toast(status.textContent);
@@ -760,7 +787,7 @@
   window.addEventListener("pagehide",stopCamera);
   renderSaved();calculate();
   // Open the camera as the first screen. If permission is denied, the user can retry or upload a photo.
-  window.addEventListener("load",()=>{if(!document.getElementById("cameraPage").classList.contains("active"))startCamera();},{once:true});
+  window.addEventListener("load",()=>{if(window.flipFinderAuthenticated && !document.getElementById("cameraPage").classList.contains("active"))startCamera();},{once:true});
 })();
 </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -772,6 +799,7 @@
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY
   );
+  window.flipFinderAuthenticated = false;
     
 const accountEmail = document.getElementById("profileEmail");
 const accountName = document.getElementById("profileName");
@@ -781,14 +809,80 @@ const createAccountBtn = document.getElementById("createAccount");
 const signInBtn = document.getElementById("signIn");
 const signOutBtn = document.getElementById("signOut");
 const accountStatus = document.getElementById("accountStatus");
+const authGate = document.getElementById("authGate");
+const gateEmail = document.getElementById("gateEmail");
+const gatePassword = document.getElementById("gatePassword");
+const gateName = document.getElementById("gateName");
+const gateNameWrap = document.getElementById("gateNameWrap");
+const gateMessage = document.getElementById("gateMessage");
+const gateSignIn = document.getElementById("gateSignIn");
+const gateCreate = document.getElementById("gateCreate");
+let gateMode = "signin";
+
+function showAuthGate() {
+  window.flipFinderAuthenticated = false;
+  authGate.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  gateEmail.focus({ preventScroll: true });
+}
+function hideAuthGate() {
+  window.flipFinderAuthenticated = true;
+  authGate.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+function setGateMode(mode) {
+  gateMode = mode;
+  gateNameWrap.classList.toggle("hidden", mode !== "create");
+  gateSignIn.classList.toggle("hidden", mode !== "signin");
+  gateCreate.textContent = mode === "create" ? "Create Account" : "Create a New Account";
+  document.getElementById("authTitle").textContent = mode === "create" ? "Create your account" : "Sign in to continue";
+  gateMessage.textContent = "";
+}
+gateSignIn.addEventListener("click", async () => {
+  const email = gateEmail.value.trim();
+  const password = gatePassword.value;
+  if (!email || !password) { gateMessage.textContent = "Enter your email and password."; return; }
+  gateSignIn.disabled = true;
+  gateMessage.textContent = "Signing in…";
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    updateAccountStatus(data.user);
+    gateMessage.textContent = "Signed in successfully.";
+  } catch (error) { gateMessage.textContent = "Sign-in failed: " + (error.message || "Please try again."); }
+  finally { gateSignIn.disabled = false; }
+});
+gateCreate.addEventListener("click", async () => {
+  if (gateMode !== "create") { setGateMode("create"); return; }
+  const email = gateEmail.value.trim();
+  const password = gatePassword.value;
+  if (!email || password.length < 8) { gateMessage.textContent = "Enter a valid email and a password of at least 8 characters."; return; }
+  gateCreate.disabled = true;
+  gateMessage.textContent = "Creating your account…";
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { full_name: gateName.value.trim() }, emailRedirectTo: window.location.origin + "/" } });
+    if (error) throw error;
+    if (data.session && data.user) {
+      updateAccountStatus(data.user);
+      gateMessage.textContent = "Account created successfully.";
+    } else {
+      gateMessage.textContent = "Account created. Check your email to confirm it, then sign in here.";
+      setGateMode("signin");
+    }
+  } catch (error) { gateMessage.textContent = "Could not create account: " + (error.message || "Please try again."); }
+  finally { gateCreate.disabled = false; }
+});
 
 function updateAccountStatus(user) {
   if (user) {
+    hideAuthGate();
     accountStatus.textContent = `Signed in as ${user.email}`;
+    gateEmail.value = user.email || gateEmail.value;
     createAccountBtn.hidden = true;
     signInBtn.hidden = true;
     signOutBtn.hidden = false;
   } else {
+    showAuthGate();
     accountStatus.textContent =
       "Not signed in. Your saved flips remain on this device.";
     createAccountBtn.hidden = false;
