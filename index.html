@@ -713,11 +713,15 @@
     status.classList.remove("hidden");
     status.textContent = "Connecting to Stripe securely…";
     try {
+      const accessToken = sessionData.session.access_token;
       const response = await fetch(API + "/api/create-checkout-session", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + accessToken
+        },
         body: JSON.stringify({
-          email: email,
+          email: sessionData.session.user.email || email,
           success_url: window.location.origin + window.location.pathname + "?pro=success",
           cancel_url: window.location.origin + window.location.pathname + "?pro=cancel"
         })
