@@ -697,10 +697,10 @@
         })
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.url) {
+      if (!response.ok || !(data.checkout_url || data.url)) {
         throw new Error(data.error || "Checkout could not be started. Please try again.");
       }
-      window.location.href = data.url;
+      window.location.href = data.checkout_url || data.url;
     } catch (error) {
       status.textContent = (error && error.message) || "Could not connect to Stripe. Please try again.";
       toast(status.textContent);
