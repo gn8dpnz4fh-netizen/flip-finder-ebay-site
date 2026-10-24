@@ -30,6 +30,9 @@
 
 /* Edge-to-edge mobile camera */
 .camera-page{display:none;position:fixed;z-index:30;inset:0;background:#020604;max-width:620px;margin:auto;overflow:hidden;padding:0}.camera-page.active{display:block}#cameraVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#030705}.camera-shade{position:absolute;inset:0;background:linear-gradient(180deg,#0009 0%,transparent 25%,transparent 60%,#000b 100%);pointer-events:none}.camera-top{position:absolute;top:calc(12px + var(--safeT));left:18px;right:18px;display:flex;justify-content:space-between;align-items:center;z-index:2}.camera-label{text-align:center;font-weight:900;text-shadow:0 2px 12px #000}.camera-label small{display:block;color:#d1e3d8;font-weight:600;font-size:10px;letter-spacing:1.3px;margin-top:4px}.camera-close{background:#09130fc9;backdrop-filter:blur(12px);border:1px solid #ffffff35;color:white;border-radius:50%;width:44px;height:44px;font-size:23px}.camera-guide{position:absolute;left:11%;right:11%;top:24%;height:40%;z-index:1;pointer-events:none}.corner{position:absolute;width:34px;height:34px;border-color:var(--green);border-style:solid;filter:drop-shadow(0 0 7px #4bffa1a0)}.tl{top:0;left:0;border-width:3px 0 0 3px;border-radius:13px 0 0 0}.tr{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 13px 0 0}.bl{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 13px}.br{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 13px 0}.guide-line{position:absolute;left:4%;right:4%;top:50%;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);box-shadow:0 0 16px var(--green);animation:scanline 2.8s ease-in-out infinite}@keyframes scanline{0%,100%{transform:translateY(-60px);opacity:.45}50%{transform:translateY(60px);opacity:1}}.camera-fallback{position:absolute;z-index:3;left:22px;right:22px;top:50%;transform:translateY(-50%);max-width:390px;margin:auto;padding:22px;border:1px solid #ffffff30;border-radius:22px;background:#071426ed;backdrop-filter:blur(16px);text-align:center;box-shadow:0 18px 60px #0008}.camera-fallback h2{margin:0 0 8px}.camera-fallback p{font-size:13px;margin-bottom:15px}.camera-fallback .primary,.camera-fallback .secondary{width:100%;margin-top:8px}.camera-bottom{position:absolute;z-index:2;bottom:calc(23px + var(--safeB));left:20px;right:20px;text-align:center}.camera-instruction{font-size:14px;color:white;text-shadow:0 2px 12px #000;margin-bottom:21px}.shutter-row{display:flex;align-items:center;justify-content:space-between;max-width:330px;margin:auto}.round-control{width:48px;height:48px;border-radius:50%;background:#07142abd;border:1px solid #ffffff55;color:white;font-size:20px;display:grid;place-items:center}.shutter{width:78px;height:78px;border-radius:50%;border:4px solid white;background:var(--green);box-shadow:0 0 0 5px #ffffff30,0 0 35px #55b8ff55;display:grid;place-items:center}.shutter span{width:58px;height:58px;border:2px solid #0c3f78;border-radius:50%;display:block}.hidden{display:none!important}.toast{position:fixed;z-index:60;left:50%;bottom:calc(95px + var(--safeB));transform:translate(-50%,14px);opacity:0;pointer-events:none;background:#e7f5ff;color:#062348;padding:12px 16px;border-radius:13px;font-weight:850;font-size:13px;box-shadow:0 8px 35px #0007;transition:.2s;max-width:90%;text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+/* Persistent shortcuts after a scan, so results are easy to return to */
+.results-quick-actions{display:none;grid-template-columns:1fr 1fr;gap:8px;padding:9px 12px;background:#07110ef2;border-bottom:1px solid #20342a}
+.results-quick-actions button{min-height:40px;font-size:12px}
 @media(min-width:700px){body{background:#030805}.app,.camera-page{border-left:1px solid #15261c;border-right:1px solid #15261c}}@media(max-width:380px){.page{padding-left:13px;padding-right:13px}h1{font-size:28px}.quick{padding:11px 8px}.stat strong{font-size:19px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 
 
@@ -112,6 +115,10 @@
 </div>
 <main class="app" id="mainApp">
 <header class="topbar"><div class="brand"><div>Flip<span>Finder</span></div></div><button class="icon-btn" id="settingsBtn" aria-label="Profile and help">⚙</button></header>
+<div class="results-quick-actions" id="resultsQuickActions" aria-label="Scan shortcuts">
+  <button class="secondary" id="backToResults" type="button">↩ Back to results</button>
+  <button class="primary" id="scanAnotherQuick" type="button">📷 Scan another photo</button>
+</div>
 
 <section class="page active" id="homePage">
   <div class="scan-card simple-scan">
@@ -235,8 +242,8 @@
       Sign In
     </button>
 
-    <button class="secondary wide" id="signOut" type="button"
-      style="display:none;margin-top:10px">
+    <button class="secondary wide" id="signOut" type="button" hidden
+      style="margin-top:10px">
       Sign Out
     </button>
 
@@ -353,12 +360,21 @@
   const $ = id => document.getElementById(id);
   const API = "https://flipfinder-ebay-notifications.onrender.com";
   const STORAGE_KEY = "flipfinder_items"; // Keep existing saved flips.
-  let stream = null, photoData = "", facingMode = "environment", toastTimer = null, lastAnalysis = null;
+  let stream = null, photoData = "", facingMode = "environment", toastTimer = null, lastAnalysis = null, hasResults = false;
 
   function money(n) { return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(Number(n)||0); }
   function safeText(value) { return String(value == null ? "" : value); }
   function toast(message) { const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2700); }
-  function showPage(id) { stopCamera();document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));$("bottomNav").style.display="";document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===id));window.scrollTo({top:0,behavior:"smooth"});if(id==="savedPage")renderSaved(); }
+  function showPage(id) {
+    stopCamera();
+    document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
+    $("bottomNav").style.display="";
+    document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+    const shortcuts=$("resultsQuickActions");
+    if(shortcuts)shortcuts.style.display=hasResults&&id!=="calculatorPage"?"grid":"none";
+    window.scrollTo({top:0,behavior:"smooth"});
+    if(id==="savedPage")renderSaved();
+  }
   function startCamera() {
     $("cameraPage").classList.add("active");
     $("bottomNav").style.display="none";
@@ -586,6 +602,7 @@
     const foot=document.createElement("div");foot.className="price-report-foot";foot.textContent="Pricing basis: AI knowledge and item description only. It may be outdated or wrong, especially for rare, vintage, damaged, collectible, or model-specific items. Fees assumed at 15% and other costs at $10.";hero.appendChild(foot);return true;
   }
   async function researchPrices(itemName,targetId="searchPricingResults"){
+    hasResults=true;
     const root=$(targetId),q=String(itemName||"").trim();
     if(!q){root.innerHTML='<div class="status-box">Type an item name or scan/upload a photo first so Flip Finder knows what to price.</div>';return null;}
     root.innerHTML='<div class="result-card"><h2>Finding your price…</h2><p>Checking sold results, active listings, then an AI backup estimate if needed.</p></div>';
@@ -597,6 +614,7 @@
   }
   async function analyzeImage(){
     if(!photoData)return;
+    hasResults=true;
     const status=$("cameraInstruction"),results=$("aiResults");
     $("bottomNav").style.display="";$("cameraPage").classList.remove("active");showPage("calculatorPage");
     $("coinStage").classList.add("active");$("coinTitle").textContent="Identifying your item";$("coinSubtitle").textContent="AI scan in progress";$("aiStatus")?.classList?.add("hidden");
@@ -700,6 +718,11 @@
     const status = $("proCheckoutStatus");
     const emailField = $("profileEmail");
     const email = emailField ? emailField.value.trim() : "";
+    if (window.flipFinderPlan === "pro") {
+      status.classList.remove("hidden");
+      status.textContent = "Your Pro access is active. No new subscription is needed.";
+      return;
+    }
     const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
     if (sessionError || !sessionData.session?.user) {
       showAuthGate();
@@ -767,8 +790,10 @@
   });
   $("marketplaceSearchButton").addEventListener("click",searchSelectedMarketplace);
   $("marketplaceSelect").addEventListener("change",()=>{const value=$("marketplaceSelect").value;$("marketplaceSearchButton").textContent=value==="all"?"Search all apps ↗":"Search "+({ebay:"eBay",vinted:"Vinted",depop:"Depop",poshmark:"Poshmark",mercari:"Mercari",grailed:"Grailed",facebook:"Facebook Marketplace",google:"Google Shopping / web"}[value]||"selected app")+" ↗";});
-  $("retakePhoto").addEventListener("click",()=>startCamera());
+  $("retakePhoto").addEventListener("click",()=>{photoData="";startCamera();});
   $("newItemButton").addEventListener("click",()=>{photoData="";lastAnalysis=null;startCamera();});
+  $("backToResults").addEventListener("click",()=>showPage("calculatorPage"));
+  $("scanAnotherQuick").addEventListener("click",()=>{photoData="";startCamera();});
   $("searchIdentifiedEbay").addEventListener("click",()=>searchListings("ebay"));
   $("manualSearchEbay").addEventListener("click",()=>searchListings("ebay"));
   $("manualSearchGoogle").addEventListener("click",()=>searchListings("google"));
@@ -877,6 +902,56 @@ gateCreate.addEventListener("click", async () => {
   finally { gateCreate.disabled = false; }
 });
 
+window.flipFinderPlan = "free";
+
+async function refreshSubscriptionStatus(user) {
+  const proButton = document.getElementById("proInfo");
+  const checkoutStatus = document.getElementById("proCheckoutStatus");
+  window.flipFinderPlan = "free";
+
+  if (!user) {
+    if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
+    return;
+  }
+
+  try {
+    const { data: profile, error } = await supabaseClient
+      .from("profiles")
+      .select("subscription_status, trial_ends_at")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (profile && profile.subscription_status === "pro") {
+      window.flipFinderPlan = "pro";
+      accountStatus.textContent = `Signed in as ${user.email} · Plan: PRO`;
+      if (proButton) { proButton.textContent = "✓ Pro Active"; proButton.disabled = false; }
+      if (checkoutStatus) {
+        checkoutStatus.classList.remove("hidden");
+        checkoutStatus.textContent = profile.trial_ends_at
+          ? `Your Pro access is active. Trial ends ${new Date(profile.trial_ends_at).toLocaleDateString()}.`
+          : "Your Pro access is active.";
+      }
+    } else {
+      accountStatus.textContent = `Signed in as ${user.email} · Plan: FREE`;
+      if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
+      if (checkoutStatus) {
+        checkoutStatus.classList.add("hidden");
+        checkoutStatus.textContent = "";
+      }
+    }
+  } catch (error) {
+    console.warn("Could not load Flip Finder subscription status:", error);
+    accountStatus.textContent = `Signed in as ${user.email} · Plan status could not be checked`;
+    if (proButton) { proButton.textContent = "Refresh Pro Status"; proButton.disabled = false; }
+    if (checkoutStatus) {
+      checkoutStatus.classList.remove("hidden");
+      checkoutStatus.textContent = "We couldn't read your plan from Supabase. Check the profiles table's select policy for your signed-in user.";
+    }
+  }
+}
+
 function updateAccountStatus(user) {
   if (user) {
     hideAuthGate();
@@ -885,7 +960,13 @@ function updateAccountStatus(user) {
     createAccountBtn.hidden = true;
     signInBtn.hidden = true;
     signOutBtn.hidden = false;
+    refreshSubscriptionStatus(user);
   } else {
+    window.flipFinderPlan = "free";
+    const proButton = document.getElementById("proInfo");
+    if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
+    const checkoutStatus = document.getElementById("proCheckoutStatus");
+    if (checkoutStatus) { checkoutStatus.classList.add("hidden"); checkoutStatus.textContent = ""; }
     showAuthGate();
     accountStatus.textContent =
       "Not signed in. Your saved flips remain on this device.";
@@ -970,6 +1051,10 @@ supabaseClient.auth.getSession().then(({ data, error }) => {
   }
 
   updateAccountStatus(data.session?.user ?? null);
+});
+
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+  updateAccountStatus(session?.user ?? null);
 });
 
 </script>
