@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#09271b"/><stop offset=".55" stop-color="#00140d"/><stop offset="1" stop-color="#061d14"/></linearGradient>
+ <linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c4ff9c"/><stop offset=".45" stop-color="#39ef83"/><stop offset="1" stop-color="#07853d"/></linearGradient>
+ <linearGradient id="white" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#d8f2df"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#000" flood-opacity=".65"/></filter>
+</defs>
+<rect width="512" height="512" rx="112" fill="#e8f3eb"/>
+<circle cx="256" cy="256" r="225" fill="#020c08" stroke="#06190f" stroke-width="14"/>
+<circle cx="256" cy="256" r="208" fill="url(#bg)" stroke="url(#green)" stroke-width="8"/>
+<circle cx="256" cy="256" r="196" fill="none" stroke="#b4ffb5" stroke-opacity=".65" stroke-width="2"/>
+<g filter="url(#shadow)" transform="translate(0 -12) rotate(-14 256 150)">
+ <path d="M205 69h103l50 50v80H155V119z" fill="url(#green)" stroke="#eaffeb" stroke-width="8" stroke-linejoin="round"/>
+ <circle cx="308" cy="94" r="10" fill="#06351d" stroke="#d9ffe0" stroke-width="5"/>
+ <path d="M253 108c-24 0-38 13-38 30 0 16 12 25 36 31 19 5 25 9 25 18 0 9-9 15-24 15-16 0-29-7-40-17l-13 17c12 12 27 20 46 22v18h19v-19c25-4 39-17 39-37 0-19-12-29-39-36-18-5-23-9-23-16s7-11 19-11c13 0 24 4 35 12l12-18c-12-9-25-14-41-15v-17h-19z" fill="#053a20"/>
+</g>
+<g filter="url(#shadow)" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-style="italic">
+ <text x="256" y="286" font-size="66" fill="url(#white)" stroke="#00150c" stroke-width="5" paint-order="stroke">Flip</text>
+ <text x="256" y="344" font-size="59" fill="url(#green)" stroke="#00150c" stroke-width="5" paint-order="stroke">Finder</text>
+</g>
+<path d="M113 372h286" stroke="url(#green)" stroke-width="4" stroke-linecap="round"/>
+<text x="256" y="404" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" fill="#f3fff4" text-anchor="middle">Flip smarter. Earn bigger.</text>
+<text x="256" y="439" font-family="Arial,Helvetica,sans-serif" font-size="15" fill="#d8f2df" text-anchor="middle">by Wormy Cox</text>
+</svg>
