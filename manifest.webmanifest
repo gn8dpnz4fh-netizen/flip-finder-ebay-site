@@ -1,0 +1,24 @@
+{
+  "name": "Flip Finder",
+  "short_name": "Flip Finder",
+  "description": "Flip smarter. Earn bigger. Find items, research resale prices, and plan profitable flips.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07110c",
+  "theme_color": "#07110c",
+  "categories": [
+    "shopping",
+    "finance",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/icons/flip-finder-badge.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
