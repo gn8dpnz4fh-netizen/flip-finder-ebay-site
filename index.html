@@ -304,6 +304,7 @@ button.secondary,button.quiet{color:#173d25!important}
 </section>
 
 <section class="page" id="searchPage">
+  <button class="secondary" id="backToCamera" type="button" style="margin:0 0 12px;min-height:40px;padding:0 14px">← Back to camera</button>
   <div class="eyebrow">Marketplace research</div><h1>Find an item's value.</h1><p>Search by name and compare listings before deciding what to pay.</p>
   <label class="field"><span>What are you looking for?</span><input id="itemName" placeholder="e.g. Nike Air Max 90" autocomplete="off"></label>
   <button class="primary wide" id="researchButton">Check marketplace prices</button>
@@ -1040,7 +1041,8 @@ button.secondary,button.quiet{color:#173d25!important}
   $("uploadPhoto").addEventListener("click",()=>$("photoUpload").click());
   $("cameraUpload").addEventListener("click",()=>$("photoUpload").click());
   $("photoUpload").addEventListener("change",e=>{processImageFile(e.target.files&&e.target.files[0]);e.target.value="";});
-  $("closeCamera").addEventListener("click",stopCamera);
+  $("closeCamera").addEventListener("click",()=>{stopCamera();showPage("searchPage");});
+  $("backToCamera").addEventListener("click",startCamera);
   $("switchCamera").addEventListener("click",()=>{facingMode=facingMode==="environment"?"user":"environment";stopCamera();startCamera();});
   $("cameraHelp").addEventListener("click",()=>toast("Use bright, even light. Hold steady, fill the frame, and show logos, labels, model numbers, and any damage. Tap to focus if your camera supports it."));
   $("takePhoto").addEventListener("click",()=>{
@@ -1442,5 +1444,17 @@ input::placeholder,textarea::placeholder{color:#526b58!important;opacity:1!impor
 .auth-panel,.auth-panel *{color:#173322!important}
 .auth-panel{background:linear-gradient(135deg,#ffffff,#e1f2e4 70%,#cce9d2)!important}
 .toast,.toast *{color:#123e21!important}
+
+</style>
+
+<style>
+
+/* Search guidance box: pale green background, strong dark readable copy */
+.tip{background:linear-gradient(120deg,#f7fcf7 0%,#e1f3e5 55%,#ccebd3 100%)!important;border:1px solid #9bcda5!important;box-shadow:0 5px 18px #1b583010!important}
+.tip strong,.tip p{color:#173b22!important;text-shadow:none!important}
+.tip strong{font-size:14px!important;font-weight:900!important}
+.tip p{font-size:13.5px!important;font-weight:600!important;line-height:1.6!important}
+.tip-icon{background:#d0edd7!important;color:#12552a!important;border:1px solid #a1d2ac!important}
+#backToCamera{background:linear-gradient(135deg,#f9fdf9,#d8efdd)!important;color:#164525!important;border:1px solid #9bcda5!important;font-weight:850!important}
 
 </style>
