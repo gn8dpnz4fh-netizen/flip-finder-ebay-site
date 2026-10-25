@@ -134,6 +134,11 @@
 </div>
 
 <section class="page active" id="homePage">
+  <div id="subscriptionSuccessBanner" class="result-card hidden" role="status" aria-live="polite" style="border:1px solid var(--green);margin-bottom:14px">
+    <h2 style="margin-bottom:6px">🎉 Thank you for starting your Pro trial!</h2>
+    <p>Your 7-day Flip Finder Pro trial is being activated. You can continue using the app below.</p>
+    <button class="primary wide" id="continueAfterSubscription" type="button" style="margin-top:10px">Continue to Flip Finder</button>
+  </div>
   <div class="scan-card simple-scan">
     <div class="scan-orb"><div class="scan-symbol">⌗</div></div>
     <h2>Find your next flip</h2>
@@ -830,16 +835,36 @@
       button.textContent = originalText;
     }
   });
-  const proReturn = new URLSearchParams(window.location.search).get("pro");
-  if (proReturn === "success") {
-    showPage("profilePage");
-    toast("You returned from Stripe checkout. Your subscription status will be confirmed once payment setup is verified.");
+  const checkoutParams = new URLSearchParams(window.location.search);
+  // The backend returns Stripe Checkout users with ?subscription=success, not ?pro=success.
+  const subscriptionReturn = checkoutParams.get("subscription");
+  const proReturn = checkoutParams.get("pro");
+  if (subscriptionReturn === "success" || proReturn === "success") {
+    showPage("homePage");
+    const successBanner = $("subscriptionSuccessBanner");
+    if (successBanner) successBanner.classList.remove("hidden");
+    toast("Thank you! Your Pro trial signup was completed.");
     history.replaceState({}, document.title, window.location.pathname);
-  } else if (proReturn === "cancel") {
-    showPage("profilePage");
+    // Stripe's redirect can arrive before the webhook/profile update finishes. Refresh a few times.
+    (async () => {
+      for (let attempt = 0; attempt < 6; attempt++) {
+        try {
+          const { data } = await supabaseClient.auth.getSession();
+          if (data && data.session && data.session.user) {
+            await refreshSubscriptionStatus(data.session.user);
+            if (window.flipFinderPlan === "pro") break;
+          }
+        } catch (e) { console.warn("Waiting for Pro status confirmation", e); }
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+    })();
+  } else if (subscriptionReturn === "cancelled" || proReturn === "cancel") {
+    showPage("homePage");
     toast("Checkout canceled. You have not been charged.");
     history.replaceState({}, document.title, window.location.pathname);
   }
+  const continueAfterSubscription = $("continueAfterSubscription");
+  if (continueAfterSubscription) continueAfterSubscription.addEventListener("click", () => { $("subscriptionSuccessBanner").classList.add("hidden"); showPage("homePage"); });
   loadProfileAndPreferences();
   $("startScan").addEventListener("click",startCamera);
   $("retryCamera").addEventListener("click",startCamera);
