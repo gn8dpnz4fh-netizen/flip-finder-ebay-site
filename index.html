@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#07110e">
-<meta name="description" content="Flip Finder — scan items, research resale prices, and plan profitable flips.">
-<title>Flip Finder — Scan smarter. Flip better.</title>
+<meta name="theme-color" content="#087b38">
+<meta name="description" content="Flip Finder — Flip smarter. Earn bigger. Find items, research resale prices, and plan profitable flips.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23087b38'/%3E%3Cpath d='M26 8h26a5 5 0 0 1 5 5v22L35 57a5 5 0 0 1-7 0L13 42a5 5 0 0 1 0-7L26 8Z' fill='%2335e878' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='43' cy='17' r='3' fill='%23fff'/%3E%3C/svg%3E">
+<title>Flip Finder — Flip smarter. Earn bigger.</title>
 <style>
 :root{color-scheme:dark;--bg:#050908;--panel:#0b1210;--panel2:#101a17;--line:#23332c;--text:#f3f8f5;--muted:#a0b0a8;--green:#55f39a;--green2:#1bc873;--red:#ff7474;--gold:#f2cf75;--safeT:env(safe-area-inset-top,0px);--safeB:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}body{min-height:100dvh;font-size:13px}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid var(--green);outline-offset:3px}
@@ -202,6 +203,10 @@ button:focus-visible,a:focus-visible{outline:3px solid #168347!important;outline
 @media(prefers-color-scheme:dark){html,body,.app{background:#e8eee9!important;color:#17261c!important}}
 
 
+/* Brand tagline and creator credit */
+.brand-tagline{font-size:11px;font-weight:750;letter-spacing:.1px;color:#344a39!important;margin-top:3px}
+.creator-credit{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:calc(90px + env(safe-area-inset-bottom));z-index:4;padding:6px 9px;border:1px solid #b7cbbb;border-radius:999px;background:#f8faf8ed;color:#405648;font-size:10px;font-weight:750;letter-spacing:.15px;box-shadow:0 3px 12px #173d2510;pointer-events:none}
+.auth-gate .creator-credit{bottom:12px;right:12px;background:#f8faf8f2}
 /* Modern Flip Finder identity: money-tag mark + high-contrast wordmark */
 .ff-logo-mark{display:block;width:44px;height:44px;flex:0 0 auto;color:#17a957;filter:drop-shadow(0 3px 4px #075b2b20)}
 .ff-brand-lockup,.auth-brand{display:flex;align-items:center;gap:9px}
@@ -220,7 +225,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #168347!important;outline
 <div class="auth-gate" id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
   <div class="auth-panel">
     <div class="auth-brand"><svg class="ff-logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M5 23h15M1 32h13M6 41h10" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M27 7h25a5 5 0 0 1 5 5v22L35 57a5 5 0 0 1-7 0L13 42a5 5 0 0 1 0-7L27 7Z" fill="url(#ffg)" stroke="#064b28" stroke-width="2"/><circle cx="43" cy="16" r="3" fill="#d7ffe4"/><path d="M39 24c-4-3-10 0-8 4 2 3 10 1 10 5s-6 6-11 2m7-16v22" fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round"/><defs><linearGradient id="ffg" x1="14" y1="8" x2="57" y2="57" gradientUnits="userSpaceOnUse"><stop stop-color="#35e878"/><stop offset="1" stop-color="#047132"/></linearGradient></defs></svg><span class="ff-wordmark">Flip<span>Finder</span></span></div>
-    <p>Scan smarter. Flip better.</p>
+    <p>Flip smarter. Earn bigger.</p>
     <h1 id="authTitle">Sign in to continue</h1>
     <p>Create an account or sign in to use Flip Finder and start your Pro trial.</p>
     <label class="field"><span>Email address</span><input id="gateEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
@@ -1298,5 +1303,6 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
 });
 
 </script>
+<div class="creator-credit">by Wormy Cox</div>
 </body>
 </html>
