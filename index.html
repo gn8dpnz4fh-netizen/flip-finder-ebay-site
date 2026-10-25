@@ -921,7 +921,7 @@ button.secondary,button.quiet{color:#173d25!important}
     catch(err){console.error("Photo preparation:",err);toast(err.message||"Could not read that photo. Try a clear JPG or PNG.");}
   }
 
-  document.querySelectorAll("[data-page]").forEach(btn=>btn.addEventListener("click",()=>showPage(btn.dataset.page)));
+  document.querySelectorAll("[data-page]").forEach(btn=>btn.addEventListener("click",()=>{if(btn.dataset.page==="homePage"){startCamera();return;}showPage(btn.dataset.page);}));
   document.querySelectorAll("[data-go]").forEach(btn=>btn.addEventListener("click",()=>showPage(btn.dataset.go)));
   $("settingsBtn").addEventListener("click",()=>showPage("profilePage"));
   const PROFILE_KEY = "flipfinder_profile_v1";
