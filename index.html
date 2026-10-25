@@ -140,9 +140,19 @@
 <section class="page" id="searchPage">
   <div class="eyebrow">Marketplace research</div><h1>Find an item's value.</h1><p>Search by name and compare listings before deciding what to pay.</p>
   <label class="field"><span>What are you looking for?</span><input id="itemName" placeholder="e.g. Nike Air Max 90" autocomplete="off"></label>
-  <div class="btnrow"><button class="primary" id="manualSearchEbay">Search eBay ↗</button><button class="secondary" id="manualSearchGoogle">Search Google ↗</button></div>
+  <button class="primary wide" id="researchButton">Check marketplace prices</button>
+  <button class="secondary wide" id="manualSearchEbay" style="margin-top:9px">Search eBay ↗</button>
+  <details class="form-card" style="margin-top:10px;padding:12px">
+    <summary style="cursor:pointer;font-weight:750;padding:5px 2px">More search engines &amp; marketplaces ▾</summary>
+    <label class="field" style="margin-top:12px"><span>Choose where to search</span>
+      <select id="manualMarketplaceSelect" aria-label="Choose another marketplace" style="width:100%;height:43px;border-radius:12px;border:1px solid var(--line);background:#0b1511;color:var(--text);padding:0 11px">
+        <option value="google">Google Shopping / web</option>
+        <option value="vinted">Vinted</option><option value="depop">Depop</option><option value="poshmark">Poshmark</option><option value="mercari">Mercari</option><option value="grailed">Grailed</option><option value="facebook">Facebook Marketplace</option><option value="all">Search all marketplaces on Google</option>
+      </select>
+    </label>
+    <button class="secondary wide" id="manualSearchSelected" type="button">Search selected marketplace ↗</button>
+  </details>
   <div class="tip"><div class="tip-icon">ⓘ</div><div><strong>Better searches, better decisions</strong><p>Include brand, model, size, and condition. Active asking prices are not the same as confirmed sold prices.</p></div></div>
-  <div class="section-head"><h2>Automatic market research</h2></div><button class="secondary wide" id="researchButton">Check available prices</button>
   <div id="searchPricingResults" class="market-list" aria-live="polite">
     <div class="result-card">
       <h2>Price results will appear here</h2>
@@ -422,7 +432,7 @@
   }
   function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}if($("cameraVideo"))$("cameraVideo").srcObject=null;if($("cameraPage"))$("cameraPage").classList.remove("active");if($("bottomNav"))$("bottomNav").style.display="";}
   function openExternal(url){const win=window.open(url,"_blank","noopener,noreferrer");if(!win)location.href=url;}
-  function searchListings(engine){const q=($("itemName")?.value||$("calcName")?.value||"").trim();if(!q){toast("Identify an item or enter its name first.");return;}const url=engine==="ebay"?"https://www.ebay.com/sch/i.html?_nkw="+encodeURIComponent(q)+"&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339219469&customid=flipfinder&toolid=10001&mkevt=1":"https://www.google.com/search?q="+encodeURIComponent(q+" resale price");openExternal(url);}
+  function searchListings(engine){const q=($("itemName")?.value||$("calcName")?.value||"").trim();if(!q){toast("Enter an item name first.");$("itemName")?.focus();return;}const term=encodeURIComponent(q);const urls={ebay:"https://www.ebay.com/sch/i.html?_nkw="+term+"&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339219469&customid=flipfinder&toolid=10001&mkevt=1",google:"https://www.google.com/search?tbm=shop&q="+encodeURIComponent(q+" resale price"),vinted:"https://www.vinted.com/catalog?search_text="+term,depop:"https://www.depop.com/search/?q="+term,poshmark:"https://poshmark.com/search?query="+term,mercari:"https://www.mercari.com/search/?keyword="+term,grailed:"https://www.grailed.com/shop/"+term.replace(/%20/g,"-"),facebook:"https://www.facebook.com/marketplace/search/?query="+term,all:"https://www.google.com/search?q="+encodeURIComponent(q+" resale price eBay Vinted Depop Poshmark Mercari Grailed Facebook Marketplace")};openExternal(urls[engine]||urls.google);}
   function searchSelectedMarketplace(){const q=($("itemName")?.value||$("calcName")?.value||"").trim();if(!q){toast("Scan an item or enter its name first.");return;}const term=encodeURIComponent(q);const urls={
     ebay:"https://www.ebay.com/sch/i.html?_nkw="+term,
     vinted:"https://www.vinted.com/catalog?search_text="+term,
@@ -796,7 +806,8 @@
   $("scanAnotherQuick").addEventListener("click",()=>{photoData="";startCamera();});
   $("searchIdentifiedEbay").addEventListener("click",()=>searchListings("ebay"));
   $("manualSearchEbay").addEventListener("click",()=>searchListings("ebay"));
-  $("manualSearchGoogle").addEventListener("click",()=>searchListings("google"));
+  $("manualSearchGoogle")?.addEventListener("click",()=>searchListings("google"));
+  $("manualSearchSelected").addEventListener("click",()=>searchListings($("manualMarketplaceSelect").value));
   $("searchEbay")?.addEventListener("click",()=>searchListings("ebay"));
   $("searchGoogle")?.addEventListener("click",()=>searchListings("google"));
   $("researchButton").addEventListener("click",()=>{const q=$("itemName").value.trim();if(!q){toast("Enter an item name first.");$("itemName").focus();return;}researchPrices(q);});
