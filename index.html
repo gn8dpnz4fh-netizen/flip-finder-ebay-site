@@ -95,6 +95,9 @@
 /* First-run sign-in gate: the app remains unavailable until Supabase confirms a session. */
 .auth-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(ellipse at 50% 0%,#163b2a 0,transparent 55%),#050908;overflow-y:auto}
 .auth-gate.hidden{display:none!important}.auth-panel{width:100%;max-width:420px;border:1px solid #2b4335;border-radius:24px;padding:24px 20px;background:linear-gradient(145deg,#12213a,#0b1210);box-shadow:0 24px 80px #0008}.auth-brand{font-size:28px;font-weight:950;font-style:italic;letter-spacing:-1.2px;margin-bottom:7px}.auth-brand span{color:var(--green)}.auth-panel h1{font-size:23px;margin:16px 0 7px}.auth-panel p{font-size:13px}.auth-panel .field{margin:14px 0}.auth-message{min-height:18px;margin:10px 0;color:#ffd98b;font-size:12px;line-height:1.45}.auth-switch{display:flex;gap:8px;margin-top:12px}.auth-switch button{flex:1}.auth-panel .note{margin-top:14px}
+
+.scan-paywall{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:20px;background:#020604d9;backdrop-filter:blur(8px)}
+.scan-paywall.hidden{display:none!important}.scan-paywall-card{width:100%;max-width:390px;padding:24px 20px;border:1px solid #315542;border-radius:24px;background:linear-gradient(145deg,#142641,#09120d);box-shadow:0 24px 80px #000b;text-align:center}.scan-paywall-card .paywall-mark{font-size:32px;margin-bottom:10px}.scan-paywall-card h2{font-size:23px;margin:8px 0}.scan-paywall-card p{font-size:13px;line-height:1.55;margin:10px 0 16px}.scan-paywall-card .secondary{margin-top:9px}
 </style>
 </head>
 <body>
@@ -111,6 +114,16 @@
     <button class="secondary wide" id="gateCreate" type="button" style="margin-top:9px">Create Account</button>
     <div class="auth-message" id="gateMessage" aria-live="polite"></div>
     <p class="note">Your account keeps your sign-in tied to you. Pro is optional and starts with a 7-day free trial.</p>
+  </div>
+</div>
+<div class="scan-paywall hidden" id="scanPaywall" role="dialog" aria-modal="true" aria-labelledby="scanPaywallTitle">
+  <div class="scan-paywall-card">
+    <div class="paywall-mark">✦</div>
+    <div class="eyebrow">You've tried Flip Finder</div>
+    <h2 id="scanPaywallTitle">Start your free trial to continue</h2>
+    <p>You've used your <strong>5 free scans</strong>. To keep scanning and checking prices, create or use your account and start the <strong>7-day Pro free trial</strong>. After the trial, it renews at <strong>$9.99/month</strong> unless you cancel before it ends.</p>
+    <button class="primary wide" id="scanPaywallSubscribe" type="button">Start 7-Day Free Trial</button>
+    <p class="note">You must start the trial to continue. Secure checkout is handled by Stripe, where you can review the terms before confirming.</p>
   </div>
 </div>
 <main class="app" id="mainApp">
@@ -375,6 +388,42 @@
   function money(n) { return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(Number(n)||0); }
   function safeText(value) { return String(value == null ? "" : value); }
   function toast(message) { const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2700); }
+  const FREE_SCAN_LIMIT = 5;
+  function scanCountKey(userId) { return "flipfinder_successful_scans_" + (userId || "this_device"); }
+  async function recordSuccessfulScan() {
+    if (window.flipFinderPlan === "pro") return;
+    let userId = "this_device";
+    try { const {data}=await supabaseClient.auth.getUser(); if(data?.user?.id) userId=data.user.id; } catch(e) {}
+    const key=scanCountKey(userId);
+    let count=0;
+    try { count=Number(localStorage.getItem(key)||0); } catch(e) {}
+    count+=1;
+    try { localStorage.setItem(key,String(count)); } catch(e) {}
+    if(count>=FREE_SCAN_LIMIT && window.flipFinderPlan!=="pro") {
+      const modal=$("scanPaywall"); if(modal) modal.classList.remove("hidden");
+    }
+  }
+  async function enforceFreeScanGate(user) {
+    if (window.flipFinderPlan === "pro") {
+      $("scanPaywall")?.classList.add("hidden");
+      return;
+    }
+    let userId = user && user.id ? user.id : "this_device";
+    let count = 0;
+    try { count = Number(localStorage.getItem(scanCountKey(userId)) || 0); } catch (e) {}
+    if (count >= FREE_SCAN_LIMIT) {
+      stopCamera();
+      const modal = $("scanPaywall");
+      if (modal) modal.classList.remove("hidden");
+    }
+  }
+  function freeScanLimitReached() {
+    if (window.flipFinderPlan === "pro") return false;
+    let userId = "this_device";
+    try { const storedUser = window.flipFinderCurrentUser; if (storedUser && storedUser.id) userId = storedUser.id; } catch(e) {}
+    try { return Number(localStorage.getItem(scanCountKey(userId)) || 0) >= FREE_SCAN_LIMIT; } catch(e) { return false; }
+  }
+
   function showPage(id) {
     stopCamera();
     document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
@@ -386,6 +435,7 @@
     if(id==="savedPage")renderSaved();
   }
   function startCamera() {
+    if (freeScanLimitReached()) { $("scanPaywall").classList.remove("hidden"); return; }
     $("cameraPage").classList.add("active");
     $("bottomNav").style.display="none";
     $("cameraFallback").classList.remove("hidden");
@@ -612,6 +662,7 @@
     const foot=document.createElement("div");foot.className="price-report-foot";foot.textContent="Pricing basis: AI knowledge and item description only. It may be outdated or wrong, especially for rare, vintage, damaged, collectible, or model-specific items. Fees assumed at 15% and other costs at $10.";hero.appendChild(foot);return true;
   }
   async function researchPrices(itemName,targetId="searchPricingResults"){
+    if (freeScanLimitReached()) { $("scanPaywall").classList.remove("hidden"); return null; }
     hasResults=true;
     const root=$(targetId),q=String(itemName||"").trim();
     if(!q){root.innerHTML='<div class="status-box">Type an item name or scan/upload a photo first so Flip Finder knows what to price.</div>';return null;}
@@ -623,6 +674,7 @@
     root.innerHTML='<div class="result-card"><h2>Could not calculate a price yet</h2><p>All pricing methods failed. Check that the backend has redeployed and OPENAI_API_KEY is set in Render. '+escapeHtml(lastError)+'</p><p class="note">Flip Finder will not invent a number when every pricing service is offline.</p></div>';return null;
   }
   async function analyzeImage(){
+    if (freeScanLimitReached()) { $("scanPaywall").classList.remove("hidden"); return; }
     if(!photoData)return;
     hasResults=true;
     const status=$("cameraInstruction"),results=$("aiResults");
@@ -656,6 +708,7 @@
       if(!query&&Array.isArray(a.search_terms))query=a.search_terms.map(v=>String(v||"").trim()).filter(Boolean).join(" ");
       if(!query)throw new Error("AI did not return a useful item name. Enter the item name manually.");
       await researchPrices(query,"calculatorMarketResults");
+      await recordSuccessfulScan();
       toast("AI identification finished.");
     }catch(err){$("coinTitle").textContent="Scan needs attention";$("coinSubtitle").textContent="Try another photo or search by name";const box=document.createElement("div");box.className="status-box";box.textContent="AI scan issue: "+err.message;results.replaceChildren(box);console.error("Image analysis:",err);toast("Could not finish the AI scan.");}
   }
@@ -723,6 +776,7 @@
       toast("Preferences saved on this device.");
     } catch (e) { toast("Couldn't save preferences in this browser."); }
   });
+  $("scanPaywallSubscribe").addEventListener("click", () => { $("proInfo").click(); });
   $("proInfo").addEventListener("click", async () => {
     const button = $("proInfo");
     const status = $("proCheckoutStatus");
@@ -936,6 +990,8 @@ async function refreshSubscriptionStatus(user) {
 
     if (profile && profile.subscription_status === "pro") {
       window.flipFinderPlan = "pro";
+      window.flipFinderCurrentUser = user;
+      $("scanPaywall")?.classList.add("hidden");
       accountStatus.textContent = `Signed in as ${user.email} · Plan: PRO`;
       if (proButton) { proButton.textContent = "✓ Pro Active"; proButton.disabled = false; }
       if (checkoutStatus) {
@@ -945,7 +1001,9 @@ async function refreshSubscriptionStatus(user) {
           : "Your Pro access is active.";
       }
     } else {
+      window.flipFinderCurrentUser = user;
       accountStatus.textContent = `Signed in as ${user.email} · Plan: FREE`;
+      await enforceFreeScanGate(user);
       if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
       if (checkoutStatus) {
         checkoutStatus.classList.add("hidden");
@@ -960,11 +1018,14 @@ async function refreshSubscriptionStatus(user) {
       checkoutStatus.classList.remove("hidden");
       checkoutStatus.textContent = "We couldn't read your plan from Supabase. Check the profiles table's select policy for your signed-in user.";
     }
+    window.flipFinderCurrentUser = user;
+    await enforceFreeScanGate(user);
   }
 }
 
 function updateAccountStatus(user) {
   if (user) {
+    window.flipFinderCurrentUser = user;
     hideAuthGate();
     accountStatus.textContent = `Signed in as ${user.email}`;
     gateEmail.value = user.email || gateEmail.value;
@@ -974,6 +1035,7 @@ function updateAccountStatus(user) {
     refreshSubscriptionStatus(user);
   } else {
     window.flipFinderPlan = "free";
+    window.flipFinderCurrentUser = null;
     const proButton = document.getElementById("proInfo");
     if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
     const checkoutStatus = document.getElementById("proCheckoutStatus");
