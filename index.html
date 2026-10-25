@@ -1406,3 +1406,26 @@ input::placeholder,textarea::placeholder{color:#526b58!important;opacity:1!impor
 .creator-credit{background:#f8fcf8ed!important;color:#284a31!important;border-color:#a9cbb0!important}
 
 </style>
+
+<style>
+
+/* Ensure the complete Flip Finder wordmark fits inside the scanning animation */
+.scan-orb.small.busy .scan-symbol{font-size:0!important;overflow:visible!important}
+.scan-orb.small.busy .scan-symbol::before{
+ content:"Flip Finder"!important;
+ display:block!important;
+ width:max-content!important;
+ max-width:none!important;
+ white-space:nowrap!important;
+ font-size:12px!important;
+ font-style:italic!important;
+ font-weight:950!important;
+ letter-spacing:-.45px!important;
+ color:#ffffff!important;
+ text-shadow:0 1px 3px #064b28,0 0 7px #087b38!important;
+ animation:wordPulse 1.2s ease-in-out infinite alternate
+}
+.scan-orb.small{overflow:visible!important}
+.scan-orb.small .scan-symbol{overflow:visible!important}
+
+</style>
