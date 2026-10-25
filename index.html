@@ -401,7 +401,7 @@
   const $ = id => document.getElementById(id);
   const API = "https://flipfinder-ebay-notifications.onrender.com";
   const STORAGE_KEY = "flipfinder_items"; // Keep existing saved flips.
-  let stream = null, photoData = "", facingMode = "environment", toastTimer = null, lastAnalysis = null, hasResults = false;
+  let stream = null, photoData = "", facingMode = "environment", toastTimer = null, lastAnalysis = null, lastMarketResearch = null, hasResults = false;
 
   function money(n) { return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(Number(n)||0); }
   function safeText(value) { return String(value == null ? "" : value); }
@@ -503,10 +503,14 @@
   function openExternal(url){const win=window.open(url,"_blank","noopener,noreferrer");if(!win)location.href=url;}
   function searchListings(engine){const q=($("itemName")?.value||$("calcName")?.value||(lastAnalysis&&lastAnalysis.item_name)||"").trim();if(!q){toast("Enter an item name first.");$("itemName")?.focus();return;}const term=encodeURIComponent(q);const urls={ebay:"https://www.ebay.com/sch/i.html?_nkw="+term+"&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339219469&customid=flipfinder&toolid=10001&mkevt=1",google:"https://www.google.com/search?tbm=shop&q="+encodeURIComponent(q+" resale price"),vinted:"https://www.vinted.com/catalog?search_text="+term,depop:"https://www.depop.com/search/?q="+term,poshmark:"https://poshmark.com/search?query="+term,mercari:"https://www.mercari.com/search/?keyword="+term,grailed:"https://www.grailed.com/shop/"+term.replace(/%20/g,"-"),facebook:"https://www.facebook.com/marketplace/search/?query="+term,all:"https://www.google.com/search?q="+encodeURIComponent(q+" resale price eBay Vinted Depop Poshmark Mercari Grailed Facebook Marketplace")};openExternal(urls[engine]||urls.google);}
   function updateSellPage(){
-    const summary=$("sellItemSummary");if(summary){const name=(lastAnalysis&&lastAnalysis.item_name)||$("itemName")?.value||$("calcName")?.value||"Your item";summary.classList.remove("hidden");summary.replaceChildren();const title=document.createElement("strong");title.textContent=name;const p=document.createElement("p");p.className="note";p.textContent="Choose your listing price, then compare marketplace options below.";summary.append(title,p);}
+    const summary=$("sellItemSummary"),name=(lastAnalysis&&lastAnalysis.item_name)||$("itemName")?.value||$("calcName")?.value||"";
+    const ready=Boolean(lastAnalysis&&lastMarketResearch&&Number(lastMarketResearch.price)>0);
+    if(summary){summary.classList.remove("hidden");summary.replaceChildren();const title=document.createElement("strong");title.textContent=name||"No item identified yet";const p=document.createElement("p");p.className="note";p.textContent=ready?"Using Flip Finder’s research estimate of "+money(lastMarketResearch.price)+" from "+lastMarketResearch.source+".":"Scan a photo or identify an item and finish market research first. Fee calculations will appear after Flip Finder has an item and price estimate.";summary.append(title,p);}
+    ["sellListingPrice","sellShippingCost","sellBuyerShipping","sellFeeRate"].forEach(id=>{if($(id))$(id).disabled=!ready;});
+    if(ready){$("sellListingPrice").value=Number(lastMarketResearch.price).toFixed(2);if(!$("sellShippingCost").value)$("sellShippingCost").value="8";if(!$("sellFeeRate").value)$("sellFeeRate").value="13.6";}
     updateSellEstimate();
   }
-  function updateSellEstimate(){const price=Math.max(0,Number($("sellListingPrice")?.value)||0),labelCost=Math.max(0,Number($("sellShippingCost")?.value)||0),buyerShipping=Math.max(0,Number($("sellBuyerShipping")?.value)||0),rate=Math.min(99,Math.max(0,Number($("sellFeeRate")?.value)||0));const saleTotal=price+buyerShipping,fee=saleTotal*rate/100+(saleTotal<=10?0.30:0.40);if($("sellFeeAmount"))$("sellFeeAmount").textContent=money(fee);if($("sellNetAmount"))$("sellNetAmount").textContent=money(saleTotal-fee-labelCost);}
+  function updateSellEstimate(){const ready=Boolean(lastAnalysis&&lastMarketResearch&&Number(lastMarketResearch.price)>0),price=Math.max(0,Number($("sellListingPrice")?.value)||0),labelCost=Math.max(0,Number($("sellShippingCost")?.value)||0),buyerShipping=Math.max(0,Number($("sellBuyerShipping")?.value)||0),rate=Math.min(99,Math.max(0,Number($("sellFeeRate")?.value)||0));const saleTotal=price+buyerShipping,fee=saleTotal*rate/100+(saleTotal<=10?0.30:0.40);if($("sellFeeAmount"))$("sellFeeAmount").textContent=ready?money(fee):"—";if($("sellNetAmount"))$("sellNetAmount").textContent=ready?money(saleTotal-fee-labelCost):"—";}
   function searchSelectedMarketplace(){const q=($("itemName")?.value||$("calcName")?.value||(lastAnalysis&&lastAnalysis.item_name)||"").trim();if(!q){toast("Scan an item or enter its name first.");return;}const term=encodeURIComponent(q);const urls={
     ebay:"https://www.ebay.com/sch/i.html?_nkw="+term,
     vinted:"https://www.vinted.com/catalog?search_text="+term,
@@ -617,6 +621,7 @@
     const prices=listings.map(x=>x.price+(Number(x.shipping)||0)).filter(x=>x>0&&Number.isFinite(x));
     if(!prices.length){const noPrice=document.createElement("div");noPrice.className="status-box";noPrice.textContent="No usable sold prices were returned for this item. Try a more specific search.";hero.appendChild(noPrice);return false;}
     const marketPrice=median(prices);
+    lastMarketResearch={price:marketPrice,low:quantile(prices,0.1),high:quantile(prices,0.9),count:listings.length,source:"completed sales"};
     const targetProfit=Math.max(10,Math.round(marketPrice*0.25*100)/100);
     let askPrice=0,otherCosts=0,profitGoal=targetProfit;
     const decision=document.createElement("div");decision.className="price-decision unknown";const verdict=document.createElement("div");verdict.className="price-verdict";const verdictSub=document.createElement("div");verdictSub.className="price-verdict-sub";decision.append(verdict,verdictSub);hero.appendChild(decision);
@@ -654,6 +659,7 @@
     const prices=listings.map(x=>x.price+x.shipping).filter(x=>x>0&&Number.isFinite(x));
     const activeMedian=parseMoney(summary.median_active_total)||median(prices);
     if(!activeMedian||!Number.isFinite(activeMedian))return false;
+    lastMarketResearch={price:Math.max(1,Math.round(activeMedian*.80*100)/100),low:quantile(prices,0.1),high:quantile(prices,0.9),count:listings.length,source:"active listings estimate"};
     const resale=Math.max(1,Math.round(activeMedian*.80*100)/100);
     const fees=15,costs=10,goal=Math.max(10,Math.round(resale*.25*100)/100);
     const maxBuy=Math.max(0,Math.round((resale*(1-fees/100)-costs-goal)*100)/100);
