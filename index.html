@@ -36,6 +36,12 @@
 @media(min-width:700px){body{background:#030805}.app,.camera-page{border-left:1px solid #15261c;border-right:1px solid #15261c}}@media(max-width:380px){.page{padding-left:13px;padding-right:13px}h1{font-size:28px}.quick{padding:11px 8px}.stat strong{font-size:19px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 
 
+/* Green-forward visual refresh, keeping the existing dark green brand */
+:root{--bg:#07100b;--panel:#0d1811;--panel2:#132319;--line:#294533;--text:#f4fbf5;--muted:#a8bdae;--green:#55f39a;--green2:#1bc873;--red:#ff7474}
+.captured-photo-card{margin:8px 0 10px;border:1px solid #286d48;border-radius:18px;padding:8px;background:linear-gradient(145deg,#112d1c,#09160e)}
+.captured-photo-card img{display:block;width:100%;max-height:310px;object-fit:contain;border-radius:12px;background:#050a07}
+.captured-photo-card button{margin-top:8px;min-height:43px}
+.bottom-nav{grid-template-columns:repeat(5,1fr);background:#07150ded;border-top-color:#28513a}
 /* Clear, polished buy/sell decision card */
 .price-report{margin-top:14px}
 .price-hero{border:1px solid #294a70;border-radius:22px;overflow:hidden;background:linear-gradient(145deg,#142946,#09172a 76%);box-shadow:0 18px 42px #0002}
@@ -182,6 +188,7 @@
 
 <section class="page" id="calculatorPage">
   <div class="eyebrow">AI identification</div><h1>Your item &amp; its value</h1>
+  <div class="captured-photo-card hidden" id="capturedPhotoCard"><img id="capturedPhotoPreview" alt="Photo of the item you scanned"><button class="primary wide" id="scanAnotherPhotoButton" type="button">📷 Scan Another Photo</button></div>
   <div id="coinStage" class="coin-stage" aria-live="polite">
     <div class="scan-orb small" id="coinOrb"><div class="scan-symbol">FlipFinder</div></div>
     <strong id="coinTitle">Checking your item…</strong>
@@ -189,6 +196,22 @@
   </div>
   <div id="aiResults"></div>
   <div id="calculatorMarketResults"></div>
+  <details class="manual-profit-details">
+    <summary>Optional: manual profit calculator</summary>
+    <div class="form-card" style="margin-top:10px">
+      <label class="field"><span>Item name</span><input id="calcName" placeholder="e.g. Vintage game console"></label>
+      <div class="two-col"><label class="field"><span>Purchase cost ($)</span><input id="cost" type="number" min="0" step=".01" value="0"></label><label class="field"><span>Expected selling price ($)</span><input id="value" type="number" min="0" step=".01" value="0"></label></div>
+      <label class="field"><span>Estimated selling fees ($)</span><input id="fees" type="number" min="0" step=".01" value="0"></label>
+      <div class="stats"><div class="stat"><span>Estimated profit</span><strong id="profit">$0.00</strong></div><div class="stat"><span>Return on investment</span><strong id="roi">0%</strong></div></div>
+      <button class="primary wide" id="saveFlip" style="margin-top:12px">♡ Save this flip</button>
+    </div>
+  </details>
+</section>
+
+<section class="page" id="sellPage">
+  <div class="eyebrow">Sell online</div><h1>List your item.</h1><p>Choose a marketplace and check estimated eBay fees and shipping before you list. Actual costs vary by category, seller status, package, and shipping service.</p>
+  <div id="sellItemSummary" class="form-card hidden"></div>
+  <div class="form-card" id="sellEstimateCard"><h2>eBay fee &amp; shipping estimate</h2><p class="note">Planning estimate only. Standard final value fees vary by category and seller status; shipping depends on package and service.</p><label class="field"><span>Listing price ($)</span><input id="sellListingPrice" type="number" min="0" step=".01" value="50"></label><label class="field"><span>Estimated shipping label ($)</span><input id="sellShippingCost" type="number" min="0" step=".01" value="8"></label><label class="field"><span>eBay fee rate (%)</span><input id="sellFeeRate" type="number" min="0" max="99" step=".1" value="13.6"></label><div class="stats"><div class="stat"><span>Estimated eBay fee*</span><strong id="sellFeeAmount">$7.10</strong></div><div class="stat"><span>Estimated proceeds after fee &amp; label</span><strong id="sellNetAmount">$34.90</strong></div></div><p class="note">*This estimate applies the entered fee rate to the listing price and adds an approximate $0.40 per-order fee. eBay may calculate fees on the total sale amount, including shipping and applicable tax. Confirm the exact amount in eBay before listing.</p></div>
   <div class="marketplace-search-panel form-card" id="marketplaceSearchPanel">
     <div class="eyebrow">Marketplace search</div>
     <h2>Search resale apps</h2>
@@ -210,16 +233,6 @@
     <div class="results-actions"><button class="quiet" id="retakePhoto" type="button">📷 Retake photo</button><button class="quiet" id="newItemButton" type="button">＋ New item</button></div>
     <p class="note">Marketplace searches open in a new tab. Availability and sold-price data vary by service.</p>
   </div>
-  <details class="manual-profit-details">
-    <summary>Optional: manual profit calculator</summary>
-    <div class="form-card" style="margin-top:10px">
-      <label class="field"><span>Item name</span><input id="calcName" placeholder="e.g. Vintage game console"></label>
-      <div class="two-col"><label class="field"><span>Purchase cost ($)</span><input id="cost" type="number" min="0" step=".01" value="0"></label><label class="field"><span>Expected selling price ($)</span><input id="value" type="number" min="0" step=".01" value="0"></label></div>
-      <label class="field"><span>Estimated selling fees ($)</span><input id="fees" type="number" min="0" step=".01" value="0"></label>
-      <div class="stats"><div class="stat"><span>Estimated profit</span><strong id="profit">$0.00</strong></div><div class="stat"><span>Return on investment</span><strong id="roi">0%</strong></div></div>
-      <button class="primary wide" id="saveFlip" style="margin-top:12px">♡ Save this flip</button>
-    </div>
-  </details>
 </section>
 
 <section class="page" id="savedPage">
@@ -380,7 +393,7 @@
   <canvas id="cameraCanvas" class="hidden"></canvas>
 </section>
 
-<nav class="bottom-nav" id="bottomNav" aria-label="Main navigation"><button class="nav-btn active" data-page="homePage"><span class="nav-icon">⌂</span>Home</button><button class="nav-btn" data-page="searchPage"><span class="nav-icon">⌕</span>Search</button><button class="nav-btn" data-page="savedPage"><span class="nav-icon">♡</span>Saved</button><button class="nav-btn" data-page="profilePage"><span class="nav-icon">◉</span>Profile</button></nav>
+<nav class="bottom-nav" id="bottomNav" aria-label="Main navigation"><button class="nav-btn active" data-page="homePage"><span class="nav-icon">⌂</span>Home</button><button class="nav-btn" data-page="searchPage"><span class="nav-icon">⌕</span>Search</button><button class="nav-btn" data-page="sellPage"><span class="nav-icon">↗</span>Sell</button><button class="nav-btn" data-page="savedPage"><span class="nav-icon">♡</span>Saved</button><button class="nav-btn" data-page="profilePage"><span class="nav-icon">◉</span>Profile</button></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </main>
 <script>
@@ -431,6 +444,7 @@
 
   function showPage(id) {
     stopCamera();
+    if(id==="sellPage") updateSellPage();
     document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
     $("bottomNav").style.display="";
     document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
@@ -488,6 +502,11 @@
   function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}if($("cameraVideo"))$("cameraVideo").srcObject=null;if($("cameraPage"))$("cameraPage").classList.remove("active");if($("bottomNav"))$("bottomNav").style.display="";}
   function openExternal(url){const win=window.open(url,"_blank","noopener,noreferrer");if(!win)location.href=url;}
   function searchListings(engine){const q=($("itemName")?.value||$("calcName")?.value||"").trim();if(!q){toast("Enter an item name first.");$("itemName")?.focus();return;}const term=encodeURIComponent(q);const urls={ebay:"https://www.ebay.com/sch/i.html?_nkw="+term+"&mkcid=1&mkrid=711-53200-19255-0&siteid=0&campid=5339219469&customid=flipfinder&toolid=10001&mkevt=1",google:"https://www.google.com/search?tbm=shop&q="+encodeURIComponent(q+" resale price"),vinted:"https://www.vinted.com/catalog?search_text="+term,depop:"https://www.depop.com/search/?q="+term,poshmark:"https://poshmark.com/search?query="+term,mercari:"https://www.mercari.com/search/?keyword="+term,grailed:"https://www.grailed.com/shop/"+term.replace(/%20/g,"-"),facebook:"https://www.facebook.com/marketplace/search/?query="+term,all:"https://www.google.com/search?q="+encodeURIComponent(q+" resale price eBay Vinted Depop Poshmark Mercari Grailed Facebook Marketplace")};openExternal(urls[engine]||urls.google);}
+  function updateSellPage(){
+    const summary=$("sellItemSummary");if(summary){const name=(lastAnalysis&&lastAnalysis.item_name)||$("itemName")?.value||$("calcName")?.value||"Your item";summary.classList.remove("hidden");summary.replaceChildren();const title=document.createElement("strong");title.textContent=name;const p=document.createElement("p");p.className="note";p.textContent="Choose your listing price, then compare marketplace options below.";summary.append(title,p);}
+    updateSellEstimate();
+  }
+  function updateSellEstimate(){const price=Math.max(0,Number($("sellListingPrice")?.value)||0),shipping=Math.max(0,Number($("sellShippingCost")?.value)||0),rate=Math.min(99,Math.max(0,Number($("sellFeeRate")?.value)||0));const fee=price*rate/100+0.40; if($("sellFeeAmount"))$("sellFeeAmount").textContent=money(fee);if($("sellNetAmount"))$("sellNetAmount").textContent=money(price-fee-shipping);}
   function searchSelectedMarketplace(){const q=($("itemName")?.value||$("calcName")?.value||"").trim();if(!q){toast("Scan an item or enter its name first.");return;}const term=encodeURIComponent(q);const urls={
     ebay:"https://www.ebay.com/sch/i.html?_nkw="+term,
     vinted:"https://www.vinted.com/catalog?search_text="+term,
@@ -599,7 +618,7 @@
     if(!prices.length){const noPrice=document.createElement("div");noPrice.className="status-box";noPrice.textContent="No usable sold prices were returned for this item. Try a more specific search.";hero.appendChild(noPrice);return false;}
     const marketPrice=median(prices);
     const targetProfit=Math.max(10,Math.round(marketPrice*0.25*100)/100);
-    let askPrice=0,otherCosts=10,feeRate=15,profitGoal=targetProfit;
+    let askPrice=0,otherCosts=0,profitGoal=targetProfit;
     const decision=document.createElement("div");decision.className="price-decision unknown";const verdict=document.createElement("div");verdict.className="price-verdict";const verdictSub=document.createElement("div");verdictSub.className="price-verdict-sub";decision.append(verdict,verdictSub);hero.appendChild(decision);
     const grid=document.createElement("div");grid.className="price-decision-grid";const makeNumber=(label,initial,subtext,primary=false)=>{const el=document.createElement("div");el.className="price-number"+(primary?" primary-number":"");const cap=document.createElement("span");cap.textContent=label;const amount=document.createElement("strong");amount.textContent=money(initial);const sub=document.createElement("small");sub.textContent=subtext;el.append(cap,amount,sub);grid.appendChild(el);return amount;};
     const sellAmount=makeNumber("SELL AROUND",marketPrice,"Typical completed-sale price");
@@ -611,21 +630,20 @@
     const inputArea=document.createElement("div");inputArea.className="price-input-wrap";const askLabel=document.createElement("label");askLabel.textContent="How much is the seller asking?";const askInput=document.createElement("input");askInput.className="price-ask-input";askInput.type="number";askInput.min="0";askInput.step="0.01";askInput.placeholder="Enter asking price (e.g. 20)";askInput.setAttribute("aria-label","Seller asking price");inputArea.append(askLabel,askInput);hero.appendChild(inputArea);
     const controls=document.createElement("div");controls.className="price-controls";
     function addControl(labelText,val,min,max,step){const wrap=document.createElement("div");wrap.className="price-control";const label=document.createElement("label");label.textContent=labelText;const inp=document.createElement("input");inp.type="number";inp.min=String(min);if(max!=null)inp.max=String(max);inp.step=String(step);inp.value=String(val);wrap.append(label,inp);controls.appendChild(wrap);return inp;}
-    const costInput=addControl("Shipping / other costs ($)",otherCosts,0,100000,1);
-    const feeInput=addControl("Selling fees (%)",feeRate,0,99,1);
+    const costInput=addControl("Other buying costs ($)",otherCosts,0,100000,1);
     const goalInput=addControl("Profit you want ($)",profitGoal,0,100000,1);
     hero.appendChild(controls);
     function updateDecision(){
-      askPrice=Math.max(0,Number(askInput.value)||0);otherCosts=Math.max(0,Number(costInput.value)||0);feeRate=Math.min(99,Math.max(0,Number(feeInput.value)||0));profitGoal=Math.max(0,Number(goalInput.value)||0);const expectedSale=marketPrice;const maxBuy=Math.max(0,expectedSale*(1-feeRate/100)-otherCosts-profitGoal);const estimatedProfit=expectedSale*(1-feeRate/100)-otherCosts-askPrice;
+      askPrice=Math.max(0,Number(askInput.value)||0);otherCosts=Math.max(0,Number(costInput.value)||0);profitGoal=Math.max(0,Number(goalInput.value)||0);const expectedSale=marketPrice;const maxBuy=Math.max(0,expectedSale-otherCosts-profitGoal);const estimatedProfit=expectedSale-otherCosts-askPrice;
       sellAmount.textContent=money(expectedSale);buyAmount.textContent=money(maxBuy);profitAmount.textContent=askInput.value.trim()?money(estimatedProfit):"—";
       profitAmount.style.color=askInput.value.trim()?(estimatedProfit>=profitGoal?"#66efb0":estimatedProfit>0?"#ffe39a":"#ff8e9d"):"var(--text)";
       if(!askInput.value.trim()||askPrice<=0){decision.className="price-decision unknown";verdict.textContent="⌁ ENTER THE ASKING PRICE";verdictSub.textContent="Flip Finder has the sold-price estimate. Enter the seller's price to see GOOD FLIP or BAD FLIP.";}
-      else if(askPrice<=maxBuy){decision.className="price-decision good";verdict.textContent="✓ GOOD FLIP";verdictSub.textContent="This price is within your buy limit. Estimated profit is "+money(estimatedProfit)+" after estimated fees and costs.";}
+      else if(askPrice<=maxBuy){decision.className="price-decision good";verdict.textContent="✓ GOOD FLIP";verdictSub.textContent="This price is within your buy limit. Estimated profit is "+money(estimatedProfit)+" after other buying costs.";}
       else{decision.className="price-decision bad";verdict.textContent="✕ BAD FLIP AT THIS PRICE";verdictSub.textContent="The asking price is above your buy limit. Offer no more than "+money(maxBuy)+" to target "+money(profitGoal)+" profit.";}
       if(estimatedProfit<0&&askInput.value.trim())profitAmount.style.color="#ff8e9d";
     }
-    [askInput,costInput,feeInput,goalInput].forEach(input=>input.addEventListener("input",updateDecision));updateDecision();
-    const note=document.createElement("div");note.className="price-report-foot";note.textContent="Estimate uses the median of likely matching completed sales, your fee estimate, other costs and profit goal. Actual sale price, fees, condition, size, shipping and time-to-sell can differ. Check that the sold items match this exact model and condition.";hero.appendChild(note);
+    [askInput,costInput,goalInput].forEach(input=>input.addEventListener("input",updateDecision));updateDecision();
+    const note=document.createElement("div");note.className="price-report-foot";note.textContent="Buy estimate uses the median of likely matching completed sales, your purchase-side costs and profit goal. Seller fees and shipping estimates are kept on the Sell Online page. Actual sale price, condition and time-to-sell can differ. Check that sold items match this exact model and condition.";hero.appendChild(note);
     const details=document.createElement("details");const summary=document.createElement("summary");summary.textContent="View matching sold listings ("+listings.length+")";details.appendChild(summary);listings.slice(0,30).forEach(item=>{const row=document.createElement("div");row.className="market-result";if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent=item.title+" — "+money(item.price+(Number(item.shipping)||0));row.appendChild(a);}else{const title=document.createElement("strong");title.textContent=item.title+" — "+money(item.price+(Number(item.shipping)||0));row.appendChild(title);}const meta=document.createElement("p");meta.className="note";meta.textContent=[item.condition,item.soldDate].filter(Boolean).join(" · ")||"SoldGraph eBay sold result";row.appendChild(meta);details.appendChild(row);});root.appendChild(details);return true;
   }
   function renderActiveFallback(data,targetId,q){
@@ -684,6 +702,7 @@
     hasResults=true;
     const status=$("cameraInstruction"),results=$("aiResults");
     $("bottomNav").style.display="";$("cameraPage").classList.remove("active");showPage("calculatorPage");
+    if($("capturedPhotoPreview")){ $("capturedPhotoPreview").src=photoData; $("capturedPhotoCard").classList.remove("hidden"); }
     $("coinStage").classList.add("active");$("coinTitle").textContent="Identifying your item";$("coinSubtitle").textContent="AI scan in progress";$("aiStatus")?.classList?.add("hidden");
     const orb=$("coinOrb");if(orb)orb.classList.add("busy");
     results.textContent="";$("calculatorMarketResults").replaceChildren();
@@ -884,6 +903,8 @@
   $("marketplaceSearchButton").addEventListener("click",searchSelectedMarketplace);
   $("marketplaceSelect").addEventListener("change",()=>{const value=$("marketplaceSelect").value;$("marketplaceSearchButton").textContent=value==="all"?"Search all apps ↗":"Search "+({ebay:"eBay",vinted:"Vinted",depop:"Depop",poshmark:"Poshmark",mercari:"Mercari",grailed:"Grailed",facebook:"Facebook Marketplace",google:"Google Shopping / web"}[value]||"selected app")+" ↗";});
   $("retakePhoto").addEventListener("click",()=>{photoData="";startCamera();});
+  $("scanAnotherPhotoButton").addEventListener("click",()=>{photoData="";lastAnalysis=null;$("capturedPhotoCard").classList.add("hidden");startCamera();});
+  ["sellListingPrice","sellShippingCost","sellFeeRate"].forEach(id=>$(id).addEventListener("input",updateSellEstimate));
   $("newItemButton").addEventListener("click",()=>{photoData="";lastAnalysis=null;startCamera();});
   $("backToResults").addEventListener("click",()=>showPage("calculatorPage"));
   $("scanAnotherQuick").addEventListener("click",()=>{photoData="";startCamera();});
