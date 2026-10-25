@@ -937,6 +937,7 @@ button.secondary,button.quiet{color:#173d25!important}
       $("accountGreeting").textContent = profile.name ? `Hi, ${profile.name}` : "Your profile";
       const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) || "{}");
       $("appearanceSelect").value = prefs.appearance || "dark";
+      applyAppearance($("appearanceSelect").value);
       $("researchNotices").checked = prefs.researchNotices !== false;
       $("confirmDelete").checked = prefs.confirmDelete !== false;
     } catch (e) { console.warn("Could not load local profile settings", e); }
