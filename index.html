@@ -493,6 +493,9 @@ button.secondary,button.quiet{color:#173d25!important}
     <button class="primary wide" id="proInfo" type="button">
       Start 7-Day Free Trial
     </button>
+    <button class="secondary wide hidden" id="manageSubscription" type="button" style="margin-top:10px">
+      Manage / Cancel Subscription
+    </button>
     <p class="note">Secure checkout is handled by Stripe. You’ll review the subscription before confirming.</p>
     <div id="proCheckoutStatus" class="status-box hidden" role="status" aria-live="polite"></div>
   </div>
@@ -1014,10 +1017,58 @@ button.secondary,button.quiet{color:#173d25!important}
       button.textContent = originalText;
     }
   });
+  const manageSubscriptionButton = $("manageSubscription");
+  if (manageSubscriptionButton) {
+    manageSubscriptionButton.addEventListener("click", async () => {
+      const originalText = manageSubscriptionButton.textContent;
+      manageSubscriptionButton.disabled = true;
+      manageSubscriptionButton.textContent = "Opening secure billing portal…";
+      const status = $("proCheckoutStatus");
+      if (status) {
+        status.classList.remove("hidden");
+        status.textContent = "Connecting to Stripe securely…";
+      }
+      try {
+        const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+        if (sessionError || !sessionData.session?.access_token) {
+          showAuthGate();
+          throw new Error("Please sign in again to manage your subscription.");
+        }
+        const response = await fetch(API + "/api/create-billing-portal-session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + sessionData.session.access_token
+          },
+          body: JSON.stringify({})
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.portal_url) {
+          throw new Error(data.error || "Could not open subscription management. Please try again.");
+        }
+        window.location.href = data.portal_url;
+      } catch (error) {
+        const message = (error && error.message) || "Could not open subscription management. Please try again.";
+        if (status) {
+          status.classList.remove("hidden");
+          status.textContent = message;
+        }
+        toast(message);
+        manageSubscriptionButton.disabled = false;
+        manageSubscriptionButton.textContent = originalText;
+      }
+    });
+  }
+
   const checkoutParams = new URLSearchParams(window.location.search);
   // The backend returns Stripe Checkout users with ?subscription=success, not ?pro=success.
   const subscriptionReturn = checkoutParams.get("subscription");
   const proReturn = checkoutParams.get("pro");
+  const billingReturn = checkoutParams.get("billing");
+  if (billingReturn === "return") {
+    toast("Returned from subscription management.");
+    history.replaceState({}, document.title, window.location.pathname);
+  }
   if (subscriptionReturn === "success" || proReturn === "success") {
     showPage("homePage");
     const successBanner = $("subscriptionSuccessBanner");
@@ -1187,17 +1238,24 @@ async function refreshSubscriptionStatus(user) {
 
   if (!user) {
     if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
+    const manageButton = document.getElementById("manageSubscription");
+    if (manageButton) manageButton.classList.add("hidden");
     return;
   }
 
   try {
     const { data: profile, error } = await supabaseClient
       .from("profiles")
-      .select("subscription_status, trial_ends_at")
+      .select("subscription_status, trial_ends_at, stripe_customer_id")
       .eq("id", user.id)
       .maybeSingle();
 
     if (error) throw error;
+
+    const manageButton = document.getElementById("manageSubscription");
+    if (manageButton) {
+      manageButton.classList.toggle("hidden", !(profile && profile.stripe_customer_id));
+    }
 
     if (profile && profile.subscription_status === "pro") {
       window.flipFinderPlan = "pro";
@@ -1222,6 +1280,8 @@ async function refreshSubscriptionStatus(user) {
       }
     }
   } catch (error) {
+    const manageButton = document.getElementById("manageSubscription");
+    if (manageButton) manageButton.classList.add("hidden");
     console.warn("Could not load Flip Finder subscription status:", error);
     accountStatus.textContent = `Signed in as ${user.email} · Plan status could not be checked`;
     if (proButton) { proButton.textContent = "Refresh Pro Status"; proButton.disabled = false; }
