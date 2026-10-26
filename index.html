@@ -330,7 +330,7 @@ button.secondary,button.quiet{color:#173d25!important}
 
 <section class="page" id="calculatorPage">
   <div class="eyebrow">AI identification</div><h1>Your item &amp; its value</h1>
-  <div class="captured-photo-card hidden" id="capturedPhotoCard"><img id="capturedPhotoPreview" alt="Photo of the item you scanned"><button class="primary wide" id="scanAnotherPhotoButton" type="button">📷 Scan Another Photo</button></div>
+  <div class="captured-photo-card hidden" id="capturedPhotoCard"><img id="capturedPhotoPreview" alt="Photo of the item you scanned"></div>
   <div id="coinStage" class="coin-stage" aria-live="polite">
     <div class="scan-orb small" id="coinOrb"><div class="scan-symbol">FlipFinder</div></div>
     <strong id="coinTitle">Checking your item…</strong>
@@ -341,7 +341,6 @@ button.secondary,button.quiet{color:#173d25!important}
 
   <!-- Single marketplace search panel, directly on item results -->
   <div class="marketplace-search-panel form-card" id="marketplaceSearchPanel">
-    <div class="eyebrow">Marketplace research</div>
     <h2>Search marketplaces</h2>
     <p class="note">Choose a marketplace to compare current listings. “All marketplaces” opens a broad Google search; live sold-price data from every site is not guaranteed.</p>
     <label class="field"><span>Search marketplace</span>
@@ -358,7 +357,7 @@ button.secondary,button.quiet{color:#173d25!important}
       </select>
     </label>
     <button class="primary wide" id="marketplaceSearchButton" type="button">Search selected marketplace ↗</button>
-    <div class="results-actions"><button class="quiet" id="retakePhoto" type="button">📷 Retake photo</button><button class="quiet" id="newItemButton" type="button">＋ New item</button></div>
+    
   </div>
   <details class="manual-profit-details">
     <summary>Optional: manual profit calculator</summary>
@@ -1061,10 +1060,7 @@ button.secondary,button.quiet{color:#173d25!important}
   });
   $("marketplaceSearchButton").addEventListener("click",searchSelectedMarketplace);
   $("marketplaceSelect").addEventListener("change",()=>{const value=$("marketplaceSelect").value;$("marketplaceSearchButton").textContent=value==="all"?"Search all apps ↗":"Search "+({ebay:"eBay",vinted:"Vinted",depop:"Depop",poshmark:"Poshmark",mercari:"Mercari",grailed:"Grailed",facebook:"Facebook Marketplace",google:"Google Shopping / web"}[value]||"selected app")+" ↗";});
-  $("retakePhoto").addEventListener("click",()=>{photoData="";startCamera();});
-  $("scanAnotherPhotoButton").addEventListener("click",()=>{photoData="";lastAnalysis=null;$("capturedPhotoCard").classList.add("hidden");startCamera();});
   ["sellListingPrice","sellShippingCost","sellBuyerShipping","sellFeeRate"].forEach(id=>$(id).addEventListener("input",updateSellEstimate));
-  $("newItemButton").addEventListener("click",()=>{photoData="";lastAnalysis=null;startCamera();});
   $("backToResults").addEventListener("click",()=>showPage("calculatorPage"));
   $("scanAnotherQuick").addEventListener("click",()=>{photoData="";startCamera();});
   $("searchIdentifiedEbay").addEventListener("click",()=>searchListings("ebay"));
