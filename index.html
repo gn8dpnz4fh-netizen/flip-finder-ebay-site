@@ -317,17 +317,7 @@ button.secondary,button.quiet{color:#173d25!important}
   <div class="eyebrow">Marketplace research</div><h1>Find an item's value.</h1><p>Search by name and compare listings before deciding what to pay.</p>
   <label class="field"><span>What are you looking for?</span><input id="itemName" placeholder="e.g. Nike Air Max 90" autocomplete="off"></label>
   <button class="primary wide" id="researchButton">Check marketplace prices</button>
-  <button class="secondary wide" id="manualSearchEbay" style="margin-top:9px">Search eBay ↗</button>
-  <details class="form-card" style="margin-top:10px;padding:12px">
-    <summary style="cursor:pointer;font-weight:750;padding:5px 2px">More search engines &amp; marketplaces ▾</summary>
-    <label class="field" style="margin-top:12px"><span>Choose where to search</span>
-      <select id="manualMarketplaceSelect" aria-label="Choose another marketplace" style="width:100%;height:43px;border-radius:12px;border:1px solid var(--line);background:#0b1511;color:var(--text);padding:0 11px">
-        <option value="google">Google Shopping / web</option>
-        <option value="vinted">Vinted</option><option value="depop">Depop</option><option value="poshmark">Poshmark</option><option value="mercari">Mercari</option><option value="grailed">Grailed</option><option value="facebook">Facebook Marketplace</option><option value="all">Search all marketplaces on Google</option>
-      </select>
-    </label>
-    <button class="secondary wide" id="manualSearchSelected" type="button">Search selected marketplace ↗</button>
-  </details>
+
   <div class="tip"><div class="tip-icon">ⓘ</div><div><strong>Better searches, better decisions</strong><p>Include brand, model, size, and condition. Active asking prices are not the same as confirmed sold prices.</p></div></div>
   <div id="searchPricingResults" class="market-list" aria-live="polite">
     <div class="result-card">
@@ -348,6 +338,29 @@ button.secondary,button.quiet{color:#173d25!important}
   </div>
   <div id="aiResults"></div>
   <div id="calculatorMarketResults"></div>
+
+  <!-- Single marketplace search panel, directly on item results -->
+  <div class="marketplace-search-panel form-card" id="marketplaceSearchPanel">
+    <div class="eyebrow">Marketplace search</div>
+    <h2>Search resale apps</h2>
+    <button class="primary wide" id="searchIdentifiedEbay" type="button">Search eBay ↗</button>
+    <label class="field"><span>Or choose a marketplace</span>
+      <select id="marketplaceSelect" aria-label="Choose resale marketplace" style="width:100%;height:43px;border-radius:12px;border:1px solid var(--line);background:#0b1511;color:var(--text);padding:0 11px">
+        <option value="ebay">eBay (sold &amp; active listings)</option>
+        <option value="google">Google Shopping / web</option>
+        <option value="vinted">Vinted</option>
+        <option value="depop">Depop</option>
+        <option value="poshmark">Poshmark</option>
+        <option value="mercari">Mercari</option>
+        <option value="grailed">Grailed</option>
+        <option value="facebook">Facebook Marketplace</option>
+        <option value="all">All apps (search web)</option>
+      </select>
+    </label>
+    <button class="secondary wide" id="marketplaceSearchButton" type="button">Search selected app ↗</button>
+    <div class="results-actions"><button class="quiet" id="retakePhoto" type="button">📷 Retake photo</button><button class="quiet" id="newItemButton" type="button">＋ New item</button></div>
+    <p class="note">Marketplace searches open in a new tab. Availability and sold-price data vary by service.</p>
+  </div>
   <details class="manual-profit-details">
     <summary>Optional: manual profit calculator</summary>
     <div class="form-card" style="margin-top:10px">
@@ -364,27 +377,7 @@ button.secondary,button.quiet{color:#173d25!important}
   <div class="eyebrow">Sell online</div><h1>List your item.</h1><p>Choose a marketplace and check estimated eBay fees and shipping before you list. Actual costs vary by category, seller status, package, and shipping service.</p>
   <div id="sellItemSummary" class="form-card hidden"></div>
   <div class="form-card" id="sellEstimateCard"><h2>eBay fee &amp; shipping estimate</h2><p class="note">Planning estimate only. Standard final value fees vary by category and seller status; shipping depends on package and service.</p><label class="field"><span>Listing price ($)</span><input id="sellListingPrice" type="number" min="0" step=".01" value="" placeholder="Filled after item identification"></label><label class="field"><span>Shipping label cost ($)</span><input id="sellShippingCost" type="number" min="0" step=".01" value="" placeholder="Set after identification"></label><label class="field"><span>Shipping charged to buyer ($)</span><input id="sellBuyerShipping" type="number" min="0" step=".01" value="0"></label><label class="field"><span>Estimated eBay fee rate (%)</span><input id="sellFeeRate" type="number" min="0" max="99" step=".1" value="" placeholder="Set after identification"></label><div class="stats"><div class="stat"><span>Estimated eBay fee*</span><strong id="sellFeeAmount">—</strong></div><div class="stat"><span>Estimated proceeds after fee &amp; label</span><strong id="sellNetAmount">—</strong></div></div><p class="note">*This estimate applies the entered fee rate to the item price plus buyer-paid shipping, and adds the $0.30/$0.40 per-order fee. Taxes and category-specific exceptions can change the final amount; confirm in eBay before listing.</p></div>
-  <div class="marketplace-search-panel form-card" id="marketplaceSearchPanel">
-    <div class="eyebrow">Marketplace search</div>
-    <h2>Search resale apps</h2>
-    <button class="primary wide" id="searchIdentifiedEbay" type="button">Search eBay ↗</button>
-    <label class="field"><span>Or choose a marketplace</span>
-      <select id="marketplaceSelect" aria-label="Choose resale marketplace" style="width:100%;height:43px;border-radius:12px;border:1px solid var(--line);background:#0b1511;color:var(--text);padding:0 11px">
-        <option value="ebay">eBay (sold &amp; active listings)</option>
-        <option value="vinted">Vinted</option>
-        <option value="depop">Depop</option>
-        <option value="poshmark">Poshmark</option>
-        <option value="mercari">Mercari</option>
-        <option value="grailed">Grailed</option>
-        <option value="facebook">Facebook Marketplace</option>
-        <option value="google">Google Shopping / web</option>
-        <option value="all">All apps (search web)</option>
-      </select>
-    </label>
-    <button class="secondary wide" id="marketplaceSearchButton" type="button">Search selected app ↗</button>
-    <div class="results-actions"><button class="quiet" id="retakePhoto" type="button">📷 Retake photo</button><button class="quiet" id="newItemButton" type="button">＋ New item</button></div>
-    <p class="note">Marketplace searches open in a new tab. Availability and sold-price data vary by service.</p>
-  </div>
+
 </section>
 
 <section class="page" id="savedPage">
