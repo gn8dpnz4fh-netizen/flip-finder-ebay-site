@@ -1,0 +1,19 @@
+{
+  "appId": "com.flipfinder.app",
+  "appName": "Flip Finder",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "automatic"
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    },
+    "Browser": {
+      "presentationStyle": "fullscreen"
+    }
+  }
+}
