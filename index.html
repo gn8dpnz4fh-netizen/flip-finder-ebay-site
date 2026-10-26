@@ -488,7 +488,11 @@ button.secondary,button.quiet{color:#173d25!important}
     <button class="primary wide" id="proInfo" type="button">
       Start 7-Day Free Trial
     </button>
+    <button class="secondary wide" id="manageSubscription" type="button" hidden style="margin-top:10px">
+      Manage / Cancel Subscription
+    </button>
     <p class="note">Secure checkout is handled by Stripe. You’ll review the subscription before confirming.</p>
+    <p class="note">Manage or cancel your subscription any time using the button above.</p>
     <div id="proCheckoutStatus" class="status-box hidden" role="status" aria-live="polite"></div>
   </div>
 
@@ -962,6 +966,40 @@ button.secondary,button.quiet{color:#173d25!important}
     } catch (e) { toast("Couldn't save preferences in this browser."); }
   });
   $("scanPaywallSubscribe").addEventListener("click", () => { $("proInfo").click(); });
+  const manageSubscriptionButton = document.getElementById("manageSubscription");
+  if (manageSubscriptionButton) {
+    manageSubscriptionButton.addEventListener("click", async () => {
+      const status = document.getElementById("proCheckoutStatus");
+      const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+      if (sessionError || !sessionData.session?.user) {
+        showAuthGate();
+        if (status) { status.classList.remove("hidden"); status.textContent = "Please sign in to manage your subscription."; }
+        return;
+      }
+      const originalText = manageSubscriptionButton.textContent;
+      manageSubscriptionButton.disabled = true;
+      manageSubscriptionButton.textContent = "Opening billing settings…";
+      if (status) { status.classList.remove("hidden"); status.textContent = "Connecting to secure billing settings…"; }
+      try {
+        const response = await fetch(API + "/api/create-billing-portal-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + sessionData.session.access_token },
+          body: JSON.stringify({})
+        });
+        const data = await response.json().catch(() => ({}));
+        const portalUrl = data.portal_url || data.url;
+        if (!response.ok || !portalUrl) throw new Error(data.error || "Billing settings could not be opened. Please try again.");
+        window.location.href = portalUrl;
+      } catch (error) {
+        const message = (error && error.message) || "Could not open billing settings.";
+        if (status) { status.classList.remove("hidden"); status.textContent = message; }
+        toast(message);
+        manageSubscriptionButton.disabled = false;
+        manageSubscriptionButton.textContent = originalText;
+      }
+    });
+  }
+
   $("proInfo").addEventListener("click", async () => {
     const button = $("proInfo");
     const status = $("proCheckoutStatus");
@@ -1176,8 +1214,10 @@ window.flipFinderPlan = "free";
 
 async function refreshSubscriptionStatus(user) {
   const proButton = document.getElementById("proInfo");
+  const manageButton = document.getElementById("manageSubscription");
   const checkoutStatus = document.getElementById("proCheckoutStatus");
   window.flipFinderPlan = "free";
+  if (manageButton) manageButton.hidden = true;
 
   if (!user) {
     if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
@@ -1199,6 +1239,7 @@ async function refreshSubscriptionStatus(user) {
       $("scanPaywall")?.classList.add("hidden");
       accountStatus.textContent = `Signed in as ${user.email} · Plan: PRO`;
       if (proButton) { proButton.textContent = "✓ Pro Active"; proButton.disabled = false; }
+      if (manageButton) manageButton.hidden = false;
       if (checkoutStatus) {
         checkoutStatus.classList.remove("hidden");
         checkoutStatus.textContent = profile.trial_ends_at
