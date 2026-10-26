@@ -1069,9 +1069,9 @@ button.secondary,button.quiet{color:#173d25!important}
   $("backToResults").addEventListener("click",()=>showPage("calculatorPage"));
   $("scanAnotherQuick").addEventListener("click",()=>{photoData="";startCamera();});
   $("searchIdentifiedEbay").addEventListener("click",()=>searchListings("ebay"));
-  $("manualSearchEbay").addEventListener("click",()=>searchListings("ebay"));
+  $("manualSearchEbay")?.addEventListener("click",()=>searchListings("ebay"));
   $("manualSearchGoogle")?.addEventListener("click",()=>searchListings("google"));
-  $("manualSearchSelected").addEventListener("click",()=>searchListings($("manualMarketplaceSelect").value));
+  $("manualSearchSelected")?.addEventListener("click",()=>searchListings($("manualMarketplaceSelect").value));
   $("searchEbay")?.addEventListener("click",()=>searchListings("ebay"));
   $("searchGoogle")?.addEventListener("click",()=>searchListings("google"));
   $("researchButton").addEventListener("click",()=>{const q=$("itemName").value.trim();if(!q){toast("Enter an item name first.");$("itemName").focus();return;}researchPrices(q);});
