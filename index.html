@@ -251,6 +251,19 @@ button.secondary,button.quiet{color:#173d25!important}
 .toast,.toast *{color:#123e24!important}
 .price-report details summary{color:#123e24!important}
 
+
+/* Android/mobile input and viewport compatibility */
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+input,select,textarea,button{ touch-action:manipulation; }
+input,select,textarea{font-size:16px!important;max-width:100%;}
+button{ -webkit-tap-highlight-color:transparent; }
+.page{scroll-margin-top:12px;}
+.field input,.field select,.field textarea{min-height:46px;}
+@media(max-width:700px){
+  body{overscroll-behavior-y:contain;}
+  .page.active{padding-bottom:calc(100px + env(safe-area-inset-bottom));}
+  input,select,textarea{scroll-margin-bottom:140px;}
+}
 </style>
 </head>
 <body>
@@ -302,7 +315,7 @@ button.secondary,button.quiet{color:#173d25!important}
     <button class="secondary" id="uploadPhoto">▧ &nbsp; Upload photo</button>
   </div>
   <input class="hidden" id="photoUpload" type="file" accept="image/*">
-  <label class="field home-search"><span>Or type an item name</span><input id="homeItemName" placeholder="e.g. Nintendo Switch OLED" autocomplete="off"></label>
+  <label class="field home-search"><span>Or type an item name</span><input id="homeItemName" type="search" inputmode="search" enterkeyhint="search" autocapitalize="off" spellcheck="false" placeholder="e.g. Nintendo Switch OLED" autocomplete="off"></label>
   <button class="primary wide" id="homeResearch">Check market</button>
   <div class="section-head"><h2>Your tools</h2></div>
   <div class="quick-grid"><button class="quick" data-go="calculatorPage"><span class="emoji">＄</span><strong>Profit</strong><small>Calculate costs</small></button><button class="quick" data-go="savedPage"><span class="emoji">♡</span><strong>Saved flips</strong><small>Your shortlist</small></button><button class="quick" data-go="profilePage"><span class="emoji">◉</span><strong>Account</strong><small>Your profile</small></button></div>
@@ -311,7 +324,7 @@ button.secondary,button.quiet{color:#173d25!important}
 <section class="page" id="searchPage">
   <button class="secondary" id="backToCamera" type="button" style="margin:0 0 12px;min-height:40px;padding:0 14px">← Back to camera</button>
   <div class="eyebrow">Marketplace research</div><h1>Find an item's value.</h1><p>Search by name and compare listings before deciding what to pay.</p>
-  <label class="field"><span>What are you looking for?</span><input id="itemName" placeholder="e.g. Nike Air Max 90" autocomplete="off"></label>
+  <label class="field"><span>What are you looking for?</span><input id="itemName" type="search" inputmode="search" enterkeyhint="search" placeholder="e.g. Nike Air Max 90" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
   <button class="primary wide" id="researchButton">Check marketplace prices</button>
   <button class="secondary wide" id="manualSearchEbay" style="margin-top:9px">Search eBay ↗</button>
   <details class="form-card" style="margin-top:10px;padding:12px">
@@ -548,6 +561,16 @@ button.secondary,button.quiet{color:#173d25!important}
 <script>
 (() => {
   const $ = id => document.getElementById(id);
+  // Keep focused fields visible when Android's soft keyboard resizes the WebView.
+  document.addEventListener("focusin", event => {
+    const field = event.target;
+    if (!field || !field.matches || !field.matches("input, textarea, select")) return;
+    if (field.type === "file" || field.type === "checkbox" || field.type === "radio") return;
+    window.setTimeout(() => {
+      if (document.activeElement === field) field.scrollIntoView({block:"center",behavior:"auto"});
+    }, 180);
+  });
+
   const API = "https://flipfinder-ebay-notifications.onrender.com";
   const STORAGE_KEY = "flipfinder_items"; // Keep existing saved flips.
   let stream = null, photoData = "", facingMode = "environment", toastTimer = null, lastAnalysis = null, lastMarketResearch = null, hasResults = false;
