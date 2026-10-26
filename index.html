@@ -1101,7 +1101,7 @@ button.secondary,button.quiet{color:#173d25!important}
   ["sellListingPrice","sellShippingCost","sellBuyerShipping","sellFeeRate"].forEach(id=>$(id).addEventListener("input",updateSellEstimate));
   $("backToResults").addEventListener("click",()=>showPage("calculatorPage"));
   $("scanAnotherQuick").addEventListener("click",()=>{photoData="";startCamera();});
-  $("searchIdentifiedEbay").addEventListener("click",()=>searchListings("ebay"));
+  $("searchIdentifiedEbay")?.addEventListener("click",()=>searchListings("ebay"));
   $("manualSearchEbay")?.addEventListener("click",()=>searchListings("ebay"));
   $("manualSearchGoogle")?.addEventListener("click",()=>searchListings("google"));
   $("manualSearchSelected")?.addEventListener("click",()=>searchListings($("manualMarketplaceSelect").value));
