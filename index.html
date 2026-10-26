@@ -1409,6 +1409,48 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
 <script>
 if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("/service-worker.js").catch(err => console.warn("Offline support unavailable:", err))); }
 </script>
+<style>
+/* Stronger contrast and brighter, bolder price cards */
+.price-hero,.form-card,.result-card,.stat,.price-number,.market-result,.status-box,.identification-card{
+  color:#f7fff8!important;
+}
+.price-hero{background:linear-gradient(140deg,#183d29,#10251a 80%)!important;border-color:#4b9b66!important}
+.price-hero *{color:#f5fff6}
+.price-product-name{color:#fff!important;font-weight:950!important}
+.price-product-meta,.price-report-foot,.stat span,.price-number span,.price-number small{color:#d6f0dc!important;font-weight:750!important}
+.price-number,.stat{background:linear-gradient(145deg,#183624,#102319)!important;border-color:#477653!important}
+.price-number strong,.stat strong{color:#fff!important;font-weight:950!important;text-shadow:0 1px 0 #0005}
+.price-number.primary-number,.stat.recommended,.stat.profit{background:linear-gradient(135deg,#d9ffe2,#a4f0b7)!important;border:2px solid #28a653!important}
+.price-number.primary-number *,.stat.recommended *,.stat.profit *{color:#073b1b!important}
+.price-decision.good{background:linear-gradient(135deg,#0d7139,#064522)!important;border:2px solid #4df08a!important}
+.price-decision.good .price-verdict{color:#7dffab!important;font-weight:1000!important}
+.price-decision.good .price-verdict-sub{color:#f0fff3!important;font-weight:750!important}
+.price-decision.bad{background:linear-gradient(135deg,#941f32,#4b101c)!important;border:2px solid #ff687b!important}
+.price-decision.bad .price-verdict{color:#ffb2bc!important;font-weight:1000!important}
+.price-decision.bad .price-verdict-sub{color:#fff0f1!important;font-weight:750!important}
+.price-decision.unknown{background:linear-gradient(135deg,#80600a,#4b3908)!important;border:2px solid #ffdb56!important}
+.price-decision.unknown .price-verdict{color:#fff08a!important;font-weight:1000!important}
+.result-verdict.good{background:#0a6733!important;color:#8dffb4!important;border:2px solid #48f18b!important;font-weight:1000!important}
+.result-verdict.bad{background:#8d1c30!important;color:#ffd0d6!important;border:2px solid #ff657a!important;font-weight:1000!important}
+.result-verdict.unknown{background:#6a4e08!important;color:#fff09a!important;border:2px solid #f8d34e!important;font-weight:1000!important}
+#profit,#roi,#sellNetAmount,#sellFeeAmount{font-weight:950!important}
+.help-actions{display:grid;gap:9px;margin-top:14px}
+.help-detail{padding:13px;border:1px solid #9acba6;border-radius:14px;background:linear-gradient(135deg,#f8fff9,#dff4e4);color:#143b20}
+.help-detail strong{display:block;color:#0b5726;font-weight:950;margin:5px 0}
+.help-detail p{color:#244a2e!important;font-weight:600!important;margin:0 0 10px}
+.help-detail p:last-child{margin-bottom:0}
+:root[data-theme="bulldogs"]{color-scheme:dark;--bg:#09090b;--panel:#171719;--panel2:#242428;--line:#6e1b28;--text:#fff7f7;--muted:#e5c9cd;--green:#f04455;--green2:#c41230;--red:#ff6978;--gold:#ffd35c}
+:root[data-theme="bulldogs"] body,:root[data-theme="bulldogs"] .app{background:radial-gradient(ellipse at 50% -12%,#4a101b 0,transparent 48%),#09090b!important;color:#fff7f7!important}
+:root[data-theme="bulldogs"] .topbar,:root[data-theme="bulldogs"] .results-quick-actions{background:#11090bf2!important;border-color:#6e1b28!important}
+:root[data-theme="bulldogs"] .brand span,:root[data-theme="bulldogs"] .eyebrow,:root[data-theme="bulldogs"] .text-link{color:#ff596b!important}
+:root[data-theme="bulldogs"] .primary{background:linear-gradient(135deg,#e32642,#a90024)!important;color:#fff!important;box-shadow:0 8px 24px #c4123033!important}
+:root[data-theme="bulldogs"] .form-card,:root[data-theme="bulldogs"] .result-card,:root[data-theme="bulldogs"] .saved-card,:root[data-theme="bulldogs"] .empty,:root[data-theme="bulldogs"] .status-box,:root[data-theme="bulldogs"] .market-result,:root[data-theme="bulldogs"] .stat,:root[data-theme="bulldogs"] .price-number,:root[data-theme="bulldogs"] .identification-card{background:linear-gradient(145deg,#252528,#121214)!important;color:#fff7f7!important;border-color:#772131!important}
+:root[data-theme="bulldogs"] .bottom-nav{background:#111113f5!important;border-color:#6e1b28!important}
+:root[data-theme="bulldogs"] .nav-btn.active{color:#ff5368!important}
+:root[data-theme="bulldogs"] .price-hero{background:linear-gradient(145deg,#32121a,#121214 80%)!important;border-color:#9c3042!important}
+:root[data-theme="bulldogs"] .price-number.primary-number,:root[data-theme="bulldogs"] .stat.profit,:root[data-theme="bulldogs"] .stat.recommended{background:linear-gradient(135deg,#fce1e5,#f2b8c2)!important;border-color:#d8344c!important}
+:root[data-theme="bulldogs"] .price-number.primary-number *,:root[data-theme="bulldogs"] .stat.profit *,:root[data-theme="bulldogs"] .stat.recommended *{color:#5a0717!important}
+</style>
 </body>
 </html>
 
@@ -1559,48 +1601,3 @@ input::placeholder,textarea::placeholder{color:#536b57!important;opacity:1!impor
 :root[data-theme="pride"] .form-card,:root[data-theme="pride"] .result-card,:root[data-theme="pride"] .saved-card,:root[data-theme="pride"] .empty,:root[data-theme="pride"] .status-box,:root[data-theme="pride"] .market-result,:root[data-theme="pride"] .stat,:root[data-theme="pride"] .price-number,:root[data-theme="pride"] .identification-card{background:linear-gradient(135deg,#332147,#1d3040)!important;color:#fff8ff!important;border-color:#b66bc0!important}
 
 </style>
-
-
-<style>
-/* Stronger contrast and brighter, bolder price cards */
-.price-hero,.form-card,.result-card,.stat,.price-number,.market-result,.status-box,.identification-card{
-  color:#f7fff8!important;
-}
-.price-hero{background:linear-gradient(140deg,#183d29,#10251a 80%)!important;border-color:#4b9b66!important}
-.price-hero *{color:#f5fff6}
-.price-product-name{color:#fff!important;font-weight:950!important}
-.price-product-meta,.price-report-foot,.stat span,.price-number span,.price-number small{color:#d6f0dc!important;font-weight:750!important}
-.price-number,.stat{background:linear-gradient(145deg,#183624,#102319)!important;border-color:#477653!important}
-.price-number strong,.stat strong{color:#fff!important;font-weight:950!important;text-shadow:0 1px 0 #0005}
-.price-number.primary-number,.stat.recommended,.stat.profit{background:linear-gradient(135deg,#d9ffe2,#a4f0b7)!important;border:2px solid #28a653!important}
-.price-number.primary-number *,.stat.recommended *,.stat.profit *{color:#073b1b!important}
-.price-decision.good{background:linear-gradient(135deg,#0d7139,#064522)!important;border:2px solid #4df08a!important}
-.price-decision.good .price-verdict{color:#7dffab!important;font-weight:1000!important}
-.price-decision.good .price-verdict-sub{color:#f0fff3!important;font-weight:750!important}
-.price-decision.bad{background:linear-gradient(135deg,#941f32,#4b101c)!important;border:2px solid #ff687b!important}
-.price-decision.bad .price-verdict{color:#ffb2bc!important;font-weight:1000!important}
-.price-decision.bad .price-verdict-sub{color:#fff0f1!important;font-weight:750!important}
-.price-decision.unknown{background:linear-gradient(135deg,#80600a,#4b3908)!important;border:2px solid #ffdb56!important}
-.price-decision.unknown .price-verdict{color:#fff08a!important;font-weight:1000!important}
-.result-verdict.good{background:#0a6733!important;color:#8dffb4!important;border:2px solid #48f18b!important;font-weight:1000!important}
-.result-verdict.bad{background:#8d1c30!important;color:#ffd0d6!important;border:2px solid #ff657a!important;font-weight:1000!important}
-.result-verdict.unknown{background:#6a4e08!important;color:#fff09a!important;border:2px solid #f8d34e!important;font-weight:1000!important}
-#profit,#roi,#sellNetAmount,#sellFeeAmount{font-weight:950!important}
-.help-actions{display:grid;gap:9px;margin-top:14px}
-.help-detail{padding:13px;border:1px solid #9acba6;border-radius:14px;background:linear-gradient(135deg,#f8fff9,#dff4e4);color:#143b20}
-.help-detail strong{display:block;color:#0b5726;font-weight:950;margin:5px 0}
-.help-detail p{color:#244a2e!important;font-weight:600!important;margin:0 0 10px}
-.help-detail p:last-child{margin-bottom:0}
-:root[data-theme="bulldogs"]{color-scheme:dark;--bg:#09090b;--panel:#171719;--panel2:#242428;--line:#6e1b28;--text:#fff7f7;--muted:#e5c9cd;--green:#f04455;--green2:#c41230;--red:#ff6978;--gold:#ffd35c}
-:root[data-theme="bulldogs"] body,:root[data-theme="bulldogs"] .app{background:radial-gradient(ellipse at 50% -12%,#4a101b 0,transparent 48%),#09090b!important;color:#fff7f7!important}
-:root[data-theme="bulldogs"] .topbar,:root[data-theme="bulldogs"] .results-quick-actions{background:#11090bf2!important;border-color:#6e1b28!important}
-:root[data-theme="bulldogs"] .brand span,:root[data-theme="bulldogs"] .eyebrow,:root[data-theme="bulldogs"] .text-link{color:#ff596b!important}
-:root[data-theme="bulldogs"] .primary{background:linear-gradient(135deg,#e32642,#a90024)!important;color:#fff!important;box-shadow:0 8px 24px #c4123033!important}
-:root[data-theme="bulldogs"] .form-card,:root[data-theme="bulldogs"] .result-card,:root[data-theme="bulldogs"] .saved-card,:root[data-theme="bulldogs"] .empty,:root[data-theme="bulldogs"] .status-box,:root[data-theme="bulldogs"] .market-result,:root[data-theme="bulldogs"] .stat,:root[data-theme="bulldogs"] .price-number,:root[data-theme="bulldogs"] .identification-card{background:linear-gradient(145deg,#252528,#121214)!important;color:#fff7f7!important;border-color:#772131!important}
-:root[data-theme="bulldogs"] .bottom-nav{background:#111113f5!important;border-color:#6e1b28!important}
-:root[data-theme="bulldogs"] .nav-btn.active{color:#ff5368!important}
-:root[data-theme="bulldogs"] .price-hero{background:linear-gradient(145deg,#32121a,#121214 80%)!important;border-color:#9c3042!important}
-:root[data-theme="bulldogs"] .price-number.primary-number,:root[data-theme="bulldogs"] .stat.profit,:root[data-theme="bulldogs"] .stat.recommended{background:linear-gradient(135deg,#fce1e5,#f2b8c2)!important;border-color:#d8344c!important}
-:root[data-theme="bulldogs"] .price-number.primary-number *,:root[data-theme="bulldogs"] .stat.profit *,:root[data-theme="bulldogs"] .stat.recommended *{color:#5a0717!important}
-</style>
-
