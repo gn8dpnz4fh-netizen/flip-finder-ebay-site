@@ -1,0 +1,23 @@
+{
+  "name": "flip-finder-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Capacitor preparation for Flip Finder Android and iOS apps",
+  "scripts": {
+    "prepare:native": "node scripts/prepare-native.js",
+    "cap:add:android": "npm run prepare:native && cap add android",
+    "cap:add:ios": "npm run prepare:native && cap add ios",
+    "cap:sync": "npm run prepare:native && cap sync",
+    "cap:open:android": "cap open android",
+    "cap:open:ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/browser": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  }
+}
