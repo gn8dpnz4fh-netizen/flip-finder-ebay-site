@@ -260,7 +260,7 @@ button.secondary,button.quiet{color:#173d25!important}
 <body>
 <div class="auth-gate" id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
   <div class="auth-panel">
-    <div class="auth-brand"><svg class="ff-logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M5 23h15M1 32h13M6 41h10" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M27 7h25a5 5 0 0 1 5 5v22L35 57a5 5 0 0 1-7 0L13 42a5 5 0 0 1 0-7L27 7Z" fill="url(#ffg)" stroke="#064b28" stroke-width="2"/><circle cx="43" cy="16" r="3" fill="#d7ffe4"/><path d="M39 24c-4-3-10 0-8 4 2 3 10 1 10 5s-6 6-11 2m7-16v22" fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round"/><defs><linearGradient id="ffg" x1="14" y1="8" x2="57" y2="57" gradientUnits="userSpaceOnUse"><stop stop-color="#35e878"/><stop offset="1" stop-color="#047132"/></linearGradient></defs></svg><span class="ff-wordmark">Flip<span>Finder</span></span></div>
+    <div class="auth-brand"><svg class="ff-logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M5 23h15M1 32h13M6 41h10" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M27 7h25a5 5 0 0 1 5 5v22L35 57a5 5 0 0 1-7 0L13 42a5 5 0 0 1 0-7L27 7Z" fill="url(#ffg)" stroke="#064b28" stroke-width="2"/><circle cx="43" cy="16" r="3" fill="#d7ffe4"/><g transform="translate(23 19) rotate(-28 12 13)"><rect x="1" y="7" width="29" height="17" rx="3" fill="#effff2" stroke="#064b28" stroke-width="1.8"/><rect x="5" y="3" width="29" height="17" rx="3" fill="#a7efb8" stroke="#064b28" stroke-width="1.8"/><rect x="9" y="0" width="29" height="17" rx="3" fill="#f6fff7" stroke="#064b28" stroke-width="1.8"/><path d="M13 4h21M13 13h21" stroke="#159447" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="23.5" cy="8.5" rx="4.2" ry="3.3" fill="#24b957" stroke="#064b28" stroke-width="1"/><path d="M22 8c1-2 4-1 3 0s-3 1-2 2 3 0 3-1" fill="none" stroke="#fff" stroke-width="1"/></g><defs><linearGradient id="ffg" x1="14" y1="8" x2="57" y2="57" gradientUnits="userSpaceOnUse"><stop stop-color="#35e878"/><stop offset="1" stop-color="#047132"/></linearGradient></defs></svg><span class="ff-wordmark">Flip<span>Finder</span></span></div>
     <p>Flip smarter. Earn bigger.</p>
     <h1 id="authTitle">Sign in to continue</h1>
     <p>Create an account or sign in to use Flip Finder and start your Pro trial.</p>
@@ -452,6 +452,7 @@ button.secondary,button.quiet{color:#173d25!important}
         <option value="dark">Dark mode (recommended)</option>
         <option value="light">Light green</option>
         <option value="pride">Pride colors</option>
+        <option value="bulldogs">Georgia Bulldogs (red &amp; black)</option>
       </select>
     </label>
 
@@ -524,9 +525,26 @@ button.secondary,button.quiet{color:#173d25!important}
     </div>
 
     <p style="font-size:13px;margin-top:12px">
-      Active asking prices are not confirmed sold prices.
-      Saved-flip syncing and verified sales history still need to be connected.
+      Active asking prices are not confirmed sold prices. Flip Finder labels estimates clearly and opens marketplace searches so you can verify details before buying.
     </p>
+    <div class="help-actions">
+      <button class="primary wide" id="helpOpenSearch" type="button">Search marketplaces for an item</button>
+      <button class="secondary wide" id="helpOpenProfit" type="button">Open profit calculator</button>
+      <button class="secondary wide" id="helpCameraTips" type="button">Camera and scanning tips</button>
+      <button class="secondary wide" id="helpDataDetails" type="button" aria-expanded="false">What the market data means ▾</button>
+      <div id="helpDataDetailsPanel" class="help-detail hidden">
+        <strong>Asking prices vs. sold prices</strong>
+        <p>Marketplace search results can show current asking prices, which are not proof an item sold for that amount. Use completed/sold listings when a marketplace provides them, compare like-for-like condition and model, and account for fees, shipping, returns, and taxes.</p>
+        <strong>How the estimate works</strong>
+        <p>When a market estimate is available, the Buy/Sell tools use it as a starting point. An estimate is not a guarantee of sale price or profit. Confirm the listing details and your actual costs before purchasing.</p>
+        <strong>Saved items</strong>
+        <p>Saved flips are stored in this browser on this device for now; they do not automatically sync across devices.</p>
+      </div>
+      <div class="help-detail">
+        <strong>Need to check an item?</strong>
+        <p>Use the search tab to choose eBay, Vinted, Depop, Poshmark, Mercari, Grailed, Facebook Marketplace, Google Shopping, or a combined web search.</p>
+      </div>
+    </div>
   </div>
 
 
@@ -939,8 +957,12 @@ button.secondary,button.quiet{color:#173d25!important}
   $("settingsBtn").addEventListener("click",()=>showPage("profilePage"));
   const PROFILE_KEY = "flipfinder_profile_v1";
   const PREFS_KEY = "flipfinder_preferences_v1";
-  function applyAppearance(theme){document.documentElement.dataset.theme=theme==="light"||theme==="pride"?theme:"dark";}
+  function applyAppearance(theme){document.documentElement.dataset.theme=["light","pride","bulldogs"].includes(theme)?theme:"dark";}
   $("appearanceSelect").addEventListener("change",()=>applyAppearance($("appearanceSelect").value));
+  $("helpOpenSearch")?.addEventListener("click",()=>showPage("searchPage"));
+  $("helpOpenProfit")?.addEventListener("click",()=>showPage("calculatorPage"));
+  $("helpCameraTips")?.addEventListener("click",()=>toast("Use bright, even light. Fill the frame, keep the item steady, and include labels, model numbers, condition, and any damage."));
+  $("helpDataDetails")?.addEventListener("click",()=>{const panel=$("helpDataDetailsPanel"),button=$("helpDataDetails");const opening=panel.classList.contains("hidden");panel.classList.toggle("hidden",!opening);button.setAttribute("aria-expanded",String(opening));button.textContent=opening?"What the market data means ▴":"What the market data means ▾";});
   function loadProfileAndPreferences() {
     try {
       const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}");
@@ -1537,3 +1559,48 @@ input::placeholder,textarea::placeholder{color:#536b57!important;opacity:1!impor
 :root[data-theme="pride"] .form-card,:root[data-theme="pride"] .result-card,:root[data-theme="pride"] .saved-card,:root[data-theme="pride"] .empty,:root[data-theme="pride"] .status-box,:root[data-theme="pride"] .market-result,:root[data-theme="pride"] .stat,:root[data-theme="pride"] .price-number,:root[data-theme="pride"] .identification-card{background:linear-gradient(135deg,#332147,#1d3040)!important;color:#fff8ff!important;border-color:#b66bc0!important}
 
 </style>
+
+
+<style>
+/* Stronger contrast and brighter, bolder price cards */
+.price-hero,.form-card,.result-card,.stat,.price-number,.market-result,.status-box,.identification-card{
+  color:#f7fff8!important;
+}
+.price-hero{background:linear-gradient(140deg,#183d29,#10251a 80%)!important;border-color:#4b9b66!important}
+.price-hero *{color:#f5fff6}
+.price-product-name{color:#fff!important;font-weight:950!important}
+.price-product-meta,.price-report-foot,.stat span,.price-number span,.price-number small{color:#d6f0dc!important;font-weight:750!important}
+.price-number,.stat{background:linear-gradient(145deg,#183624,#102319)!important;border-color:#477653!important}
+.price-number strong,.stat strong{color:#fff!important;font-weight:950!important;text-shadow:0 1px 0 #0005}
+.price-number.primary-number,.stat.recommended,.stat.profit{background:linear-gradient(135deg,#d9ffe2,#a4f0b7)!important;border:2px solid #28a653!important}
+.price-number.primary-number *,.stat.recommended *,.stat.profit *{color:#073b1b!important}
+.price-decision.good{background:linear-gradient(135deg,#0d7139,#064522)!important;border:2px solid #4df08a!important}
+.price-decision.good .price-verdict{color:#7dffab!important;font-weight:1000!important}
+.price-decision.good .price-verdict-sub{color:#f0fff3!important;font-weight:750!important}
+.price-decision.bad{background:linear-gradient(135deg,#941f32,#4b101c)!important;border:2px solid #ff687b!important}
+.price-decision.bad .price-verdict{color:#ffb2bc!important;font-weight:1000!important}
+.price-decision.bad .price-verdict-sub{color:#fff0f1!important;font-weight:750!important}
+.price-decision.unknown{background:linear-gradient(135deg,#80600a,#4b3908)!important;border:2px solid #ffdb56!important}
+.price-decision.unknown .price-verdict{color:#fff08a!important;font-weight:1000!important}
+.result-verdict.good{background:#0a6733!important;color:#8dffb4!important;border:2px solid #48f18b!important;font-weight:1000!important}
+.result-verdict.bad{background:#8d1c30!important;color:#ffd0d6!important;border:2px solid #ff657a!important;font-weight:1000!important}
+.result-verdict.unknown{background:#6a4e08!important;color:#fff09a!important;border:2px solid #f8d34e!important;font-weight:1000!important}
+#profit,#roi,#sellNetAmount,#sellFeeAmount{font-weight:950!important}
+.help-actions{display:grid;gap:9px;margin-top:14px}
+.help-detail{padding:13px;border:1px solid #9acba6;border-radius:14px;background:linear-gradient(135deg,#f8fff9,#dff4e4);color:#143b20}
+.help-detail strong{display:block;color:#0b5726;font-weight:950;margin:5px 0}
+.help-detail p{color:#244a2e!important;font-weight:600!important;margin:0 0 10px}
+.help-detail p:last-child{margin-bottom:0}
+:root[data-theme="bulldogs"]{color-scheme:dark;--bg:#09090b;--panel:#171719;--panel2:#242428;--line:#6e1b28;--text:#fff7f7;--muted:#e5c9cd;--green:#f04455;--green2:#c41230;--red:#ff6978;--gold:#ffd35c}
+:root[data-theme="bulldogs"] body,:root[data-theme="bulldogs"] .app{background:radial-gradient(ellipse at 50% -12%,#4a101b 0,transparent 48%),#09090b!important;color:#fff7f7!important}
+:root[data-theme="bulldogs"] .topbar,:root[data-theme="bulldogs"] .results-quick-actions{background:#11090bf2!important;border-color:#6e1b28!important}
+:root[data-theme="bulldogs"] .brand span,:root[data-theme="bulldogs"] .eyebrow,:root[data-theme="bulldogs"] .text-link{color:#ff596b!important}
+:root[data-theme="bulldogs"] .primary{background:linear-gradient(135deg,#e32642,#a90024)!important;color:#fff!important;box-shadow:0 8px 24px #c4123033!important}
+:root[data-theme="bulldogs"] .form-card,:root[data-theme="bulldogs"] .result-card,:root[data-theme="bulldogs"] .saved-card,:root[data-theme="bulldogs"] .empty,:root[data-theme="bulldogs"] .status-box,:root[data-theme="bulldogs"] .market-result,:root[data-theme="bulldogs"] .stat,:root[data-theme="bulldogs"] .price-number,:root[data-theme="bulldogs"] .identification-card{background:linear-gradient(145deg,#252528,#121214)!important;color:#fff7f7!important;border-color:#772131!important}
+:root[data-theme="bulldogs"] .bottom-nav{background:#111113f5!important;border-color:#6e1b28!important}
+:root[data-theme="bulldogs"] .nav-btn.active{color:#ff5368!important}
+:root[data-theme="bulldogs"] .price-hero{background:linear-gradient(145deg,#32121a,#121214 80%)!important;border-color:#9c3042!important}
+:root[data-theme="bulldogs"] .price-number.primary-number,:root[data-theme="bulldogs"] .stat.profit,:root[data-theme="bulldogs"] .stat.recommended{background:linear-gradient(135deg,#fce1e5,#f2b8c2)!important;border-color:#d8344c!important}
+:root[data-theme="bulldogs"] .price-number.primary-number *,:root[data-theme="bulldogs"] .stat.profit *,:root[data-theme="bulldogs"] .stat.recommended *{color:#5a0717!important}
+</style>
+
