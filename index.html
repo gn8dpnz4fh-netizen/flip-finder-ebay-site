@@ -869,7 +869,7 @@ button.secondary,button.quiet{color:#173d25!important}
     const root=$(targetId),q=String(itemName||"").trim();
     if(!q){root.innerHTML='<div class="status-box">Type an item name or scan/upload a photo first so Flip Finder knows what to price.</div>';return null;}
     if(targetId==="searchPricingResults"){$("itemName").value=q;$("calcName").value=q;}
-    root.innerHTML='<div class="result-card"><h2>Finding your price…</h2><p>Checking sold results, active listings, then an AI backup estimate if needed.</p></div>';
+    root.innerHTML='<div class="result-card scan-loading"><strong>Checking prices…</strong></div>';
     let lastError="";
     try{const response=await fetch(API+"/api/soldgraph-test?q="+encodeURIComponent(q),{method:"GET"});const data=await response.json().catch(()=>({}));if(response.ok&&data.ok!==false&&!data.error&&renderPricing(data,targetId,q)){updateSellPage();return data;}lastError=data.error||"No usable matching sold prices were returned.";}catch(err){lastError=err.message||"Sold-price search failed.";}
     try{const response=await fetch(API+"/api/marketplace-prices",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({itemName:q})});const data=await response.json().catch(()=>({}));if(response.ok&&data.success&&renderActiveFallback(data,targetId,q)){updateSellPage();return data;}lastError+=(lastError?" ":"")+(data.error||"No active listing prices were returned.");}catch(err){lastError+=(lastError?" ":"")+(err.message||"Active listing search failed.");}
@@ -884,7 +884,7 @@ button.secondary,button.quiet{color:#173d25!important}
     const status=$("cameraInstruction"),results=$("aiResults");
     $("bottomNav").style.display="";$("cameraPage").classList.remove("active");showPage("calculatorPage");
     if($("capturedPhotoPreview")){ $("capturedPhotoPreview").src=photoData; $("capturedPhotoCard").classList.remove("hidden"); }
-    $("coinStage").classList.add("active");$("coinTitle").textContent="Identifying your item";$("coinSubtitle").textContent="AI scan in progress";$("aiStatus")?.classList?.add("hidden");
+    $("coinStage").classList.add("active");$("coinTitle").textContent="Scanning item…";$("coinSubtitle").textContent="Finding its market value";$("aiStatus")?.classList?.add("hidden");
     const orb=$("coinOrb");if(orb)orb.classList.add("busy");
     results.textContent="";$("calculatorMarketResults").replaceChildren();
     try{
@@ -897,16 +897,10 @@ button.secondary,button.quiet{color:#173d25!important}
       if(!response.ok||!data.success||!data.analysis)throw new Error(data.error||"AI identification failed. Try another photo.");
       const a=data.analysis;lastAnalysis=a;const name=(a.item_name||"").trim();if(name){$("itemName").value=name;$("calcName").value=name;}
       const confidence=Math.max(0,Math.min(100,Number(a.confidence)||0));
-      const info=document.createElement("div");info.className="identification-card";
-      const title=document.createElement("h3");title.textContent="AI identified";info.appendChild(title);
-      const identity=document.createElement("p");identity.textContent=(name||"Unknown item")+" · "+(a.brand||"Brand unknown")+" · "+(a.model||"Model unknown");info.appendChild(identity);
-      const category=document.createElement("p");category.textContent="Category: "+(a.category||"Unknown")+" | Identification confidence: "+confidence+"%";category.style.marginTop="6px";info.appendChild(category);
-      if(Array.isArray(a.identifying_details)&&a.identifying_details.length){const clues=document.createElement("p");clues.textContent="Visible clues: "+a.identifying_details.join(" · ");clues.style.marginTop="6px";info.appendChild(clues);}
-      if(Array.isArray(a.condition_observations)&&a.condition_observations.length){const condition=document.createElement("p");condition.textContent="Condition seen: "+a.condition_observations.join(" · ");condition.style.marginTop="6px";info.appendChild(condition);}
-      if(confidence<70||(Array.isArray(a.uncertain_details)&&a.uncertain_details.length)){const warning=document.createElement("p");warning.className="identification-warning";warning.textContent="Identification is not fully certain. For the best pricing match, take another sharp photo of the logo, tag, label, model number, or mint mark. Compare the sold listings before buying.";info.appendChild(warning);}
-      if(a.limitations){const limit=document.createElement("p");limit.textContent="Note: "+a.limitations;limit.style.marginTop="8px";info.appendChild(limit);}
-      results.replaceChildren(info);
-      $("coinTitle").textContent="Item identified";$("coinSubtitle").textContent="Now checking available market prices";
+      // Keep the scan screen focused on the verdict and price numbers.
+      // Detailed AI notes are omitted from the top of the results screen.
+      results.replaceChildren();
+      $("coinTitle").textContent="Checking prices…";$("coinSubtitle").textContent="Almost there";
       // Price the AI-identified item first. A generic category such as "cap" must never replace the real item name.
       const identityParts=[name,a.brand,a.model].map(v=>String(v||"").trim()).filter(v=>v&&v.toLowerCase()!=="unknown");
       const uniqueIdentityParts=[...new Set(identityParts)];
@@ -917,6 +911,10 @@ button.secondary,button.quiet{color:#173d25!important}
       if(!query&&Array.isArray(a.search_terms))query=a.search_terms.map(v=>String(v||"").trim()).filter(Boolean).join(" ");
       if(!query)throw new Error("AI did not return a useful item name. Enter the item name manually.");
       await researchPrices(query,"calculatorMarketResults");
+      const disclaimer=document.createElement("p");
+      disclaimer.className="disclaimer scan-disclaimer";
+      disclaimer.textContent="AI identification and price estimates can be wrong. Check the exact item, condition, and comparable sold listings before buying.";
+      $("calculatorMarketResults").appendChild(disclaimer);
       await recordSuccessfulScan();
       toast("AI identification finished.");
     }catch(err){$("coinTitle").textContent="Scan needs attention";$("coinSubtitle").textContent="Try another photo or search by name";const box=document.createElement("div");box.className="status-box";box.textContent="AI scan issue: "+err.message;results.replaceChildren(box);console.error("Image analysis:",err);toast("Could not finish the AI scan.");}
@@ -958,7 +956,20 @@ button.secondary,button.quiet{color:#173d25!important}
   const PROFILE_KEY = "flipfinder_profile_v1";
   const PREFS_KEY = "flipfinder_preferences_v1";
   function applyAppearance(theme){document.documentElement.dataset.theme=["light","pride","bulldogs"].includes(theme)?theme:"dark";}
-  $("appearanceSelect").addEventListener("change",()=>applyAppearance($("appearanceSelect").value));
+  function savePreferencesLocally(){
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify({
+      appearance:$("appearanceSelect").value,
+      researchNotices:$("researchNotices").checked,
+      confirmDelete:$("confirmDelete").checked
+    })); } catch (e) { console.warn("Could not save preferences on this device", e); }
+  }
+  $("appearanceSelect").addEventListener("change",()=>{
+    applyAppearance($("appearanceSelect").value);
+    savePreferencesLocally();
+    toast("Theme saved on this device.");
+  });
+  $("researchNotices").addEventListener("change",savePreferencesLocally);
+  $("confirmDelete").addEventListener("change",savePreferencesLocally);
   $("helpOpenSearch")?.addEventListener("click",()=>showPage("searchPage"));
   $("helpOpenProfit")?.addEventListener("click",()=>showPage("calculatorPage"));
   $("helpCameraTips")?.addEventListener("click",()=>toast("Use bright, even light. Fill the frame, keep the item steady, and include labels, model numbers, condition, and any damage."));
@@ -989,7 +1000,7 @@ button.secondary,button.quiet{color:#173d25!important}
   $("savePreferences").addEventListener("click", () => {
     try {
       applyAppearance($("appearanceSelect").value);
-      localStorage.setItem(PREFS_KEY, JSON.stringify({appearance:$("appearanceSelect").value, researchNotices:$("researchNotices").checked, confirmDelete:$("confirmDelete").checked}));
+      savePreferencesLocally();
       toast("Preferences saved on this device.");
     } catch (e) { toast("Couldn't save preferences in this browser."); }
   });
@@ -1450,6 +1461,19 @@ if ("serviceWorker" in navigator) { window.addEventListener("load", () => naviga
 :root[data-theme="bulldogs"] .price-hero{background:linear-gradient(145deg,#32121a,#121214 80%)!important;border-color:#9c3042!important}
 :root[data-theme="bulldogs"] .price-number.primary-number,:root[data-theme="bulldogs"] .stat.profit,:root[data-theme="bulldogs"] .stat.recommended{background:linear-gradient(135deg,#fce1e5,#f2b8c2)!important;border-color:#d8344c!important}
 :root[data-theme="bulldogs"] .price-number.primary-number *,:root[data-theme="bulldogs"] .stat.profit *,:root[data-theme="bulldogs"] .stat.recommended *{color:#5a0717!important}
+</style>
+
+<style>
+/* Focus scan results on the decision and money figures; keep explanations at the bottom. */
+#calculatorMarketResults > h2{display:none!important}
+#calculatorMarketResults .price-product-meta{font-size:10px!important;line-height:1.3!important;margin-top:3px!important}
+#calculatorMarketResults .price-hero-head{padding:10px 12px 8px!important}
+#calculatorMarketResults .price-decision{margin-bottom:8px!important}
+#calculatorMarketResults .price-report-foot{font-size:10px!important;line-height:1.35!important;margin-top:8px!important;padding:0 12px 10px!important}
+#calculatorMarketResults .price-report details{margin-top:8px!important}
+#calculatorMarketResults .scan-loading{padding:10px 12px!important;margin:5px 0!important;font-size:13px!important}
+#aiResults:empty{display:none!important}
+.scan-disclaimer{font-size:10px!important;line-height:1.35!important;margin:8px 2px 0!important;opacity:.82}
 </style>
 </body>
 </html>
