@@ -372,10 +372,28 @@ button.secondary,button.quiet{color:#173d25!important}
 </section>
 
 <section class="page" id="sellPage">
-  <div class="eyebrow">Sell online</div><h1>List your item.</h1><p>Choose a marketplace and check estimated eBay fees and shipping before you list. Actual costs vary by category, seller status, package, and shipping service.</p>
+  <div class="eyebrow">Your selling tools</div><h1>Resell your item</h1>
+  <p class="sell-intro">Everything you need to price your item and continue to eBay, all in one place.</p>
   <div id="sellItemSummary" class="form-card hidden"></div>
-  <div class="form-card" id="sellEstimateCard"><h2>eBay fee &amp; shipping estimate</h2><p class="note">Planning estimate only. Standard final value fees vary by category and seller status; shipping depends on package and service.</p><label class="field"><span>Listing price ($)</span><input id="sellListingPrice" type="number" min="0" step=".01" value="" placeholder="Filled after item identification"></label><label class="field"><span>Shipping label cost ($)</span><input id="sellShippingCost" type="number" min="0" step=".01" value="" placeholder="Set after identification"></label><label class="field"><span>Shipping charged to buyer ($)</span><input id="sellBuyerShipping" type="number" min="0" step=".01" value="0"></label><label class="field"><span>Estimated eBay fee rate (%)</span><input id="sellFeeRate" type="number" min="0" max="99" step=".1" value="" placeholder="Set after identification"></label><div class="stats"><div class="stat"><span>Estimated eBay fee*</span><strong id="sellFeeAmount">—</strong></div><div class="stat"><span>Estimated proceeds after fee &amp; label</span><strong id="sellNetAmount">—</strong></div></div><p class="note">*This estimate applies the entered fee rate to the item price plus buyer-paid shipping, and adds the $0.30/$0.40 per-order fee. Taxes and category-specific exceptions can change the final amount; confirm in eBay before listing.</p></div>
-
+  <div class="resell-actions">
+    <a class="primary wide resell-link" href="https://www.ebay.com/sl/sell" target="_blank" rel="noopener noreferrer">List an item on eBay ↗</a>
+    <div class="resell-shortcuts">
+      <a class="secondary resell-shortcut" href="https://www.ebay.com/sh/ovw" target="_blank" rel="noopener noreferrer"><strong>Seller Hub</strong><span>Manage listings and sales ↗</span></a>
+      <a class="secondary resell-shortcut" href="https://www.ebay.com/sch/i.html?_sop=13&amp;LH_Sold=1&amp;LH_Complete=1" target="_blank" rel="noopener noreferrer"><strong>Check sold prices</strong><span>See what buyers paid ↗</span></a>
+      <a class="secondary resell-shortcut" href="https://www.ebay.com/ship" target="_blank" rel="noopener noreferrer"><strong>Shipping</strong><span>Prepare sold orders ↗</span></a>
+    </div>
+  </div>
+  <div class="form-card" id="sellEstimateCard">
+    <h2>eBay profit estimator</h2>
+    <p class="note">Enter your expected listing and shipping amounts to estimate what you may keep. eBay fees vary by category and seller status, so confirm the final amount with eBay.</p>
+    <label class="field"><span>Listing price ($)</span><input id="sellListingPrice" type="number" min="0" step=".01" value="" placeholder="Enter your planned price"></label>
+    <label class="field"><span>Shipping label cost ($)</span><input id="sellShippingCost" type="number" min="0" step=".01" value="" placeholder="Enter estimated label cost"></label>
+    <label class="field"><span>Shipping charged to buyer ($)</span><input id="sellBuyerShipping" type="number" min="0" step=".01" value="0"></label>
+    <label class="field"><span>Estimated eBay fee rate (%)</span><input id="sellFeeRate" type="number" min="0" max="99" step=".1" value="" placeholder="Enter fee rate"></label>
+    <div class="stats"><div class="stat"><span>Estimated eBay fee</span><strong id="sellFeeAmount">—</strong></div><div class="stat"><span>Estimated amount you keep</span><strong id="sellNetAmount">—</strong></div></div>
+    <p class="note">Estimate includes the entered fee rate and the applicable per-order fee used by this calculator. Taxes, category-specific fees, and other costs can change your actual proceeds.</p>
+    <button class="primary wide" type="button" id="resellEbayButton">Continue to list on eBay ↗</button>
+  </div>
 </section>
 
 <section class="page" id="savedPage">
@@ -559,7 +577,7 @@ button.secondary,button.quiet{color:#173d25!important}
   <canvas id="cameraCanvas" class="hidden"></canvas>
 </section>
 
-<nav class="bottom-nav" id="bottomNav" aria-label="Main navigation"><button class="nav-btn active" data-page="homePage"><span class="nav-icon">▣</span>Camera</button><button class="nav-btn" data-page="searchPage"><span class="nav-icon">⌕</span>Search</button><button class="nav-btn" data-page="sellPage"><span class="nav-icon">↗</span>Sell</button><button class="nav-btn" data-page="savedPage"><span class="nav-icon">♡</span>Saved</button><button class="nav-btn" data-page="profilePage"><span class="nav-icon">◉</span>Profile</button></nav>
+<nav class="bottom-nav" id="bottomNav" aria-label="Main navigation"><button class="nav-btn active" data-page="homePage"><span class="nav-icon">▣</span>Camera</button><button class="nav-btn" data-page="searchPage"><span class="nav-icon">⌕</span>Search</button><button class="nav-btn" data-page="sellPage"><span class="nav-icon">↗</span>Resell</button><button class="nav-btn" data-page="savedPage"><span class="nav-icon">♡</span>Saved</button><button class="nav-btn" data-page="profilePage"><span class="nav-icon">◉</span>Profile</button></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </main>
 <script>
@@ -1137,6 +1155,11 @@ button.secondary,button.quiet{color:#173d25!important}
   });
   $("marketplaceSearchButton").addEventListener("click",searchSelectedMarketplace);
   $("marketplaceSelect").addEventListener("change",()=>{const value=$("marketplaceSelect").value;$("marketplaceSearchButton").textContent=value==="all"?"Search all apps ↗":"Search "+({ebay:"eBay",vinted:"Vinted",depop:"Depop",poshmark:"Poshmark",mercari:"Mercari",grailed:"Grailed",facebook:"Facebook Marketplace",google:"Google Shopping / web"}[value]||"selected app")+" ↗";});
+  $("resellEbayButton").addEventListener("click",()=>{
+    const q=(lastAnalysis?.item_name||$("itemName")?.value||$("calcName")?.value||"").trim();
+    const url="https://www.ebay.com/sl/sell"+(q?"?title="+encodeURIComponent(q):"");
+    openExternal(url);
+  });
   ["sellListingPrice","sellShippingCost","sellBuyerShipping","sellFeeRate"].forEach(id=>$(id).addEventListener("input",updateSellEstimate));
   $("backToResults").addEventListener("click",()=>showPage("calculatorPage"));
   $("scanAnotherQuick").addEventListener("click",()=>{photoData="";startCamera();});
@@ -1474,6 +1497,28 @@ if ("serviceWorker" in navigator) { window.addEventListener("load", () => naviga
 #calculatorMarketResults .scan-loading{padding:10px 12px!important;margin:5px 0!important;font-size:13px!important}
 #aiResults:empty{display:none!important}
 .scan-disclaimer{font-size:10px!important;line-height:1.35!important;margin:8px 2px 0!important;opacity:.82}
+</style>
+
+<style>
+/* Targeted readability improvements; retain existing theme and overall design. */
+.page h1,.page h2,.page h3,.page strong,.page label span,.page button,.nav-btn{font-weight:850}
+#calculatorMarketResults .price-verdict{font-weight:950;font-size:clamp(19px,4.5vw,24px)}
+#calculatorMarketResults .price-number span{font-weight:900}
+#calculatorMarketResults .price-number strong{font-weight:950}
+#calculatorMarketResults .price-number.primary-number{border-width:2px}
+#calculatorMarketResults .price-report-foot,.scan-disclaimer{font-size:10px;line-height:1.4}
+#sellPage .sell-intro{margin:6px 0 12px}
+#sellPage .resell-actions{margin-top:12px}
+#sellPage .resell-link{display:flex;align-items:center;justify-content:center;text-decoration:none;text-align:center;font-weight:950}
+#sellPage .resell-shortcuts{display:grid;grid-template-columns:1fr;gap:8px;margin-top:9px}
+#sellPage .resell-shortcut{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:10px 13px;text-decoration:none;border-radius:13px;font-size:12px}
+#sellPage .resell-shortcut strong{font-size:13px;font-weight:900}
+#sellPage .resell-shortcut span{font-size:11px;opacity:.82;text-align:right}
+#sellEstimateCard h2{font-weight:950}
+#sellEstimateCard .stats .stat strong{font-size:20px;font-weight:950}
+#sellEstimateCard .note{font-size:10px;line-height:1.4}
+#resellEbayButton{margin-top:12px;font-weight:950}
+@media(min-width:440px){#sellPage .resell-shortcuts{grid-template-columns:1fr 1fr}#sellPage .resell-shortcut:last-child{grid-column:1/-1}}
 </style>
 </body>
 </html>
