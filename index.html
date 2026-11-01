@@ -450,7 +450,6 @@ button.secondary,button.quiet{color:#173d25!important}
         <option value="pride">Pride colors</option>
         <option value="bulldogs">Georgia Bulldogs (red &amp; black)</option>
         <option value="volunteers">Tennessee Volunteers (orange &amp; white)</option>
-        <option value="amanda">Amanda ❤️ — marriage proposal</option>
       </select>
     </label>
 
@@ -971,7 +970,7 @@ button.secondary,button.quiet{color:#173d25!important}
   const PROFILE_KEY = "flipfinder_profile_v1";
   const PREFS_KEY = "flipfinder_preferences_v1";
   function applyAppearance(theme){
-    const supportedThemes=["light","pride","bulldogs","volunteers","amanda"];
+    const supportedThemes=["light","pride","bulldogs","volunteers"];
     const selected=supportedThemes.includes(theme)?theme:"dark";
     document.documentElement.dataset.theme=selected;
     const proposal=$("amandaProposal");
