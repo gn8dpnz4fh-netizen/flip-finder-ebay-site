@@ -1733,3 +1733,8 @@ input::placeholder,textarea::placeholder{color:#536b57!important;opacity:1!impor
 
 .camera-zoom-controls{position:absolute;z-index:5;top:calc(env(safe-area-inset-top,0px) + 76px);left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:10px;padding:7px 10px;border-radius:999px;background:#07130dcc;border:1px solid #ffffff40;backdrop-filter:blur(10px);color:#fff;min-width:190px}.camera-zoom-controls button{width:34px;height:34px;border:0;border-radius:50%;background:#ffffff25;color:#fff;font-size:25px;font-weight:700;line-height:1}.camera-zoom-controls button:disabled{opacity:.4}.camera-zoom-controls span{min-width:30px;text-align:center;font-size:12px;font-weight:850;color:#fff}.camera-page #cameraVideo{transform-origin:center center;will-change:transform}.camera-page .camera-guide{pointer-events:none}@media(max-height:520px){.camera-zoom-controls{top:calc(env(safe-area-inset-top,0px) + 58px)}}
 </style>
+
+<style>
+/* Prevent iPhone Safari from auto-zooming the page when price fields receive focus. */
+input,select,textarea,.price-ask-input,.price-control input{font-size:16px!important}
+</style>
