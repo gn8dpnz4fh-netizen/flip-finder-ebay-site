@@ -810,47 +810,76 @@ button.secondary,button.quiet{color:#173d25!important}
     const required=tokens.length===0?0:(tokens.length<=2?1:Math.max(2,Math.ceil(tokens.length*0.34)));
     let listings=ranked.filter(x=>x.matchCount>=required);
     if(!tokens.length)listings=ranked;
-    const heading=document.createElement("h2");heading.textContent="Your Flip Plan";root.appendChild(heading);
+    const heading=document.createElement("h2");heading.textContent="Your Flip Verdict";root.appendChild(heading);
     const hero=document.createElement("div");hero.className="price-hero";root.appendChild(hero);
-    const head=document.createElement("div");head.className="price-hero-head";const eyebrow=document.createElement("div");eyebrow.className="price-eyebrow";eyebrow.textContent="SOLD-PRICE RESEARCH";const name=document.createElement("div");name.className="price-product-name";name.textContent=q||"Your item";const meta=document.createElement("div");meta.className="price-product-meta";meta.textContent="Using completed-sale results where available — not just what sellers are asking.";head.append(eyebrow,name,meta);hero.appendChild(head);
+    const head=document.createElement("div");head.className="price-hero-head";
+    const eyebrow=document.createElement("div");eyebrow.className="price-eyebrow";eyebrow.textContent="BASED ON SOLD PRICES";
+    const name=document.createElement("div");name.className="price-product-name";name.textContent=q||"Your item";
+    const meta=document.createElement("div");meta.className="price-product-meta";meta.textContent="Uses matching completed sales where available, not just asking prices.";
+    head.append(eyebrow,name,meta);hero.appendChild(head);
     if(!listings.length){
-      const decision=document.createElement("div");decision.className="price-decision unknown";decision.innerHTML='<div class="price-verdict">⚠ NO RELIABLE MATCH YET</div><div class="price-verdict-sub">Flip Finder found sold listings, but could not confidently match their titles to this item. Try adding the exact brand and model, or take a clearer photo of its label or markings. No buy recommendation is being guessed.</div>';hero.appendChild(decision);
-      if(allListings.length){const details=document.createElement("details");const summary=document.createElement("summary");summary.textContent="Review sold listings found ("+allListings.length+")";details.appendChild(summary);allListings.slice(0,10).forEach(item=>{const row=document.createElement("div");row.className="market-result";const text=document.createElement("strong");text.textContent=item.title+" — "+money(item.price);row.appendChild(text);if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Open listing";row.appendChild(a);}details.appendChild(row);});root.appendChild(details);}
-      const ebay="https://www.ebay.com/sch/i.html?_nkw="+encodeURIComponent(q),google="https://www.google.com/search?q="+encodeURIComponent(q+" sold price");const buttons=document.createElement("div");buttons.className="btnrow";const e=document.createElement("button");e.className="primary";e.textContent="Search eBay";e.type="button";e.addEventListener("click",()=>openExternal(ebay));const g=document.createElement("button");g.className="secondary";g.textContent="Search Google";g.type="button";g.addEventListener("click",()=>openExternal(google));buttons.append(e,g);root.appendChild(buttons);return false;
+      const decision=document.createElement("div");decision.className="price-decision unknown";decision.innerHTML='<div class="price-verdict">⚠ NOT ENOUGH MATCHING SALES</div><div class="price-verdict-sub">I can’t give you a trustworthy buy limit without comparable sold prices. Try the exact brand, model, or item name. No price or selling-likelihood guess is being made.</div>';hero.appendChild(decision);
+      if(allListings.length){const details=document.createElement("details");const summary=document.createElement("summary");summary.textContent="Check sold listings found ("+allListings.length+")";details.appendChild(summary);allListings.slice(0,10).forEach(item=>{const row=document.createElement("div");row.className="market-result";const title=document.createElement("strong");title.textContent=item.title+" — "+money(item.price);row.appendChild(title);if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Open listing";row.appendChild(a);}details.appendChild(row);});root.appendChild(details);}
+      const buttons=document.createElement("div");buttons.className="btnrow";
+      const e=document.createElement("button");e.className="primary";e.type="button";e.textContent="Search eBay";e.addEventListener("click",()=>openExternal("https://www.ebay.com/sch/i.html?_nkw="+encodeURIComponent(q)));
+      const g=document.createElement("button");g.className="secondary";g.type="button";g.textContent="Search Google";g.addEventListener("click",()=>openExternal("https://www.google.com/search?q="+encodeURIComponent(q+" sold price")));
+      buttons.append(e,g);root.appendChild(buttons);return false;
     }
     const prices=listings.map(x=>x.price+(Number(x.shipping)||0)).filter(x=>x>0&&Number.isFinite(x));
-    if(!prices.length){const noPrice=document.createElement("div");noPrice.className="status-box";noPrice.textContent="No usable sold prices were returned for this item. Try a more specific search.";hero.appendChild(noPrice);return false;}
+    if(!prices.length){const noPrice=document.createElement("div");noPrice.className="status-box";noPrice.textContent="No usable sold prices were returned. Try a more specific item name.";hero.appendChild(noPrice);return false;}
     const marketPrice=median(prices);
-    lastMarketResearch={price:marketPrice,low:quantile(prices,0.1),high:quantile(prices,0.9),count:listings.length,source:"completed sales"};
+    const low=quantile(prices,0.1),high=quantile(prices,0.9);
+    lastMarketResearch={price:marketPrice,low,high,count:listings.length,source:"completed sales"};
+    const estimatedFeeRate=0.13;
+    const estimatedFees=marketPrice*estimatedFeeRate;
     const targetProfit=Math.max(10,Math.round(marketPrice*0.25*100)/100);
-    let askPrice=0,otherCosts=0,profitGoal=targetProfit;
-    const decision=document.createElement("div");decision.className="price-decision unknown";const verdict=document.createElement("div");verdict.className="price-verdict";const verdictSub=document.createElement("div");verdictSub.className="price-verdict-sub";decision.append(verdict,verdictSub);hero.appendChild(decision);
-    const grid=document.createElement("div");grid.className="price-decision-grid";const makeNumber=(label,initial,subtext,primary=false)=>{const el=document.createElement("div");el.className="price-number"+(primary?" primary-number":"");const cap=document.createElement("span");cap.textContent=label;const amount=document.createElement("strong");amount.textContent=money(initial);const sub=document.createElement("small");sub.textContent=subtext;el.append(cap,amount,sub);grid.appendChild(el);return amount;};
-    const sellAmount=makeNumber("SELL AROUND",marketPrice,"Typical completed-sale price");
-    const buyAmount=makeNumber("PAY NO MORE THAN",0,"Leaves room for estimated costs and profit",true);
-    const profitAmount=makeNumber("ESTIMATED PROFIT",0,"At the asking price you enter");
-    const rangeAmount=makeNumber("TYPICAL SOLD RANGE",quantile(prices,0.1),"Middle 80% of the price sample");rangeAmount.textContent=money(quantile(prices,0.1))+"–"+money(quantile(prices,0.9));
+    let paid=0,extraCosts=0;
+    const decision=document.createElement("div");decision.className="price-decision unknown";
+    const verdict=document.createElement("div");verdict.className="price-verdict";
+    const verdictSub=document.createElement("div");verdictSub.className="price-verdict-sub";
+    decision.append(verdict,verdictSub);hero.appendChild(decision);
+    const grid=document.createElement("div");grid.className="price-decision-grid";
+    const makeMetric=(label,initial,subtext,primary=false)=>{const el=document.createElement("div");el.className="price-number"+(primary?" primary-number":"");const cap=document.createElement("span");cap.textContent=label;const amount=document.createElement("strong");amount.textContent=initial;const sub=document.createElement("small");sub.textContent=subtext;el.append(cap,amount,sub);grid.appendChild(el);return amount;};
+    makeMetric("TYPICAL SOLD PRICE",money(marketPrice),"Median of "+listings.length+" matching sold results");
+    const buyAmount=makeMetric("MAX YOU SHOULD PAY",money(Math.max(0,marketPrice-estimatedFees-targetProfit)),"Keeps room for fees and about 25% profit",true);
+    const profitAmount=makeMetric("POTENTIAL PROFIT","Enter your price","After estimated 13% selling fees");
+    const demandLabel=listings.length>=10?"Higher":listings.length>=4?"Moderate":"Unclear";
+    makeMetric("LIKELIHOOD OF SELLING",demandLabel,listings.length+" matching sold result"+(listings.length===1?"":"s")+" found");
     hero.appendChild(grid);
-    const chipRow=document.createElement("div");chipRow.className="price-chip-row";const chip=document.createElement("span");chip.className="price-chip";chip.textContent=listings.length+" likely matching sold listing"+(listings.length===1?"":"s");const chip2=document.createElement("span");chip2.className="price-chip";chip2.textContent="Median used for estimate";chipRow.append(chip,chip2);hero.appendChild(chipRow);
-    const inputArea=document.createElement("div");inputArea.className="price-input-wrap";const askLabel=document.createElement("label");askLabel.textContent="How much is the seller asking?";const askInput=document.createElement("input");askInput.className="price-ask-input";askInput.type="number";askInput.min="0";askInput.step="0.01";askInput.placeholder="Enter asking price (e.g. 20)";askInput.setAttribute("aria-label","Seller asking price");inputArea.append(askLabel,askInput);hero.appendChild(inputArea);
-    const controls=document.createElement("div");controls.className="price-controls";
-    function addControl(labelText,val,min,max,step){const wrap=document.createElement("div");wrap.className="price-control";const label=document.createElement("label");label.textContent=labelText;const inp=document.createElement("input");inp.type="number";inp.min=String(min);if(max!=null)inp.max=String(max);inp.step=String(step);inp.value=String(val);wrap.append(label,inp);controls.appendChild(wrap);return inp;}
-    const costInput=addControl("Other buying costs ($)",otherCosts,0,100000,1);
-    const goalInput=addControl("Profit you want ($)",profitGoal,0,100000,1);
-    hero.appendChild(controls);
+    const soldRange=document.createElement("div");soldRange.className="price-chip-row";
+    const rangeChip=document.createElement("span");rangeChip.className="price-chip";rangeChip.textContent="Typical sold range: "+money(low)+"–"+money(high);
+    const feeChip=document.createElement("span");feeChip.className="price-chip";feeChip.textContent="Estimated selling fees: 13%";
+    soldRange.append(rangeChip,feeChip);hero.appendChild(soldRange);
+    const inputArea=document.createElement("div");inputArea.className="price-input-wrap";
+    const paidLabel=document.createElement("label");paidLabel.textContent="How much will you pay?";
+    const paidInput=document.createElement("input");paidInput.className="price-ask-input";paidInput.type="number";paidInput.min="0";paidInput.step="0.01";paidInput.placeholder="Enter purchase price";paidInput.setAttribute("aria-label","How much will you pay?");
+    inputArea.append(paidLabel,paidInput);hero.appendChild(inputArea);
+    const extraWrap=document.createElement("details");extraWrap.className="price-extra-costs";
+    const extraSummary=document.createElement("summary");extraSummary.textContent="Add shipping or other costs (optional)";extraWrap.appendChild(extraSummary);
+    const extraInputWrap=document.createElement("div");extraInputWrap.className="price-control";
+    const extraLabel=document.createElement("label");extraLabel.textContent="Extra costs ($)";
+    const extraInput=document.createElement("input");extraInput.type="number";extraInput.min="0";extraInput.step="0.01";extraInput.value="0";extraInput.setAttribute("aria-label","Extra shipping or other costs");
+    extraInputWrap.append(extraLabel,extraInput);extraWrap.appendChild(extraInputWrap);hero.appendChild(extraWrap);
     function updateDecision(){
-      askPrice=Math.max(0,Number(askInput.value)||0);otherCosts=Math.max(0,Number(costInput.value)||0);profitGoal=Math.max(0,Number(goalInput.value)||0);const expectedSale=marketPrice;const maxBuy=Math.max(0,expectedSale-otherCosts-profitGoal);const estimatedProfit=expectedSale-otherCosts-askPrice;
-      sellAmount.textContent=money(expectedSale);buyAmount.textContent=money(maxBuy);profitAmount.textContent=askInput.value.trim()?money(estimatedProfit):"—";
-      profitAmount.style.color=askInput.value.trim()?(estimatedProfit>=profitGoal?"#66efb0":estimatedProfit>0?"#ffe39a":"#ff8e9d"):"var(--text)";
-      if(!askInput.value.trim()||askPrice<=0){decision.className="price-decision unknown";verdict.textContent="⌁ ENTER THE ASKING PRICE";verdictSub.textContent="Flip Finder has the sold-price estimate. Enter the seller's price to see GOOD FLIP or BAD FLIP.";}
-      else if(askPrice<=maxBuy){decision.className="price-decision good";verdict.textContent="✓ GOOD FLIP";verdictSub.textContent="This price is within your buy limit. Estimated profit is "+money(estimatedProfit)+" after other buying costs.";}
-      else{decision.className="price-decision bad";verdict.textContent="✕ BAD FLIP AT THIS PRICE";verdictSub.textContent="The asking price is above your buy limit. Offer no more than "+money(maxBuy)+" to target "+money(profitGoal)+" profit.";}
-      if(estimatedProfit<0&&askInput.value.trim())profitAmount.style.color="#ff8e9d";
+      paid=Math.max(0,Number(paidInput.value)||0);extraCosts=Math.max(0,Number(extraInput.value)||0);
+      const fees=marketPrice*estimatedFeeRate;
+      const maxBuy=Math.max(0,marketPrice-fees-extraCosts-targetProfit);
+      const estimatedProfit=marketPrice-fees-extraCosts-paid;
+      buyAmount.textContent=money(maxBuy);
+      profitAmount.textContent=paidInput.value.trim()?money(estimatedProfit):"Enter your price";
+      const hasPrice=paidInput.value.trim()!==""&&Number(paidInput.value)>=0;
+      if(!hasPrice){decision.className="price-decision unknown";verdict.textContent="⌁ ENTER YOUR BUY PRICE";verdictSub.textContent="Type what you would pay to see your estimated profit and final verdict.";}
+      else if(paid<=maxBuy){decision.className="price-decision good";verdict.textContent="✓ GOOD FLIP";verdictSub.textContent="This price leaves room for estimated selling fees and your target profit.";}
+      else{decision.className="price-decision bad";verdict.textContent="✕ BAD FLIP AT THIS PRICE";verdictSub.textContent="The price is above your buy limit. Try offering "+money(maxBuy)+" or less.";}
+      if(hasPrice&&estimatedProfit<0)profitAmount.style.color="#ff8e9d";else profitAmount.style.color="";
     }
-    [askInput,costInput,goalInput].forEach(input=>input.addEventListener("input",updateDecision));updateDecision();
-    const note=document.createElement("div");note.className="price-report-foot";note.textContent="Buy estimate uses the median of likely matching completed sales, your purchase-side costs and profit goal. Seller fees and shipping estimates are kept on the Sell Online page. Actual sale price, condition and time-to-sell can differ. Check that sold items match this exact model and condition.";hero.appendChild(note);
-    const details=document.createElement("details");const summary=document.createElement("summary");summary.textContent="View matching sold listings ("+listings.length+")";details.appendChild(summary);listings.slice(0,30).forEach(item=>{const row=document.createElement("div");row.className="market-result";if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent=item.title+" — "+money(item.price+(Number(item.shipping)||0));row.appendChild(a);}else{const title=document.createElement("strong");title.textContent=item.title+" — "+money(item.price+(Number(item.shipping)||0));row.appendChild(title);}const meta=document.createElement("p");meta.className="note";meta.textContent=[item.condition,item.soldDate].filter(Boolean).join(" · ")||"SoldGraph eBay sold result";row.appendChild(meta);details.appendChild(row);});root.appendChild(details);return true;
+    [paidInput,extraInput].forEach(input=>input.addEventListener("input",updateDecision));updateDecision();
+    const note=document.createElement("div");note.className="price-report-foot";note.textContent="Selling likelihood is a simple guide based on how many matching sold results were found, not a guaranteed probability or time-to-sell prediction. Profit uses the median sold price and an estimated 13% selling fee; actual fees, shipping, condition and sale price vary. Check the matching sold listings below before buying.";hero.appendChild(note);
+    const details=document.createElement("details");const summary=document.createElement("summary");summary.textContent="View matching sold listings ("+listings.length+")";details.appendChild(summary);
+    listings.slice(0,30).forEach(item=>{const row=document.createElement("div");row.className="market-result";if(item.url){const a=document.createElement("a");a.href=affiliateUrl(item.url);a.target="_blank";a.rel="noopener noreferrer";a.textContent=item.title+" — "+money(item.price+(Number(item.shipping)||0));row.appendChild(a);}else{const title=document.createElement("strong");title.textContent=item.title+" — "+money(item.price+(Number(item.shipping)||0));row.appendChild(title);}const meta=document.createElement("p");meta.className="note";meta.textContent=[item.condition,item.soldDate].filter(Boolean).join(" · ")||"Completed-sale result";row.appendChild(meta);details.appendChild(row);});
+    root.appendChild(details);return true;
   }
+
   function renderActiveFallback(data,targetId,q){
     const root=$(targetId);root.replaceChildren();root.classList.add("price-report");
     const markets=Array.isArray(data.marketplaces)?data.marketplaces:[];
