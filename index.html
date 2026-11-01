@@ -296,6 +296,16 @@ button.secondary,button.quiet{color:#173d25!important}
     <p>Your 7-day Flip Finder Pro trial is being activated. You can continue using the app below.</p>
     <button class="primary wide" id="continueAfterSubscription" type="button" style="margin-top:10px">Continue to Flip Finder</button>
   </div>
+  <div class="amanda-proposal hidden" id="amandaProposal" aria-live="polite">
+    <div class="proposal-sparkle">✦ 💍 ✦</div>
+    <p class="proposal-kicker">A question from the heart</p>
+    <h2 id="proposalQuestion">Amanda, will you marry me?</h2>
+    <p id="proposalMessage">You mean so much to me. I want to keep choosing you and building a future together.</p>
+    <div class="proposal-actions" id="proposalActions">
+      <button class="primary" id="proposalYes" type="button">Yes! 💍</button>
+      <button class="secondary" id="proposalThink" type="button">I need a moment ❤️</button>
+    </div>
+  </div>
   <div class="scan-card simple-scan">
     <div class="scan-orb"><div class="scan-symbol">⌗</div></div>
     <h2>Find your next flip</h2>
@@ -412,52 +422,20 @@ button.secondary,button.quiet{color:#173d25!important}
       <div class="product-placeholder" aria-hidden="true">👤</div>
       <div>
         <h2 id="accountGreeting">Your profile</h2>
-        <p id="accountStatus">Checking account status...</p>
+        <p>Account access and sign-out are managed below.</p>
       </div>
     </div>
 
-    <label class="field">
-      <span>Display name</span>
-      <input id="profileName" maxlength="40"
-        placeholder="What should we call you?">
-    </label>
-
-    <label class="field">
-      <span>Email address</span>
-      <input id="profileEmail" type="email" maxlength="120"
-        placeholder="you@example.com" autocomplete="email">
-    </label>
-
-    <label class="field">
-      <span>Password</span>
-      <input id="accountPassword" type="password" minlength="8"
-        placeholder="At least 8 characters"
-        autocomplete="current-password">
-    </label>
-
-    <button class="primary wide" id="createAccount" type="button">
-      Create Account
-    </button>
-
-    <button class="secondary wide" id="signIn" type="button"
-      style="margin-top:10px">
-      Sign In
-    </button>
-
-    <button class="secondary wide" id="signOut" type="button" hidden
-      style="margin-top:10px">
-      Sign Out
-    </button>
-
-    <button class="secondary wide" id="saveProfile" type="button"
-      style="margin-top:10px">
-      Save Profile on This Device
-    </button>
-
-    <p class="note">
-      Create an account to sign in. Saved flips still need account
-      syncing before they will be available across devices.
-    </p>
+    <p id="accountStatus" role="status">Checking account status...</p>
+    <!-- Hidden compatibility fields: account creation and sign-in happen on the opening screen. -->
+    <div class="hidden" aria-hidden="true">
+      <input id="profileName" maxlength="40">
+      <input id="profileEmail" type="email" maxlength="120">
+      <input id="accountPassword" type="password">
+      <button id="createAccount" type="button">Create Account</button>
+      <button id="signIn" type="button">Sign In</button>
+      <button id="saveProfile" type="button">Save Profile</button>
+    </div>
   </div>
 
   <div class="form-card">
@@ -471,6 +449,8 @@ button.secondary,button.quiet{color:#173d25!important}
         <option value="light">Light green</option>
         <option value="pride">Pride colors</option>
         <option value="bulldogs">Georgia Bulldogs (red &amp; black)</option>
+        <option value="volunteers">Tennessee Volunteers (orange &amp; white)</option>
+        <option value="amanda">Amanda ❤️ — marriage proposal</option>
       </select>
     </label>
 
@@ -496,6 +476,12 @@ button.secondary,button.quiet{color:#173d25!important}
       style="margin-top:10px" type="button">
       Save preferences
     </button>
+  </div>
+
+  <div class="form-card" id="signOutPanel">
+    <h2>Account options</h2>
+    <p>Account creation and sign-in happen when you first open Flip Finder.</p>
+    <button class="secondary wide" id="signOut" type="button" hidden style="margin-top:12px">Sign Out</button>
   </div>
 
   <div class="form-card">
@@ -985,7 +971,13 @@ button.secondary,button.quiet{color:#173d25!important}
   $("settingsBtn").addEventListener("click",()=>showPage("profilePage"));
   const PROFILE_KEY = "flipfinder_profile_v1";
   const PREFS_KEY = "flipfinder_preferences_v1";
-  function applyAppearance(theme){document.documentElement.dataset.theme=["light","pride","bulldogs"].includes(theme)?theme:"dark";}
+  function applyAppearance(theme){
+    const supportedThemes=["light","pride","bulldogs","volunteers","amanda"];
+    const selected=supportedThemes.includes(theme)?theme:"dark";
+    document.documentElement.dataset.theme=selected;
+    const proposal=$("amandaProposal");
+    if(proposal)proposal.classList.toggle("hidden",selected!=="amanda");
+  }
   function savePreferencesLocally(){
     try { localStorage.setItem(PREFS_KEY, JSON.stringify({
       appearance:$("appearanceSelect").value,
@@ -1000,6 +992,16 @@ button.secondary,button.quiet{color:#173d25!important}
   });
   $("researchNotices").addEventListener("change",savePreferencesLocally);
   $("confirmDelete").addEventListener("change",savePreferencesLocally);
+  $("proposalYes")?.addEventListener("click",()=>{
+    $("proposalQuestion").textContent="That means the world to me, Amanda! 💍❤️";
+    $("proposalMessage").textContent="Here’s to our next chapter together.";
+    $("proposalActions").classList.add("hidden");
+  });
+  $("proposalThink")?.addEventListener("click",()=>{
+    $("proposalQuestion").textContent="Take all the time you need, Amanda ❤️";
+    $("proposalMessage").textContent="There’s no pressure to answer right now. I care about you, and I want you to feel comfortable sharing what’s in your heart.";
+    $("proposalActions").classList.add("hidden");
+  });
   $("helpOpenSearch")?.addEventListener("click",()=>showPage("searchPage"));
   $("helpOpenProfit")?.addEventListener("click",()=>showPage("calculatorPage"));
   $("helpCameraTips")?.addEventListener("click",()=>toast("Use bright, even light. Fill the frame, keep the item steady, and include labels, model numbers, condition, and any damage."));
@@ -1534,6 +1536,33 @@ if ("serviceWorker" in navigator) { window.addEventListener("load", () => naviga
 #resellEbayButton{margin-top:12px;font-weight:950}
 @media(min-width:440px){#sellPage .resell-shortcuts{grid-template-columns:1fr 1fr}#sellPage .resell-shortcut:last-child{grid-column:1/-1}}
 </style>
+
+<style>
+:root[data-theme="volunteers"]{color-scheme:dark;--bg:#171717;--panel:#242424;--panel2:#303030;--line:#f07828;--text:#fffaf5;--muted:#f3d8c5;--green:#ff8200;--green2:#d95f00;--red:#ff6575;--gold:#ffd27a}
+:root[data-theme="volunteers"] body,:root[data-theme="volunteers"] .app{background:radial-gradient(ellipse at 50% -10%,#713508 0,transparent 48%),#171717!important;color:#fffaf5!important}
+:root[data-theme="volunteers"] .topbar,:root[data-theme="volunteers"] .results-quick-actions,:root[data-theme="volunteers"] .bottom-nav{background:#201a16f5!important;border-color:#f07828!important}
+:root[data-theme="volunteers"] .brand span,:root[data-theme="volunteers"] .eyebrow,:root[data-theme="volunteers"] .text-link,:root[data-theme="volunteers"] .nav-btn.active{color:#ff8200!important}
+:root[data-theme="volunteers"] .primary{background:linear-gradient(135deg,#ff9b32,#e66c00)!important;color:#211104!important}
+:root[data-theme="volunteers"] .form-card,:root[data-theme="volunteers"] .result-card,:root[data-theme="volunteers"] .saved-card,:root[data-theme="volunteers"] .empty,:root[data-theme="volunteers"] .status-box,:root[data-theme="volunteers"] .market-result,:root[data-theme="volunteers"] .stat,:root[data-theme="volunteers"] .price-number,:root[data-theme="volunteers"] .identification-card{background:linear-gradient(145deg,#30251e,#1b1a19)!important;color:#fffaf5!important;border-color:#a94e0c!important}
+:root[data-theme="volunteers"] .price-number.primary-number,:root[data-theme="volunteers"] .stat.profit,:root[data-theme="volunteers"] .stat.recommended{background:linear-gradient(135deg,#fff0df,#ffbd79)!important;border-color:#ff8200!important}
+:root[data-theme="volunteers"] .price-number.primary-number *,:root[data-theme="volunteers"] .stat.profit *,:root[data-theme="volunteers"] .stat.recommended *{color:#542600!important}
+:root[data-theme="amanda"]{color-scheme:light;--bg:#fff0f5;--panel:#fff8fb;--panel2:#ffe2ec;--line:#e9a4c0;--text:#53243d;--muted:#81546c;--green:#d93678;--green2:#a91d58;--red:#c52b53;--gold:#b8860b}
+:root[data-theme="amanda"] body,:root[data-theme="amanda"] .app{background:radial-gradient(ellipse at 50% -8%,#ffc8dd 0,transparent 54%),linear-gradient(145deg,#fff4f8,#ffe2ed)!important;color:#53243d!important}
+:root[data-theme="amanda"] .topbar,:root[data-theme="amanda"] .bottom-nav,:root[data-theme="amanda"] .results-quick-actions{background:#fff5f9f5!important;border-color:#e9a4c0!important}
+:root[data-theme="amanda"] .brand span,:root[data-theme="amanda"] .eyebrow,:root[data-theme="amanda"] .text-link,:root[data-theme="amanda"] .nav-btn.active{color:#c32b6d!important}
+:root[data-theme="amanda"] .primary{background:linear-gradient(135deg,#f46fa5,#ce2f73)!important;color:#fff!important;box-shadow:0 8px 24px #ce2f7330!important}
+:root[data-theme="amanda"] .form-card,:root[data-theme="amanda"] .result-card,:root[data-theme="amanda"] .saved-card,:root[data-theme="amanda"] .empty,:root[data-theme="amanda"] .status-box,:root[data-theme="amanda"] .market-result,:root[data-theme="amanda"] .stat,:root[data-theme="amanda"] .price-number,:root[data-theme="amanda"] .identification-card{background:linear-gradient(145deg,#fffafd,#ffe8f0)!important;color:#53243d!important;border-color:#e9a4c0!important}
+:root[data-theme="amanda"] .field span,:root[data-theme="amanda"] .page p,:root[data-theme="amanda"] .note,:root[data-theme="amanda"] .disclaimer{color:#81546c!important}
+.amanda-proposal{margin:0 0 14px;padding:23px 18px 20px;text-align:center;border-radius:24px;border:2px solid #eaa0bf;background:radial-gradient(circle at 50% 0,#fff 0,#fff4f8 48%,#ffd9e8 100%);box-shadow:0 12px 34px #c52b531c;color:#632342}
+.amanda-proposal .proposal-sparkle{font-size:28px;letter-spacing:5px;margin-bottom:8px}
+.amanda-proposal .proposal-kicker{font-size:10px!important;font-weight:900!important;letter-spacing:2px;text-transform:uppercase;color:#c32b6d!important}
+.amanda-proposal h2{font-size:clamp(23px,6vw,31px)!important;line-height:1.15;margin:11px 0;color:#a91d58!important;font-weight:950!important}
+.amanda-proposal p:not(.proposal-kicker){font-size:14px!important;line-height:1.6!important;color:#81546c!important}
+.proposal-actions{display:grid;gap:9px;margin-top:16px}
+.proposal-actions button{min-height:47px}
+:root[data-theme="amanda"] .scan-card{background:linear-gradient(135deg,#fff8fb,#ffd8e7,#f7aeca)!important;border-color:#e9a4c0!important}
+</style>
+
 </body>
 </html>
 
