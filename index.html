@@ -349,7 +349,23 @@ button.secondary,button.quiet{color:#173d25!important}
   <div id="aiResults"></div>
   <div id="calculatorMarketResults"></div>
 
-  <!-- Single marketplace search panel, directly on item results -->
+  <details class="manual-profit-details">
+    <summary>Optional: manual profit calculator</summary>
+    <div class="form-card" style="margin-top:10px">
+      <label class="field"><span>Item name</span><input id="calcName" placeholder="e.g. Vintage game console"></label>
+      <div class="two-col"><label class="field"><span>Purchase cost ($)</span><input id="cost" type="number" min="0" step=".01" value="0"></label><label class="field"><span>Expected selling price ($)</span><input id="value" type="number" min="0" step=".01" value="0"></label></div>
+      <label class="field"><span>Estimated selling fees ($)</span><input id="fees" type="number" min="0" step=".01" value="0"></label>
+      <div class="stats"><div class="stat"><span>Estimated profit</span><strong id="profit">$0.00</strong></div><div class="stat"><span>Return on investment</span><strong id="roi">0%</strong></div></div>
+      <button class="primary wide" id="saveFlip" style="margin-top:12px">♡ Save this flip</button>
+    </div>
+  </details>
+</section>
+
+<section class="page" id="sellPage">
+  <div class="eyebrow">Your selling tools</div><h1>Resell your item</h1>
+  <p class="sell-intro">Everything you need to price your item and continue to eBay, all in one place.</p>
+  <div id="sellItemSummary" class="form-card hidden"></div>
+  <!-- Marketplace search lives here so scan results stay simple. -->
   <div class="marketplace-search-panel form-card" id="marketplaceSearchPanel">
     <h2>Search marketplaces</h2>
     <p class="note">Choose a marketplace to compare current listings. “All marketplaces” opens a broad Google search; live sold-price data from every site is not guaranteed.</p>
@@ -369,22 +385,6 @@ button.secondary,button.quiet{color:#173d25!important}
     <button class="primary wide" id="marketplaceSearchButton" type="button">Search selected marketplace ↗</button>
     
   </div>
-  <details class="manual-profit-details">
-    <summary>Optional: manual profit calculator</summary>
-    <div class="form-card" style="margin-top:10px">
-      <label class="field"><span>Item name</span><input id="calcName" placeholder="e.g. Vintage game console"></label>
-      <div class="two-col"><label class="field"><span>Purchase cost ($)</span><input id="cost" type="number" min="0" step=".01" value="0"></label><label class="field"><span>Expected selling price ($)</span><input id="value" type="number" min="0" step=".01" value="0"></label></div>
-      <label class="field"><span>Estimated selling fees ($)</span><input id="fees" type="number" min="0" step=".01" value="0"></label>
-      <div class="stats"><div class="stat"><span>Estimated profit</span><strong id="profit">$0.00</strong></div><div class="stat"><span>Return on investment</span><strong id="roi">0%</strong></div></div>
-      <button class="primary wide" id="saveFlip" style="margin-top:12px">♡ Save this flip</button>
-    </div>
-  </details>
-</section>
-
-<section class="page" id="sellPage">
-  <div class="eyebrow">Your selling tools</div><h1>Resell your item</h1>
-  <p class="sell-intro">Everything you need to price your item and continue to eBay, all in one place.</p>
-  <div id="sellItemSummary" class="form-card hidden"></div>
   <div class="resell-actions">
     <a class="primary wide resell-link" href="https://www.ebay.com/sl/sell" target="_blank" rel="noopener noreferrer">List an item on eBay ↗</a>
     <div class="resell-shortcuts">
