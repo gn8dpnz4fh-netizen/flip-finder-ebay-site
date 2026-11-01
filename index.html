@@ -637,7 +637,7 @@ button.secondary,button.quiet{color:#173d25!important}
       return;
     }
     navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:facingMode},width:{ideal:2560},height:{ideal:1440}}}).then(async s=>{
-      if(stream)s.getTracks().forEach(t=>t.stop());
+      if(stream)stream.getTracks().forEach(t=>t.stop());
       stream=s;
       const video=$("cameraVideo");
       const cameraTrack=s.getVideoTracks&&s.getVideoTracks()[0];
@@ -648,13 +648,20 @@ button.secondary,button.quiet{color:#173d25!important}
       $("cameraFallbackTitle").textContent="Camera readying…";
       $("cameraFallbackText").textContent="Hold your item in the frame. The camera preview will appear here.";
       try {
-        await video.play();
+        // Listen before play so a fast loadedmetadata event cannot be missed.
         if (!video.videoWidth) {
           await new Promise((resolve,reject)=>{
-            const timer=setTimeout(()=>reject(new Error("Camera preview timed out")),5000);
-            video.addEventListener("loadedmetadata",()=>{clearTimeout(timer);resolve();},{once:true});
+            const cleanup=()=>{clearTimeout(timer);video.removeEventListener("loadedmetadata",ready);video.removeEventListener("canplay",ready);};
+            const ready=()=>{if(video.videoWidth){cleanup();resolve();}};
+            const timer=setTimeout(()=>{cleanup();reject(new Error("Camera preview timed out"));},8000);
+            video.addEventListener("loadedmetadata",ready);
+            video.addEventListener("canplay",ready);
+            video.play().then(ready).catch(error=>{cleanup();reject(error);});
           });
+        } else {
+          await video.play();
         }
+        if (!video.videoWidth) throw new Error("Camera preview has no video frames yet.");
         $("cameraFallback").classList.add("hidden");
         $("cameraInstruction").textContent="Center the item inside the frame";
       } catch(playError) {
@@ -1200,7 +1207,13 @@ button.secondary,button.quiet{color:#173d25!important}
   window.addEventListener("pagehide",stopCamera);
   renderSaved();calculate();
   // Open the camera as the first screen. If permission is denied, the user can retry or upload a photo.
-  window.addEventListener("load",()=>{if(window.flipFinderAuthenticated && !document.getElementById("cameraPage").classList.contains("active"))startCamera();},{once:true});
+  window.addEventListener("flipfinder:authenticated",()=>{
+    if(window.flipFinderAuthenticated && !stream) startCamera();
+  });
+  // Fallback in case Supabase restored the session before this listener attached.
+  window.addEventListener("load",()=>{
+    if(window.flipFinderAuthenticated && !stream) startCamera();
+  },{once:true});
 })();
 </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1349,6 +1362,8 @@ function updateAccountStatus(user) {
   if (user) {
     window.flipFinderCurrentUser = user;
     hideAuthGate();
+    // Supabase can restore the session after the page-load event has fired.
+    window.dispatchEvent(new Event("flipfinder:authenticated"));
     accountStatus.textContent = `Signed in as ${user.email}`;
     gateEmail.value = user.email || gateEmail.value;
     createAccountBtn.hidden = true;
