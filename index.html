@@ -255,6 +255,13 @@ button.secondary,button.quiet{color:#173d25!important}
 .toast,.toast *{color:#123e24!important}
 .price-report details summary{color:#123e24!important}
 
+
+/* Small, low-distraction sponsored placements: Free only; never show to Pro users. */
+.ff-ad-slot{display:none;margin:14px 0 8px;padding:10px 12px;border:1px solid #294533;border-radius:13px;background:#0b1710;gap:10px;align-items:center;min-height:64px}
+.ff-ad-slot.is-visible{display:flex}
+.ff-ad-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#91a99a;font-weight:850;white-space:nowrap}
+.ff-ad-copy{flex:1;min-width:0}.ff-ad-copy strong{display:block;color:#e8f7ec;font-size:12px;line-height:1.3}.ff-ad-copy p{font-size:10px;line-height:1.35;margin-top:3px;color:#a8bdae}
+.ff-ad-link{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border:1px solid #315a3e;border-radius:9px;color:#baf4cd;text-decoration:none;font-size:10px;font-weight:850;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -335,6 +342,7 @@ button.secondary,button.quiet{color:#173d25!important}
       <p>Enter an item name above, then choose <strong>Check available prices</strong>. If automatic research is unavailable, use the eBay and Google buttons to see current listings.</p>
     </div>
   </div>
+  <aside class="ff-ad-slot" data-free-ad aria-label="Sponsored marketplace promotion"><span class="ff-ad-label">Sponsored</span><div class="ff-ad-copy"><strong>Find deals for your next flip</strong><p>Browse current marketplace listings and compare prices.</p></div><a class="ff-ad-link" href="https://www.google.com/shopping" target="_blank" rel="noopener noreferrer">Explore deals ↗</a></aside>
   <p class="disclaimer"><strong>Affiliate disclosure:</strong> Flip Finder may earn a commission on qualifying eBay purchases through affiliate links, at no extra cost to you. Commissions depend on program terms.</p>
 </section>
 
@@ -385,6 +393,7 @@ button.secondary,button.quiet{color:#173d25!important}
     <button class="primary wide" id="marketplaceSearchButton" type="button">Search selected marketplace ↗</button>
     
   </div>
+  <aside class="ff-ad-slot" data-free-ad aria-label="Sponsored marketplace promotion"><span class="ff-ad-label">Sponsored</span><div class="ff-ad-copy"><strong>Looking for your next profitable find?</strong><p>Compare offers before you buy.</p></div><a class="ff-ad-link" href="https://www.google.com/shopping" target="_blank" rel="noopener noreferrer">Browse deals ↗</a></aside>
   <div class="resell-actions">
     <a class="primary wide resell-link" href="https://www.ebay.com/sl/sell" target="_blank" rel="noopener noreferrer">List an item on eBay ↗</a>
     <div class="resell-shortcuts">
@@ -575,40 +584,27 @@ button.secondary,button.quiet{color:#173d25!important}
   function money(n) { return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(Number(n)||0); }
   function safeText(value) { return String(value == null ? "" : value); }
   function toast(message) { const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2700); }
-  const FREE_SCAN_LIMIT = 5;
+  const FREE_SCAN_LIMIT = 5; // Retained for compatibility; Free mode is ad-supported rather than blocked.
+  function updateFreeAdVisibility() {
+    const isPro = window.flipFinderPlan === "pro";
+    document.querySelectorAll("[data-free-ad]").forEach(slot => {
+      slot.classList.toggle("is-visible", !isPro);
+      slot.setAttribute("aria-hidden", isPro ? "true" : "false");
+    });
+  }
   function scanCountKey(userId) { return "flipfinder_successful_scans_" + (userId || "this_device"); }
   async function recordSuccessfulScan() {
-    if (window.flipFinderPlan === "pro") return;
-    let userId = "this_device";
-    try { const {data}=await supabaseClient.auth.getUser(); if(data?.user?.id) userId=data.user.id; } catch(e) {}
-    const key=scanCountKey(userId);
-    let count=0;
-    try { count=Number(localStorage.getItem(key)||0); } catch(e) {}
-    count+=1;
-    try { localStorage.setItem(key,String(count)); } catch(e) {}
-    if(count>=FREE_SCAN_LIMIT && window.flipFinderPlan!=="pro") {
-      const modal=$("scanPaywall"); if(modal) modal.classList.remove("hidden");
-    }
+    // Free users can keep using core scanning; ads support the free plan.
+    updateFreeAdVisibility();
   }
   async function enforceFreeScanGate(user) {
-    if (window.flipFinderPlan === "pro") {
-      $("scanPaywall")?.classList.add("hidden");
-      return;
-    }
-    let userId = user && user.id ? user.id : "this_device";
-    let count = 0;
-    try { count = Number(localStorage.getItem(scanCountKey(userId)) || 0); } catch (e) {}
-    if (count >= FREE_SCAN_LIMIT) {
-      stopCamera();
-      const modal = $("scanPaywall");
-      if (modal) modal.classList.remove("hidden");
-    }
+    // Never force a subscription to continue using Free mode.
+    $("scanPaywall")?.classList.add("hidden");
+    updateFreeAdVisibility();
   }
   function freeScanLimitReached() {
-    if (window.flipFinderPlan === "pro") return false;
-    let userId = "this_device";
-    try { const storedUser = window.flipFinderCurrentUser; if (storedUser && storedUser.id) userId = storedUser.id; } catch(e) {}
-    try { return Number(localStorage.getItem(scanCountKey(userId)) || 0) >= FREE_SCAN_LIMIT; } catch(e) { return false; }
+    // Free mode remains available; Pro unlocks the ad-free experience.
+    return false;
   }
 
   function showPage(id) {
@@ -1335,6 +1331,7 @@ gateCreate.addEventListener("click", async () => {
 });
 
 window.flipFinderPlan = "free";
+updateFreeAdVisibility();
 
 async function refreshSubscriptionStatus(user) {
   const proButton = document.getElementById("proInfo");
@@ -1359,6 +1356,7 @@ async function refreshSubscriptionStatus(user) {
 
     if (profile && profile.subscription_status === "pro") {
       window.flipFinderPlan = "pro";
+      updateFreeAdVisibility();
       window.flipFinderCurrentUser = user;
       $("scanPaywall")?.classList.add("hidden");
       accountStatus.textContent = `Signed in as ${user.email} · Plan: PRO`;
@@ -1372,6 +1370,8 @@ async function refreshSubscriptionStatus(user) {
       }
     } else {
       window.flipFinderCurrentUser = user;
+      window.flipFinderPlan = "free";
+      updateFreeAdVisibility();
       accountStatus.textContent = `Signed in as ${user.email} · Plan: FREE`;
       await enforceFreeScanGate(user);
       if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
@@ -1407,6 +1407,7 @@ function updateAccountStatus(user) {
     refreshSubscriptionStatus(user);
   } else {
     window.flipFinderPlan = "free";
+    updateFreeAdVisibility();
     window.flipFinderCurrentUser = null;
     const proButton = document.getElementById("proInfo");
     if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
