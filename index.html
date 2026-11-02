@@ -10,6 +10,8 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/icons/flip-finder-badge.svg">
 <meta name="description" content="Flip Finder — Flip smarter. Earn bigger. Find items, research resale prices, and plan profitable flips.">
+<!-- Google AdSense publisher script. Ad units will be inserted only into compact Free-plan placements. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2275988985021626" crossorigin="anonymous"></script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23087b38'/%3E%3Cpath d='M26 8h26a5 5 0 0 1 5 5v22L35 57a5 5 0 0 1-7 0L13 42a5 5 0 0 1 0-7L26 8Z' fill='%2335e878' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='43' cy='17' r='3' fill='%23fff'/%3E%3C/svg%3E">
 <title>Flip Finder — Flip smarter. Earn bigger.</title>
 <style>
@@ -257,11 +259,12 @@ button.secondary,button.quiet{color:#173d25!important}
 
 
 /* Small, low-distraction sponsored placements: Free only; never show to Pro users. */
-.ff-ad-slot{display:none;margin:14px 0 8px;padding:10px 12px;border:1px solid #294533;border-radius:13px;background:#0b1710;gap:10px;align-items:center;min-height:64px}
+.ff-ad-slot{display:none;margin:12px 0 6px;padding:8px 10px;border:1px solid #223b2b;border-radius:11px;background:#09120d;gap:8px;align-items:center;min-height:52px;max-width:100%;overflow:hidden}
 .ff-ad-slot.is-visible{display:flex}
-.ff-ad-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#91a99a;font-weight:850;white-space:nowrap}
-.ff-ad-copy{flex:1;min-width:0}.ff-ad-copy strong{display:block;color:#e8f7ec;font-size:12px;line-height:1.3}.ff-ad-copy p{font-size:10px;line-height:1.35;margin-top:3px;color:#a8bdae}
-.ff-ad-link{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border:1px solid #315a3e;border-radius:9px;color:#baf4cd;text-decoration:none;font-size:10px;font-weight:850;white-space:nowrap}
+.ff-ad-label{font-size:8px;letter-spacing:.7px;text-transform:uppercase;color:#91a99a;font-weight:800;white-space:nowrap;flex-shrink:0}
+.ff-ad-copy{flex:1;min-width:0}.ff-ad-copy strong{display:block;color:#dcebe0;font-size:11px;line-height:1.25;font-weight:750}.ff-ad-copy p{font-size:9px;line-height:1.3;margin-top:2px;color:#91a99a}
+.ff-ad-link{display:inline-flex;align-items:center;justify-content:center;padding:6px 8px;border:1px solid #294533;border-radius:8px;color:#baf4cd;text-decoration:none;font-size:9px;font-weight:800;white-space:nowrap;flex-shrink:0}
+@media(max-width:380px){.ff-ad-slot{gap:6px;padding:7px 8px}.ff-ad-link{padding:6px;font-size:8px}.ff-ad-copy p{display:none}}
 </style>
 </head>
 <body>
