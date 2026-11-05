@@ -1425,6 +1425,22 @@ function updateAccountStatus(user) {
   }
 }
 
+// Recheck the server-synced Stripe plan when a user returns to the app.
+// This lets Free ads appear promptly after a trial ends or a payment fails,
+// without requiring the user to sign out or manually reload the page.
+let lastPlanRefreshAt = 0;
+async function refreshPlanOnReturn() {
+  const user = window.flipFinderCurrentUser;
+  const now = Date.now();
+  if (!user || now - lastPlanRefreshAt < 15000) return;
+  lastPlanRefreshAt = now;
+  await refreshSubscriptionStatus(user);
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) refreshPlanOnReturn();
+});
+window.addEventListener("focus", refreshPlanOnReturn);
+
 createAccountBtn.addEventListener("click", async () => {
   const email = accountEmail.value.trim();
   const password = accountPassword.value;
