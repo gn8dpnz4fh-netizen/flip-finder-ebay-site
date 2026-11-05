@@ -274,6 +274,12 @@ button.secondary,button.quiet{color:#173d25!important}
   gtag('js', new Date());
   gtag('config', 'G-LZER9MSS7Y');
 </script>
+<script>
+  // Send anonymous product-usage events only. Never include emails, names, photos, or item details.
+  window.flipFinderTrack = function(eventName, params) {
+    if (typeof window.gtag === "function") window.gtag("event", eventName, params || {});
+  };
+</script>
 </head>
 <body>
 <div class="auth-gate" id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
@@ -979,6 +985,7 @@ button.secondary,button.quiet{color:#173d25!important}
       disclaimer.textContent="AI identification and price estimates can be wrong. Check the exact item, condition, and comparable sold listings before buying.";
       $("calculatorMarketResults").appendChild(disclaimer);
       await recordSuccessfulScan();
+      window.flipFinderTrack?.("scan_completed", { scan_type: "photo" });
       toast("AI identification finished.");
     }catch(err){$("coinTitle").textContent="Scan needs attention";$("coinSubtitle").textContent="Try another photo or search by name";const box=document.createElement("div");box.className="status-box";box.textContent="AI scan issue: "+err.message;results.replaceChildren(box);console.error("Image analysis:",err);toast("Could not finish the AI scan.");}
   }
@@ -1142,6 +1149,7 @@ button.secondary,button.quiet{color:#173d25!important}
     status.textContent = "Connecting to Stripe securely…";
     try {
       const accessToken = sessionData.session.access_token;
+      window.flipFinderTrack?.("begin_checkout", { currency: "USD", value: 9.99, plan: "pro_monthly" });
       const response = await fetch(API + "/api/create-checkout-session", {
         method: "POST",
         headers: {
@@ -1316,6 +1324,7 @@ gateSignIn.addEventListener("click", async () => {
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) throw error;
     updateAccountStatus(data.user);
+    window.flipFinderTrack?.("login", { method: "email" });
     gateMessage.textContent = "Signed in successfully.";
   } catch (error) { gateMessage.textContent = "Sign-in failed: " + (error.message || "Please try again."); }
   finally { gateSignIn.disabled = false; }
@@ -1332,8 +1341,10 @@ gateCreate.addEventListener("click", async () => {
     if (error) throw error;
     if (data.session && data.user) {
       updateAccountStatus(data.user);
+      window.flipFinderTrack?.("sign_up", { method: "email" });
       gateMessage.textContent = "Account created successfully.";
     } else {
+      window.flipFinderTrack?.("sign_up", { method: "email", confirmation_required: true });
       gateMessage.textContent = "Account created. Check your email to confirm it, then sign in here.";
       setGateMode("signin");
     }
@@ -1367,6 +1378,10 @@ async function refreshSubscriptionStatus(user) {
 
     if (profile && profile.subscription_status === "pro") {
       window.flipFinderPlan = "pro";
+      if (!window.flipFinderTrialEventSent && profile.trial_ends_at) {
+        window.flipFinderTrack?.("pro_trial_activated", { plan: "pro_monthly" });
+        window.flipFinderTrialEventSent = true;
+      }
       updateFreeAdVisibility();
       window.flipFinderCurrentUser = user;
       $("scanPaywall")?.classList.add("hidden");
