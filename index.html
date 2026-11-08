@@ -1273,7 +1273,15 @@ button.secondary,button.quiet{color:#173d25!important}
 
   const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
+    SUPABASE_PUBLISHABLE_KEY,
+    {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storage: window.localStorage
+      }
+    }
   );
   window.flipFinderAuthenticated = false;
     
@@ -1368,6 +1376,21 @@ async function refreshSubscriptionStatus(user) {
   }
 
   try {
+    // Reconcile with Stripe on every login/refresh so a successful
+    // payment can restore Pro even if a webhook was delayed or missed.
+    try {
+      const { data: authData } = await supabaseClient.auth.getSession();
+      const accessToken = authData?.session?.access_token;
+      if (accessToken) {
+        await fetch(API + "/api/subscription-status", {
+          method: "POST",
+          headers: { "Authorization": "Bearer " + accessToken }
+        });
+      }
+    } catch (syncError) {
+      console.warn("Stripe subscription refresh was unavailable:", syncError);
+    }
+
     const { data: profile, error } = await supabaseClient
       .from("profiles")
       .select("subscription_status, trial_ends_at")
