@@ -1376,7 +1376,11 @@ async function refreshSubscriptionStatus(user) {
 
     if (error) throw error;
 
-    if (profile && profile.subscription_status === "pro") {
+    const trialEndMs = profile?.trial_ends_at ? Date.parse(profile.trial_ends_at) : NaN;
+    const trialExpired = Number.isFinite(trialEndMs) && trialEndMs <= Date.now();
+    const hasPro = !!profile && profile.subscription_status === "pro" && !trialExpired;
+
+    if (hasPro) {
       window.flipFinderPlan = "pro";
       if (!window.flipFinderTrialEventSent && profile.trial_ends_at) {
         window.flipFinderTrack?.("pro_trial_activated", { plan: "pro_monthly" });
@@ -1391,8 +1395,8 @@ async function refreshSubscriptionStatus(user) {
       if (checkoutStatus) {
         checkoutStatus.classList.remove("hidden");
         checkoutStatus.textContent = profile.trial_ends_at
-          ? `Your Pro access is active. Trial ends ${new Date(profile.trial_ends_at).toLocaleDateString()}.`
-          : "Your Pro access is active.";
+          ? `Your Pro trial is active until ${new Date(profile.trial_ends_at).toLocaleDateString()}.`
+          : "Your Pro subscription is active.";
       }
     } else {
       window.flipFinderCurrentUser = user;
