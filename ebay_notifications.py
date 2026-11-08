@@ -608,7 +608,157 @@ def subscription_for_webhook(subscription_id):
     return stripe_object_dict(stripe.Subscription.retrieve(subscription_id))
 
 
+@app.route("/api/subscription-status", methods=["POST"])
+def refresh_subscription_status():
+    """Refresh the signed-in user's plan directly from Stripe."""
+    user = verify_supabase_user()
+    if not user:
+        return jsonify({"error": "Please sign in again"}), 401
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY or not STRIPE_SECRET_KEY:
+        return jsonify({"error": "Subscription service is not configured"}), 503
+
+    try:
+        query = urllib.parse.urlencode({
+            "select": "stripe_customer_id,stripe_subscription_id",
+            "id": "eq." + str(user["id"]),
+            "limit": "1",
+        })
+        req = urllib.request.Request(
+            SUPABASE_URL + "/rest/v1/profiles?" + query,
+            headers={
+                "apikey": SUPABASE_SERVICE_ROLE_KEY,
+                "Authorization": "Bearer " + SUPABASE_SERVICE_ROLE_KEY,
+            },
+            method="GET",
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            rows = json.loads(response.read().decode("utf-8"))
+        if not rows or not rows[0].get("stripe_subscription_id"):
+            return jsonify({"plan": "free", "reason": "No subscription is linked"}), 200
+
+        profile = rows[0]
+        subscription = stripe_object_dict(
+            stripe.Subscription.retrieve(profile["stripe_subscription_id"])
+        )
+        # Verify the subscription belongs to the customer linked to this profile.
+        if profile.get("stripe_customer_id") and subscription.get("customer") != profile["stripe_customer_id"]:
+            logging.error("Stripe customer/subscription mismatch for authenticated profile")
+            return jsonify({"error": "Subscription ownership could not be verified"}), 409
+
+        status = subscription.get("status", "canceled")
+        update_supabase_profile(
+            user["id"],
+            subscription.get("customer") or profile.get("stripe_customer_id"),
+            subscription.get("id"),
+            status,
+            timestamp_to_iso(subscription.get("trial_end")),
+        )
+        return jsonify({
+            "plan": "pro" if status in ("active", "trialing") else "free",
+            "stripe_status": status,
+        }), 200
+    except Exception:
+        logging.exception("Could not refresh signed-in user's Stripe subscription")
+        return jsonify({"error": "Subscription status refresh failed"}), 502
+
+
 @app.route("/stripe/webhook", methods=["POST"])
+def stripe_webhook():
+    webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "").strip()
+    if not webhook_secret:
+        logging.error("Stripe webhook secret is missing")
+        return jsonify({"error": "Webhook not configured"}), 503
+    try:
+        event = stripe.Webhook.construct_event(
+            request.get_data(),
+            request.headers.get("Stripe-Signature", ""),
+            webhook_secret,
+        )
+    except (ValueError, stripe.error.SignatureVerificationError):
+        return jsonify({"error": "Invalid webhook"}), 400
+
+    event_type = event["type"]
+    obj = stripe_object_dict(event["data"]["object"])
+    try:
+        if event_type == "checkout.session.completed":
+            subscription_id = obj.get("subscription")
+            subscription = subscription_for_webhook(subscription_id)
+            metadata = subscription.get("metadata") or {}
+            user_id = (
+                obj.get("client_reference_id")
+                or (obj.get("metadata") or {}).get("supabase_user_id")
+                or metadata.get("supabase_user_id")
+            )
+            if not user_id or not subscription_id:
+                logging.warning("Checkout session missing user or subscription ID")
+                return jsonify({"received": True}), 200
+            update_supabase_profile(
+                user_id, obj.get("customer"), subscription_id,
+                subscription.get("status", "incomplete"),
+                timestamp_to_iso(subscription.get("trial_end")),
+            )
+
+        elif event_type in (
+            "customer.subscription.created",
+            "customer.subscription.updated",
+            "customer.subscription.deleted",
+            "customer.subscription.paused",
+            "customer.subscription.resumed",
+        ):
+            subscription_id = obj.get("id")
+            subscription = obj if event_type == "customer.subscription.deleted" else (
+                subscription_for_webhook(subscription_id) or obj
+            )
+            customer_id = subscription.get("customer") or obj.get("customer")
+            metadata = subscription.get("metadata") or obj.get("metadata") or {}
+            user_id = metadata.get("supabase_user_id") or find_supabase_user_id(customer_id)
+            if not user_id:
+                logging.warning("Subscription event has no matching Supabase profile")
+                return jsonify({"received": True}), 200
+            update_supabase_profile(
+                user_id, customer_id, subscription_id,
+                subscription.get("status", "canceled"),
+                timestamp_to_iso(subscription.get("trial_end")),
+            )
+
+        elif event_type in (
+            "invoice.payment_failed",
+            "invoice.payment_action_required",
+            "invoice.payment_succeeded",
+        ):
+            subscription_id = obj.get("subscription")
+            if isinstance(subscription_id, dict):
+                subscription_id = subscription_id.get("id")
+            if not subscription_id:
+                details = (obj.get("parent") or {}).get("subscription_details") or {}
+                subscription_id = details.get("subscription")
+                if isinstance(subscription_id, dict):
+                    subscription_id = subscription_id.get("id")
+            subscription = subscription_for_webhook(subscription_id)
+            customer_id = subscription.get("customer") or obj.get("customer")
+            metadata = subscription.get("metadata") or obj.get("metadata") or {}
+            user_id = metadata.get("supabase_user_id") or find_supabase_user_id(customer_id)
+            if not user_id or not subscription_id:
+                logging.warning("Invoice event has no matching subscription/profile")
+                return jsonify({"received": True}), 200
+            current_status = subscription.get("status", "past_due")
+            if event_type in ("invoice.payment_failed", "invoice.payment_action_required"):
+                current_status = "past_due"
+            update_supabase_profile(
+                user_id, customer_id, subscription_id, current_status,
+                timestamp_to_iso(subscription.get("trial_end")),
+            )
+
+        logging.info("Stripe webhook processed: %s", event_type)
+        return jsonify({"received": True}), 200
+    except Exception:
+        logging.exception("Could not sync Stripe subscription to Supabase")
+        return jsonify({"error": "Subscription sync failed"}), 500
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")), debug=False)
+
 def stripe_webhook():
     webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "").strip()
     if not webhook_secret:
