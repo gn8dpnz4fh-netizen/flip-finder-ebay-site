@@ -602,7 +602,7 @@ button.secondary,button.quiet{color:#173d25!important}
   function money(n) { return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(Number(n)||0); }
   function safeText(value) { return String(value == null ? "" : value); }
   function toast(message) { const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2700); }
-  const FREE_SCAN_LIMIT = 5; // Retained for compatibility; Free mode is ad-supported rather than blocked.
+  const FREE_SCAN_LIMIT = 5;
   function updateFreeAdVisibility() {
     const isPro = window.flipFinderPlan === "pro";
     document.querySelectorAll("[data-free-ad]").forEach(slot => {
@@ -611,18 +611,34 @@ button.secondary,button.quiet{color:#173d25!important}
     });
   }
   function scanCountKey(userId) { return "flipfinder_successful_scans_" + (userId || "this_device"); }
+  function getSuccessfulScanCount(userId) {
+    try { return Math.max(0, Number(localStorage.getItem(scanCountKey(userId))) || 0); }
+    catch (_) { return 0; }
+  }
   async function recordSuccessfulScan() {
-    // Free users can keep using core scanning; ads support the free plan.
-    updateFreeAdVisibility();
+    if (window.flipFinderPlan !== "pro") {
+      const userId = window.flipFinderCurrentUser?.id || null;
+      const count = getSuccessfulScanCount(userId) + 1;
+      try { localStorage.setItem(scanCountKey(userId), String(count)); } catch (_) {}
+      updateFreeAdVisibility();
+      if (count >= FREE_SCAN_LIMIT) {
+        stopCamera();
+        $("scanPaywall")?.classList.remove("hidden");
+      }
+    }
   }
   async function enforceFreeScanGate(user) {
-    // Never force a subscription to continue using Free mode.
-    $("scanPaywall")?.classList.add("hidden");
+    const count = getSuccessfulScanCount(user?.id || null);
+    if (window.flipFinderPlan !== "pro" && count >= FREE_SCAN_LIMIT) {
+      $("scanPaywall")?.classList.remove("hidden");
+    } else {
+      $("scanPaywall")?.classList.add("hidden");
+    }
     updateFreeAdVisibility();
   }
   function freeScanLimitReached() {
-    // Free mode remains available; Pro unlocks the ad-free experience.
-    return false;
+    if (window.flipFinderPlan === "pro") return false;
+    return getSuccessfulScanCount(window.flipFinderCurrentUser?.id || null) >= FREE_SCAN_LIMIT;
   }
 
   function showPage(id) {
@@ -960,8 +976,9 @@ button.secondary,button.quiet{color:#173d25!important}
     try{
       const {data: authData}=await supabaseClient.auth.getSession();
       const accessToken=authData?.session?.access_token;
-      if(!accessToken){throw new Error("Please sign in again before scanning.");}
-      const response=await fetch(API+"/api/analyze-image",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+accessToken},body:JSON.stringify({image:photoData,itemName:$("itemName").value.trim()})});
+      const scanHeaders={"Content-Type":"application/json"};
+      if(accessToken) scanHeaders.Authorization="Bearer "+accessToken;
+      const response=await fetch(API+"/api/analyze-image",{method:"POST",headers:scanHeaders,body:JSON.stringify({image:photoData,itemName:$("itemName").value.trim()})});
       const data=await response.json().catch(()=>({}));
       if(response.status===402||data.code==="FREE_SCANS_EXHAUSTED"){stopCamera();$("scanPaywall")?.classList.remove("hidden");throw new Error("You've used your 5 free scans. Start the 7-day Pro trial to continue.");}
       if(!response.ok||!data.success||!data.analysis)throw new Error(data.error||"AI identification failed. Try another photo.");
@@ -1473,7 +1490,7 @@ function updateAccountStatus(user) {
     if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
     const checkoutStatus = document.getElementById("proCheckoutStatus");
     if (checkoutStatus) { checkoutStatus.classList.add("hidden"); checkoutStatus.textContent = ""; }
-    hideAuthGate();
+    showAuthGate();
     window.dispatchEvent(new Event("flipfinder:authenticated"));
     accountStatus.textContent =
       "Using Flip Finder free without an account. Your saved flips remain on this device.";
