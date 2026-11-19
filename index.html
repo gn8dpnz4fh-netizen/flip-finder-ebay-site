@@ -282,19 +282,20 @@ button.secondary,button.quiet{color:#173d25!important}
 </script>
 </head>
 <body>
-<div class="auth-gate" id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+<div class="auth-gate hidden" id="authGate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
   <div class="auth-panel">
     <div class="auth-brand"><svg class="ff-logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M5 23h15M1 32h13M6 41h10" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M27 7h25a5 5 0 0 1 5 5v22L35 57a5 5 0 0 1-7 0L13 42a5 5 0 0 1 0-7L27 7Z" fill="url(#ffg)" stroke="#064b28" stroke-width="2"/><circle cx="43" cy="16" r="3" fill="#d7ffe4"/><g transform="translate(23 19) rotate(-28 12 13)"><rect x="1" y="7" width="29" height="17" rx="3" fill="#effff2" stroke="#064b28" stroke-width="1.8"/><rect x="5" y="3" width="29" height="17" rx="3" fill="#a7efb8" stroke="#064b28" stroke-width="1.8"/><rect x="9" y="0" width="29" height="17" rx="3" fill="#f6fff7" stroke="#064b28" stroke-width="1.8"/><path d="M13 4h21M13 13h21" stroke="#159447" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="23.5" cy="8.5" rx="4.2" ry="3.3" fill="#24b957" stroke="#064b28" stroke-width="1"/><path d="M22 8c1-2 4-1 3 0s-3 1-2 2 3 0 3-1" fill="none" stroke="#fff" stroke-width="1"/></g><defs><linearGradient id="ffg" x1="14" y1="8" x2="57" y2="57" gradientUnits="userSpaceOnUse"><stop stop-color="#35e878"/><stop offset="1" stop-color="#047132"/></linearGradient></defs></svg><span class="ff-wordmark">Flip<span>Finder</span></span></div>
     <p>Flip smarter. Earn bigger.</p>
-    <h1 id="authTitle">Sign in to continue</h1>
-    <p>Create an account or sign in to use Flip Finder and start your Pro trial.</p>
+    <h1 id="authTitle">Sign in or create an account</h1>
+    <p>You can use Flip Finder free without an account. Sign in or create an account here when you choose to start your Pro trial.</p>
     <label class="field"><span>Email address</span><input id="gateEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
     <label class="field"><span>Password</span><input id="gatePassword" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters" required></label>
     <label class="field hidden" id="gateNameWrap"><span>Your name (optional)</span><input id="gateName" type="text" autocomplete="name" placeholder="Your name"></label>
     <button class="primary wide" id="gateSignIn" type="button">Sign In</button>
     <button class="secondary wide" id="gateCreate" type="button" style="margin-top:9px">Create Account</button>
     <div class="auth-message" id="gateMessage" aria-live="polite"></div>
-    <p class="note">Your account keeps your sign-in tied to you. Pro is optional and starts with a 7-day free trial.</p>
+    <p class="note">Pro is optional: 7 days free, then $9.99/month unless you cancel before the trial ends.</p>
+    <button class="secondary wide" id="gateContinueFree" type="button">Not now — keep using Flip Finder free</button>
   </div>
 </div>
 <div class="scan-paywall hidden" id="scanPaywall" role="dialog" aria-modal="true" aria-labelledby="scanPaywallTitle">
@@ -1310,10 +1311,12 @@ function showAuthGate() {
   gateEmail.focus({ preventScroll: true });
 }
 function hideAuthGate() {
-  window.flipFinderAuthenticated = true;
+  window.flipFinderAuthenticated = true; // The app is available in anonymous Free mode too.
   authGate.classList.add("hidden");
   document.body.style.overflow = "";
 }
+const gateContinueFree = document.getElementById("gateContinueFree");
+if (gateContinueFree) gateContinueFree.addEventListener("click", hideAuthGate);
 function setGateMode(mode) {
   gateMode = mode;
   gateNameWrap.classList.toggle("hidden", mode !== "create");
@@ -1332,8 +1335,10 @@ gateSignIn.addEventListener("click", async () => {
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) throw error;
     updateAccountStatus(data.user);
+    await refreshSubscriptionStatus(data.user);
     window.flipFinderTrack?.("login", { method: "email" });
-    gateMessage.textContent = "Signed in successfully.";
+    gateMessage.textContent = "Signed in successfully. Opening secure checkout…";
+    document.getElementById("proInfo")?.click();
   } catch (error) { gateMessage.textContent = "Sign-in failed: " + (error.message || "Please try again."); }
   finally { gateSignIn.disabled = false; }
 });
@@ -1349,8 +1354,10 @@ gateCreate.addEventListener("click", async () => {
     if (error) throw error;
     if (data.session && data.user) {
       updateAccountStatus(data.user);
+      await refreshSubscriptionStatus(data.user);
       window.flipFinderTrack?.("sign_up", { method: "email" });
-      gateMessage.textContent = "Account created successfully.";
+      gateMessage.textContent = "Account created successfully. Opening secure checkout…";
+      document.getElementById("proInfo")?.click();
     } else {
       window.flipFinderTrack?.("sign_up", { method: "email", confirmation_required: true });
       gateMessage.textContent = "Account created. Check your email to confirm it, then sign in here.";
@@ -1466,9 +1473,10 @@ function updateAccountStatus(user) {
     if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
     const checkoutStatus = document.getElementById("proCheckoutStatus");
     if (checkoutStatus) { checkoutStatus.classList.add("hidden"); checkoutStatus.textContent = ""; }
-    showAuthGate();
+    hideAuthGate();
+    window.dispatchEvent(new Event("flipfinder:authenticated"));
     accountStatus.textContent =
-      "Not signed in. Your saved flips remain on this device.";
+      "Using Flip Finder free without an account. Your saved flips remain on this device.";
     createAccountBtn.hidden = false;
     signInBtn.hidden = false;
     signOutBtn.hidden = true;
