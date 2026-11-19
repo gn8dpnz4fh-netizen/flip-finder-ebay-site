@@ -1490,7 +1490,7 @@ function updateAccountStatus(user) {
     if (proButton) { proButton.textContent = "Start 7-Day Free Trial"; proButton.disabled = false; }
     const checkoutStatus = document.getElementById("proCheckoutStatus");
     if (checkoutStatus) { checkoutStatus.classList.add("hidden"); checkoutStatus.textContent = ""; }
-    showAuthGate();
+    hideAuthGate();
     window.dispatchEvent(new Event("flipfinder:authenticated"));
     accountStatus.textContent =
       "Using Flip Finder free without an account. Your saved flips remain on this device.";
