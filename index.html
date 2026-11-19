@@ -610,7 +610,7 @@ button.secondary,button.quiet{color:#173d25!important}
       slot.setAttribute("aria-hidden", isPro ? "true" : "false");
     });
   }
-  function scanCountKey(userId) { return "flipfinder_successful_scans_" + (userId || "this_device"); }
+  function scanCountKey(_userId) { return "flipfinder_successful_scans_this_device"; }
   function getSuccessfulScanCount(userId) {
     try { return Math.max(0, Number(localStorage.getItem(scanCountKey(userId))) || 0); }
     catch (_) { return 0; }
